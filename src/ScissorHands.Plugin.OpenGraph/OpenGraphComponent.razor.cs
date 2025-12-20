@@ -57,12 +57,9 @@ public partial class OpenGraphComponent : PluginComponentBase
             return;
         }
 
-        TwitterSiteId = Plugin.Options!.TryGetValue("TwitterSiteId", out var siteIdValue)
-                        ? siteIdValue as string
-                        : default;
-        TwitterCreatorId = Plugin.Options!.TryGetValue("TwitterCreatorId", out var creatorIdValue)
-                            ? creatorIdValue as string
-                            : default;
+        TwitterSiteId = Plugin.Options?["TwitterSiteId"] is string siteIdValue ? siteIdValue : default;
+
+        TwitterCreatorId = Plugin.Options?["TwitterCreatorId"] is string creatorIdValue ? creatorIdValue : default;
         TwitterCreatorId = Document?.Metadata.TwitterHandle is null ? TwitterCreatorId : Document.Metadata.TwitterHandle;
         if (Documents?.Any() == true || Document?.Kind == ContentKind.Page)
         {

@@ -20,8 +20,13 @@ public partial class GoogleAnalyticsComponent : PluginComponentBase
             return;
         }
 
-        MeasurementId = Plugin.Options!.TryGetValue("MeasurementId", out var measurementIdValue)
-                        ? measurementIdValue as string
-                        : default;
+        if (Plugin.Options?.ContainsKey("MeasurementId") != true)
+        {
+            return;
+        }
+
+        MeasurementId = Plugin.Options?["MeasurementId"] is string measurementIdValue
+                            ? measurementIdValue
+                            : default;
     }
 }

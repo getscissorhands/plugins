@@ -29,8 +29,13 @@ public class GoogleAnalyticsPlugin : ContentPlugin
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var measurementId = plugin.Options!.TryGetValue("MeasurementId", out var id)
-                                ? id as string
+        if (plugin.Options?.ContainsKey("MeasurementId") != true)
+        {
+            return html;
+        }
+
+        var measurementId = plugin.Options?["MeasurementId"] is string measurementIdValue
+                                ? measurementIdValue
                                 : default;
         if (measurementId is null)
         {

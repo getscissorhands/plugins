@@ -71,6 +71,28 @@ public class GoogleAnalyticsComponentTests
 	}
 
 	[Fact]
+	public void Given_MeasurementIdKeyMissing_When_Rendered_Then_It_Should_Not_Throw_And_Should_Not_Contain_Any_Id()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var plugin = new PluginManifest
+		{
+			Options = new Dictionary<string, object?>()
+		};
+
+		// Act
+		var cut = ctx.Render<GoogleAnalyticsComponent>(ps => ps
+			.Add(p => p.Plugin, plugin));
+
+		// Assert
+		cut.WaitForAssertion(() =>
+		{
+			cut.Markup.ShouldNotContain("gtag/js?id=G-");
+			cut.Markup.ShouldNotContain("gtag('config', 'G-");
+		});
+	}
+
+	[Fact]
 	public void Given_NonStringMeasurementId_When_Rendered_Then_It_Should_Not_Throw_And_Should_Not_Contain_Any_Id()
 	{
 		// Arrange

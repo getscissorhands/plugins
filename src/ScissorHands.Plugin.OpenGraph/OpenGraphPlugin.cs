@@ -36,18 +36,17 @@ public class OpenGraphPlugin : ContentPlugin
         cancellationToken.ThrowIfCancellationRequested();
 
         var template = OPEN_GRAPH_TEMPLATE;
-        var siteId = plugin.Options!.TryGetValue("TwitterSiteId", out var siteIdValue)
-                            ? siteIdValue as string
-                            : default;
+
+        var siteId = plugin.Options?["TwitterSiteId"] is string siteIdValue ? siteIdValue : default;
+
         template = siteId is null
                     ? template.Replace("{{TWITTER_CARD_SITE}}", string.Empty, StringComparison.OrdinalIgnoreCase)
                     : template.Replace("{{TWITTER_CARD_SITE}}", $"<meta name=\"twitter:site\" content=\"{siteId}\">", StringComparison.OrdinalIgnoreCase);
 
-        var creatorId = plugin.Options!.TryGetValue("TwitterCreatorId", out var creatorIdValue)
-                               ? creatorIdValue as string
-                               : default;
+        var creatorId = plugin.Options?["TwitterCreatorId"] is string creatorIdValue ? creatorIdValue : default;
         creatorId = document.Metadata.TwitterHandle is null ? creatorId : document.Metadata.TwitterHandle;
         creatorId = document.Kind == ContentKind.Post ? creatorId : default;
+
         template = creatorId is null
                     ? template.Replace("{{TWITTER_CARD_CREATOR}}", string.Empty, StringComparison.OrdinalIgnoreCase)
                     : template.Replace("{{TWITTER_CARD_CREATOR}}", $"<meta name=\"twitter:creator\" content=\"{creatorId}\">", StringComparison.OrdinalIgnoreCase);
