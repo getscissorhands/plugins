@@ -38,6 +38,8 @@ This plugin renders the [Open Graph](https://ogp.me/) tags.
     }
     ```
 
+   > **NOTE**: If you don't have any of both, you can omit the property. For example, you can omit both properties like `"Options": {}`.
+
 1. Add a NuGet package.
 
     ```bash
