@@ -93,6 +93,7 @@ jobs:
       shell: pwsh
       run: |
         dotnet pack ./src/ScissorHands.Plugin.GoogleAnalytics -c Release -o published --include-symbols -p:Version=${{ steps.version.outputs.value }}
+        dotnet pack ./src/ScissorHands.Plugin.OpenGraph -c Release -o published --include-symbols -p:Version=${{ steps.version.outputs.value }}
 
     - name: Upload Artifact
       if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.os == 'ubuntu-latest' }}

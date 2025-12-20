@@ -4,9 +4,10 @@ Collection of the official plugins for ScissorHands.NET
 
 ## List of Plugins
 
-| Name                                                                    | Description                    |
-|-------------------------------------------------------------------------|--------------------------------|
-| [Google Analytics](./src/ScissorHands.Plugin.GoogleAnalytics/README.md) | Google Analytics script plugin |
+| Name                                                                    | Description             |
+|-------------------------------------------------------------------------|-------------------------|
+| [Google Analytics](./src/ScissorHands.Plugin.GoogleAnalytics/README.md) | Google Analytics plugin |
+| [Open Graph](./src/ScissorHands.Plugin.OpenGraph/README.md)             | Open Graph plugin       |
 
 ## Build Your Plugin
 
@@ -43,17 +44,17 @@ Collection of the official plugins for ScissorHands.NET
     {
         public override string Name => "My Awesome ScissorHands Plugin";
     
-        public override async Task<ContentDocument> PreMarkdownAsync(ContentDocument document, PluginManifest manifest, CancellationToken cancellationToken = default)
+        public override async Task<ContentDocument> PreMarkdownAsync(ContentDocument document, PluginManifest plugin, SiteManifest site, CancellationToken cancellationToken = default)
         {
             // ADD LOGIC HERE
         }
     
-        public override async Task<ContentDocument> PostMarkdownAsync(ContentDocument document, PluginManifest manifest, CancellationToken cancellationToken = default)
+        public override async Task<ContentDocument> PostMarkdownAsync(ContentDocument document, PluginManifest plugin, SiteManifest site, CancellationToken cancellationToken = default)
         {
             // ADD LOGIC HERE
         }
     
-        public override async Task<string> PostHtmlAsync(string html, ContentDocument document, PluginManifest manifest, CancellationToken cancellationToken = default)
+        public override async Task<string> PostHtmlAsync(string html, ContentDocument document, PluginManifest plugin, SiteManifest site, CancellationToken cancellationToken = default)
         {
             // ADD LOGIC HERE
         }

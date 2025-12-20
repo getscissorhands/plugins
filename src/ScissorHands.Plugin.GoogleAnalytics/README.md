@@ -43,11 +43,30 @@ This plugin renders [Google Analytics](https://analytics.google.com) script.
     dotnet add package ScissorHands.Plugin.GoogleAnalytics --prerelease
     ```
 
-1. Add the placeholder, `<plugin:google-analytics />`, to `MainLayout.razor`.
+1. Add a UI component, `<GoogleAnalyticsComponent />` with parameters, to `MainLayout.razor`. **It's strongly advised to place right after the opening `<head>` tag.**
+
+    ```razor
+    <GoogleAnalyticsComponent Documents="@Documents" Document="@Document" Plugin="@GoogleAnalyticsPlugin" Theme="@Theme" Site="@Site" />
+
+    @code {
+        protected PluginManifest? GoogleAnalyticsPlugin { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+            await base.OnInitializedAsync();
+    
+            GoogleAnalyticsPlugin = Plugins?.SingleOrDefault(p => p.Name!.Equals("Google Analytics", StringComparison.OrdinalIgnoreCase));
+        }
+    }    
+    ```
+
+   > **NOTE**: Those `@Documents`, `@Document`, `@Theme` and `@Site` values are inherited, and the `@GoogleAnalyticsPlugin` value is calculated from the `OnInitializedAsync()` method.
+
+1. Alternatively, instead of the `<GoogleAnalyticsComponent />` component, add the placeholder, `<plugin:google-analytics />`, to `MainLayout.razor`. **It's strongly advised to place right after the opening `<head>` tag**.
 
     ```html
-        <!-- Add placeholder below -->
+    <html>
+    <head>
         <plugin:google-analytics />
-    </body>
-    </html>
+        ...
     ```
