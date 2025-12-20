@@ -14,10 +14,10 @@ public class GoogleAnalyticsPluginTests
     public void When_Instantiated_Then_Name_Should_Be(string name)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
+        var pg = new GoogleAnalyticsPlugin();
 
         // Act
-        var result = plugin.Name;
+        var result = pg.Name;
 
         // Assert
         result.ShouldBe(name);
@@ -28,15 +28,16 @@ public class GoogleAnalyticsPluginTests
     public void Given_CancellationToken_When_PostHtmlAsync_Invoked_Then_It_Should_Throw_TaskCanceledException(Type exception)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
+        var pg = new GoogleAnalyticsPlugin();
         var html = string.Empty;
         var document = new ContentDocument();
-        var manifest = new PluginManifest();
+        var plugin = new PluginManifest();
+        var site = new SiteManifest();
         var cancellationTokenSource = new CancellationTokenSource();
         cancellationTokenSource.Cancel();
 
         // Act
-        Func<Task> func = async () => await plugin.PostHtmlAsync(html, document, manifest, cancellationTokenSource.Token);
+        Func<Task> func = async () => await pg.PostHtmlAsync(html, document, plugin, site, cancellationTokenSource.Token);
 
         // Assert
         func.ShouldThrow(exception);
@@ -47,18 +48,19 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_InvalidOption_When_PostHtmlAsync_Invoked_Then_It_Should_Return_OriginalHtml(string html)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
+        var pg = new GoogleAnalyticsPlugin();
         var document = new ContentDocument();
-        var manifest = new PluginManifest
+        var plugin = new PluginManifest
         {
             Options = new Dictionary<string, object?>
             {
                 { "SomeOtherKey", "SomeValue" }
             }
         };
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
 
         // Assert
         result.ShouldBe(html);
@@ -69,18 +71,13 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_NoMeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Return_OriginalHtml(string html)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var manifest = new PluginManifest
-        {
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", null! }
-            }
-        };
+        var pg = new GoogleAnalyticsPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(measurementId: null);
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
 
         // Assert
         result.ShouldBe(html);
@@ -91,18 +88,13 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_MeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Replace_Placeholder(string html, string measurementId)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var manifest = new PluginManifest
-        {
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId }
-            }
-        };
+        var pg = new GoogleAnalyticsPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(measurementId: measurementId);
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
 
         // Assert
         result.ShouldContain($"https://www.googletagmanager.com/gtag/js?id={measurementId}");
@@ -116,18 +108,13 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_MeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Insert_GoogleTagScript(string html, string measurementId)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var manifest = new PluginManifest
-        {
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId }
-            }
-        };
+        var pg = new GoogleAnalyticsPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(measurementId: measurementId);
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
 
         // Assert
         result.ShouldContain("<!-- Google tag (gtag.js) -->");
@@ -142,18 +129,13 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_HTML_When_PostHtmlAsync_Invoked_Then_It_Should_Return_OriginalHtml(string html, string measurementId)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var manifest = new PluginManifest
-        {
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId }
-            }
-        };
+        var pg = new GoogleAnalyticsPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(measurementId: measurementId);
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
 
         // Assert
         result.ShouldBe(html);
@@ -164,18 +146,13 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_Multiple_Placeholders_When_PostHtmlAsync_Invoked_Then_It_Should_Replace_AllOccurrences(string html, string measurementId, int expected)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var manifest = new PluginManifest
-        {
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId }
-            }
-        };
+        var pg = new GoogleAnalyticsPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(measurementId: measurementId);
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
         var count = GoogleTagRegex.Count(result);
 
         // Assert
@@ -188,19 +165,14 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_EmptyHTML_When_PostHtmlAsync_Invoked_Then_It_Should_Return_EmptyString(string measurementId)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
+        var pg = new GoogleAnalyticsPlugin();
         var html = string.Empty;
-        var document = new ContentDocument();
-        var manifest = new PluginManifest
-        {
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId }
-            }
-        };
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(measurementId: measurementId);
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
 
         // Assert
         result.ShouldBe(string.Empty);
@@ -211,20 +183,67 @@ public class GoogleAnalyticsPluginTests
     public async Task Given_NonStringMeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Return_OriginalHtml(string html, object measurementId)
     {
         // Arrange
-        var plugin = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var manifest = new PluginManifest
-        {
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId }
-            }
-        };
+        var pg = new GoogleAnalyticsPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(measurementId: measurementId as string);
+        var site = CreateSiteManifest();
 
         // Act
-        var result = await plugin.PostHtmlAsync(html, document, manifest);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
 
         // Assert
         result.ShouldBe(html);
+    }
+
+    private static ContentDocument CreateDocument(
+        ContentKind kind,
+        string title,
+        string slug,
+        string? description = "Document description",
+        string? heroImage = "/images/doc-hero.png",
+        string? twitterHandle = null)
+    {
+        return new ContentDocument
+        {
+            Kind = kind,
+            Metadata = new ContentMetadata
+            {
+                Title = title,
+                Slug = slug,
+                Description = description,
+                HeroImage = heroImage,
+                TwitterHandle = twitterHandle,
+            }
+        };
+    }
+
+    private static PluginManifest CreatePluginManifest(string? measurementId = null)
+    {
+        return new PluginManifest
+        {
+            Options = new Dictionary<string, object?>
+            {
+                { "MeasurementId", measurementId },
+            }
+        };
+    }
+
+    private static SiteManifest CreateSiteManifest(
+        string siteUrl = "https://example.com",
+        string baseUrl = "",
+        string title = "Site title",
+        string description = "Site description",
+        string locale = "en-US",
+        string heroImage = "/images/site-hero.png")
+    {
+        return new SiteManifest
+        {
+            SiteUrl = siteUrl,
+            BaseUrl = baseUrl,
+            Title = title,
+            Description = description,
+            Locale = locale,
+            HeroImage = heroImage,
+        };
     }
 }
