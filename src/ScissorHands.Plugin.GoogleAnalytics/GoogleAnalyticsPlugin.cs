@@ -1,4 +1,4 @@
-﻿using ScissorHands.Core.Manifests;
+using ScissorHands.Core.Manifests;
 using ScissorHands.Core.Models;
 
 namespace ScissorHands.Plugin.GoogleAnalytics;
@@ -25,11 +25,11 @@ public class GoogleAnalyticsPlugin : ContentPlugin
     public override string Name => "Google Analytics";
 
     /// <inheritdoc />
-    public override async Task<string> PostHtmlAsync(string html, ContentDocument document, PluginManifest manifest, CancellationToken cancellationToken = default)
+    public override async Task<string> PostHtmlAsync(string html, ContentDocument document, PluginManifest plugin, SiteManifest site, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var measurementId = manifest.Options!.TryGetValue("MeasurementId", out var id)
+        var measurementId = plugin.Options!.TryGetValue("MeasurementId", out var id)
                                 ? id as string
                                 : default;
         if (measurementId is null)
@@ -37,7 +37,7 @@ public class GoogleAnalyticsPlugin : ContentPlugin
             return html;
         }
 
-        var script = GOOGLE_ANALYTICS_SCRIPT.Replace("{{MEASUREMENT_ID}}", measurementId);
+        var script = GOOGLE_ANALYTICS_SCRIPT.Replace("{{MEASUREMENT_ID}}", measurementId, StringComparison.OrdinalIgnoreCase);
 
         html = html.Replace(PLACEHOLDER, $"\n{script}\n", StringComparison.OrdinalIgnoreCase);
 

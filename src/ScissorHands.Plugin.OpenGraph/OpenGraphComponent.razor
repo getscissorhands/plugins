@@ -1,0 +1,22 @@
+﻿@inherits ScissorHands.Plugin.PluginComponentBase
+
+<meta property="og:title" content="@ContentTitle" />
+<meta property="og:description" content="@ContentDescription" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="@ContentLocale" />
+<meta property="og:url" content="@ContentUrl" />
+<meta property="og:image" content="@HeroImageUrl" />
+<meta property="og:site_name" content="@SiteName" />
+
+<meta name="twitter:card" content="summary_large_image">
+@if (string.IsNullOrWhiteSpace(TwitterSiteId) == false)
+{
+    <meta name="twitter:site" content="@TwitterSiteId">
+}
+@if (string.IsNullOrWhiteSpace(TwitterCreatorId) == false)
+{
+    <meta name="twitter:creator" content="@TwitterCreatorId">
+}
+<meta name="twitter:title" content="@ContentTitle">
+<meta name="twitter:description" content="@ContentDescription">
+<meta name="twitter:image" content="@HeroImageUrl">
