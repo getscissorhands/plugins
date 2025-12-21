@@ -20,13 +20,13 @@ public partial class GoogleAnalyticsComponent : PluginComponentBase
             return;
         }
 
-        if (Plugin.Options?.ContainsKey("MeasurementId") != true)
+        if (Plugin.Options is null)
         {
             return;
         }
 
-        MeasurementId = Plugin.Options?["MeasurementId"] is string measurementIdValue
-                            ? measurementIdValue
+        MeasurementId = Plugin.Options.TryGetValue("MeasurementId", out var measurementIdValue) && measurementIdValue is string measurementIdString
+                            ? measurementIdString
                             : default;
     }
 }

@@ -25,6 +25,25 @@ public class GoogleAnalyticsComponentTests
 		render.ShouldNotThrow();
 	}
 
+	[Fact]
+	public void Given_NullPluginOptions_When_Rendered_Then_It_Should_Not_Throw_And_Should_Not_Contain_Any_Id()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var plugin = new PluginManifest { Options = null };
+
+		// Act
+		var cut = ctx.Render<GoogleAnalyticsComponent>(ps => ps
+			.Add(p => p.Plugin, plugin));
+
+		// Assert
+		cut.WaitForAssertion(() =>
+		{
+			cut.Markup.ShouldNotContain("gtag/js?id=G-");
+			cut.Markup.ShouldNotContain("gtag('config', 'G-");
+		});
+	}
+
 	[Theory]
 	[InlineData("G-XXXXXXXXXX")]
 	public void Given_MeasurementId_When_Rendered_Then_It_Should_Render_GtagScript_With_Id(string measurementId)

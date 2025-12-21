@@ -26,6 +26,29 @@ public class OpenGraphComponentTests
 	}
 
 	[Fact]
+	public void Given_NullPluginOptions_When_Rendered_Then_It_Should_Not_Render_Twitter_MetaTags()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var plugin = new PluginManifest { Options = null };
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+		var site = CreateSiteManifest();
+
+		// Act
+		var cut = ctx.Render<OpenGraphComponent>(ps => ps
+			.Add(p => p.Plugin, plugin)
+			.Add(p => p.Document, document)
+			.Add(p => p.Site, site));
+
+		// Assert
+		cut.WaitForAssertion(() =>
+		{
+			cut.FindAll("meta[name='twitter:site']").Count.ShouldBe(0);
+			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
+		});
+	}
+
+	[Fact]
 	public void Given_TwitterOptionsAndPost_When_Rendered_Then_It_Should_Render_TwitterSite_And_Creator_MetaTags()
 	{
 		// Arrange

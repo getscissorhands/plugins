@@ -29,18 +29,11 @@ public class GoogleAnalyticsPlugin : ContentPlugin
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (plugin.Options?.ContainsKey("MeasurementId") != true)
-        {
-            return html;
-        }
-
-        var measurementId = plugin.Options?["MeasurementId"] is string measurementIdValue
-                                ? measurementIdValue
-                                : default;
-        if (measurementId is null)
-        {
-            return html;
-        }
+        var measurementId = plugin.Options is null
+            ? default
+            : plugin.Options.TryGetValue("MeasurementId", out var measurementIdValue) && measurementIdValue is string measurementIdString
+                ? measurementIdString
+                : default;
 
         var script = GOOGLE_ANALYTICS_SCRIPT.Replace("{{MEASUREMENT_ID}}", measurementId, StringComparison.OrdinalIgnoreCase);
 

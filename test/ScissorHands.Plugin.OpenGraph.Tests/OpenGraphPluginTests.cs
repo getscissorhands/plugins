@@ -45,6 +45,30 @@ public class OpenGraphPluginTests
 
     [Theory]
     [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>")]
+    public async Task Given_NullPluginOptions_When_PostHtmlAsync_Invoked_Then_It_Should_Render_OpenGraph_Without_TwitterSite_And_Creator(string html)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = new PluginManifest { Options = null };
+        var site = CreateSiteManifest();
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
+        result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
+        result.ShouldContain("property=\"og:title\"");
+        result.ShouldContain("property=\"og:description\"");
+        result.ShouldContain("property=\"og:url\"");
+        result.ShouldContain("property=\"og:image\"");
+        result.ShouldContain("name=\"twitter:card\"");
+        result.ShouldNotContain("name=\"twitter:site\"");
+        result.ShouldNotContain("name=\"twitter:creator\"");
+    }
+
+    [Theory]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>")]
     public async Task Given_ValidInputs_When_PostHtmlAsync_Invoked_Then_It_Should_Replace_Placeholder(string html)
     {
         // Arrange
