@@ -62,7 +62,7 @@ This plugin renders [Google Analytics](https://analytics.google.com) script.
 
    > **NOTE**: Those `@Documents`, `@Document`, `@Theme` and `@Site` values are inherited, and the `@GoogleAnalyticsPlugin` value is calculated from the `OnInitializedAsync()` method.
 
-1. Alternatively, instead of the `<GoogleAnalyticsComponent />` component, add the placeholder, `<plugin:google-analytics />`, to `MainLayout.razor`. **It's strongly advised to place right after the opening `<head>` tag**.
+1. Alternatively, use the placeholder, `<plugin:google-analytics />` instead of the `<GoogleAnalyticsComponent />` component. **It's strongly advised to place right after the opening `<head>` tag**.
 
     ```html
     <html>

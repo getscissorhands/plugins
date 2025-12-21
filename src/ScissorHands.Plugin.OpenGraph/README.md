@@ -65,7 +65,7 @@ This plugin renders the [Open Graph](https://ogp.me/) tags.
 
    > **NOTE**: Those `@Documents`, `@Document`, `@Theme` and `@Site` values are inherited, and the `@OpenGraphPlugin` value is calculated from the `OnInitializedAsync()` method.
 
-1. Alternatively, instead of the `<OpenGraphComponent />` component, add the placeholder, `<plugin:open-graph />`, to `MainLayout.razor`.
+1. Alternatively, use the placeholder, `<plugin:open-graph />` instead of the `<OpenGraphComponent />` component.
 
     ```html
     <html>
