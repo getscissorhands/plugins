@@ -71,6 +71,12 @@ public class OpenGraphComponentTests
 
 			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(1);
 			cut.Find("meta[name='twitter:creator']").GetAttribute("content").ShouldBe("@creator");
+
+			cut.Find("meta[property='og:title']").GetAttribute("content").ShouldBe("Hello | Site title");
+			cut.Find("meta[name='twitter:title']").GetAttribute("content").ShouldBe("Hello | Site title");
+
+			cut.Find("meta[property='og:description']").GetAttribute("content").ShouldBe("Document description");
+			cut.Find("meta[name='twitter:description']").GetAttribute("content").ShouldBe("Document description");
 		});
 	}
 
@@ -169,6 +175,83 @@ public class OpenGraphComponentTests
 		});
 	}
 
+	[Fact]
+	public void Given_EmptySourcePath_When_Rendered_Then_It_Should_Use_SiteTitleAndDescription_And_Clear_TwitterCreator()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", sourcePath: "");
+		var site = CreateSiteManifest(title: "Site title", description: "Site description");
+
+		// Act
+		var cut = ctx.Render<OpenGraphComponent>(ps => ps
+			.Add(p => p.Plugin, plugin)
+			.Add(p => p.Document, document)
+			.Add(p => p.Site, site));
+
+		// Assert
+		cut.WaitForAssertion(() =>
+		{
+			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
+			cut.Find("meta[property='og:title']").GetAttribute("content").ShouldBe("Site title");
+			cut.Find("meta[property='og:description']").GetAttribute("content").ShouldBe("Site description");
+		});
+	}
+
+	[Fact]
+	public void Given_NullDocumentDescription_When_Rendered_Then_It_Should_Not_Render_Description_Content_Attributes()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: null);
+		var site = CreateSiteManifest(description: "Site description");
+
+		// Act
+		var cut = ctx.Render<OpenGraphComponent>(ps => ps
+			.Add(p => p.Plugin, plugin)
+			.Add(p => p.Document, document)
+			.Add(p => p.Site, site));
+
+		// Assert
+		cut.WaitForAssertion(() =>
+		{
+			cut.Find("meta[property='og:description']").GetAttribute("content").ShouldBeNull();
+			cut.Find("meta[name='twitter:description']").GetAttribute("content").ShouldBeNull();
+		});
+	}
+
+	[Fact]
+	public void Given_InvalidOptionTypes_When_Rendered_Then_It_Should_Not_Render_TwitterSite_Or_Creator_MetaTags()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var plugin = new PluginManifest
+		{
+			Options = new Dictionary<string, object?>
+			{
+				{ "TwitterSiteId", 12345 },
+				{ "TwitterCreatorId", 67890 },
+			}
+		};
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+		var site = CreateSiteManifest();
+
+		// Act
+		var cut = ctx.Render<OpenGraphComponent>(ps => ps
+			.Add(p => p.Plugin, plugin)
+			.Add(p => p.Document, document)
+			.Add(p => p.Site, site));
+
+		// Assert
+		cut.WaitForAssertion(() =>
+		{
+			cut.FindAll("meta[name='twitter:site']").Count.ShouldBe(0);
+			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
+		});
+	}
+
 	private static PluginManifest CreatePluginManifest(string? twitterSiteId, string? twitterCreatorId)
 	{
 		return new PluginManifest
@@ -187,11 +270,13 @@ public class OpenGraphComponentTests
 		string slug,
 		string? description = "Document description",
 		string? heroImage = "/images/doc-hero.png",
-		string? twitterHandle = null)
+		string? twitterHandle = null,
+		string? sourcePath = "/posts/hello-world.md")
 	{
 		return new ContentDocument
 		{
 			Kind = kind,
+			SourcePath = sourcePath ?? string.Empty,
 			Metadata = new ContentMetadata
 			{
 				Title = title,

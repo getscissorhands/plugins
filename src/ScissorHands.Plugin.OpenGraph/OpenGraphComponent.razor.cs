@@ -64,23 +64,18 @@ public partial class OpenGraphComponent : PluginComponentBase
         }
         else
         {
-            TwitterSiteId = Plugin.Options.TryGetValue("TwitterSiteId", out var siteIdValue) && siteIdValue is string siteIdString
-                                ? siteIdString
-                                : default;
-
-            TwitterCreatorId = Plugin.Options.TryGetValue("TwitterCreatorId", out var creatorIdValue) && creatorIdValue is string creatorIdString
-                                    ? creatorIdString
-                                    : default;
+            TwitterSiteId = OpenGraphPluginHelper.GetOptionValue<string>(Plugin, "TwitterSiteId");
+            TwitterCreatorId = OpenGraphPluginHelper.GetOptionValue<string>(Plugin, "TwitterCreatorId");
         }
 
         TwitterCreatorId = Document?.Metadata.TwitterHandle is null ? TwitterCreatorId : Document.Metadata.TwitterHandle;
-        if (Documents?.Any() == true || Document?.Kind == ContentKind.Page)
+        if (OpenGraphPluginHelper.UseContentMetadata(Documents, Document) == false || Document?.Kind == ContentKind.Page)
         {
             TwitterCreatorId = default;
         }
 
-        ContentTitle = Documents?.Any() == true ? Site!.Title : Document?.Metadata.Title;
-        ContentDescription = Documents?.Any() == true ? Site!.Description : Document?.Metadata.Description;
+        ContentTitle = OpenGraphPluginHelper.UseContentMetadata(Documents, Document) == true ? $"{Document?.Metadata.Title} | {Site!.Title}" : Site!.Title;
+        ContentDescription = OpenGraphPluginHelper.UseContentMetadata(Documents, Document) == true ? Document?.Metadata.Description : Site!.Description;
         ContentLocale = Site!.Locale;
 
         ContentUrl = $"{OpenGraphPluginHelper.GetContentUrl(Document, Site)}";

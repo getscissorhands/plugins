@@ -45,11 +45,8 @@ public class OpenGraphPlugin : ContentPlugin
         }
         else
         {
-            siteId = plugin.Options.TryGetValue("TwitterSiteId", out var siteIdValue) && siteIdValue is string siteIdString
-                            ? siteIdString : default;
-
-            creatorId = plugin.Options.TryGetValue("TwitterCreatorId", out var creatorIdValue) && creatorIdValue is string creatorIdString
-                            ? creatorIdString : default;
+            siteId = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
+            creatorId = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterCreatorId");
         }
 
         var template = OPEN_GRAPH_TEMPLATE;
@@ -64,8 +61,8 @@ public class OpenGraphPlugin : ContentPlugin
                     ? template.Replace("{{TWITTER_CARD_CREATOR}}", string.Empty, StringComparison.OrdinalIgnoreCase)
                     : template.Replace("{{TWITTER_CARD_CREATOR}}", $"<meta name=\"twitter:creator\" content=\"{creatorId}\">", StringComparison.OrdinalIgnoreCase);
 
-        template = template.Replace("{{CONTENT_TITLE}}", document.Metadata.Title, StringComparison.OrdinalIgnoreCase);
-        template = template.Replace("{{CONTENT_DESCRIPTION}}", document.Metadata.Description ?? site.Description, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("{{CONTENT_TITLE}}", OpenGraphPluginHelper.UseContentMetadata(null, document) == true ? $"{document.Metadata.Title} | {site.Title}" : site.Title, StringComparison.OrdinalIgnoreCase);
+        template = template.Replace("{{CONTENT_DESCRIPTION}}", OpenGraphPluginHelper.UseContentMetadata(null, document) == true ? document.Metadata.Description ?? site.Description : site.Description, StringComparison.OrdinalIgnoreCase);
         template = template.Replace("{{CONTENT_LOCALE}}", site.Locale, StringComparison.OrdinalIgnoreCase);
         template = template.Replace("{{CONTENT_URL}}", $"{OpenGraphPluginHelper.GetContentUrl(document, site)}", StringComparison.OrdinalIgnoreCase);
         template = template.Replace("{{CONTENT_HERO_IMAGE_URL}}", $"{OpenGraphPluginHelper.GetHeroImageUrl(document, site)}", StringComparison.OrdinalIgnoreCase);

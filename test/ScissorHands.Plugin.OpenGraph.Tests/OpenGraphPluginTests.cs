@@ -83,7 +83,9 @@ public class OpenGraphPluginTests
         // Assert
         result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
         result.ShouldContain("property=\"og:title\"");
+        result.ShouldContain("property=\"og:title\" content=\"Hello | My Blog\"");
         result.ShouldContain("property=\"og:description\"");
+        result.ShouldContain("property=\"og:description\" content=\"Post description\"");
         result.ShouldContain("property=\"og:locale\"");
         result.ShouldContain("property=\"og:url\"");
         result.ShouldContain("property=\"og:image\"");
@@ -91,12 +93,81 @@ public class OpenGraphPluginTests
         result.ShouldContain("name=\"twitter:card\"");
         result.ShouldContain("name=\"twitter:site\" content=\"@site\"");
         result.ShouldContain("name=\"twitter:creator\" content=\"@creator\"");
+        result.ShouldContain("name=\"twitter:title\" content=\"Hello | My Blog\"");
+        result.ShouldContain("name=\"twitter:description\" content=\"Post description\"");
         result.ShouldNotContain("{{CONTENT_TITLE}}");
         result.ShouldNotContain("{{CONTENT_DESCRIPTION}}");
         result.ShouldNotContain("{{CONTENT_LOCALE}}");
         result.ShouldNotContain("{{CONTENT_URL}}");
         result.ShouldNotContain("{{CONTENT_HERO_IMAGE_URL}}");
         result.ShouldNotContain("{{SITE_NAME}}");
+    }
+
+    [Theory]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>", "")]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>", null)]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>", " ")]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>", "\t")]
+    public async Task Given_EmptySourcePath_When_PostHtmlAsync_Invoked_Then_It_Should_Use_Site_Metadata(string html, string? sourcePath)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", sourcePath: sourcePath);
+        var plugin = CreatePluginManifest(twitterSiteId: null, twitterCreatorId: null);
+        var site = CreateSiteManifest(title: "Site title", description: "Site description");
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
+        result.ShouldContain("property=\"og:title\" content=\"Site title\"");
+        result.ShouldContain("property=\"og:description\" content=\"Site description\"");
+        result.ShouldContain("name=\"twitter:title\" content=\"Site title\"");
+        result.ShouldContain("name=\"twitter:description\" content=\"Site description\"");
+    }
+
+    [Theory]
+    [InlineData("<html><head></head><body>Test</body></html>")]
+    public async Task Given_HtmlWithoutPlaceholder_When_PostHtmlAsync_Invoked_Then_It_Should_Return_OriginalHtml(string html)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
+        var site = CreateSiteManifest();
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
+        result.ShouldBe(html);
+    }
+
+    [Theory]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>")]
+    public async Task Given_InvalidOptionTypes_When_PostHtmlAsync_Invoked_Then_It_Should_Not_Render_TwitterSite_Or_Creator_Tags(string html)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var plugin = new PluginManifest
+        {
+            Options = new Dictionary<string, object?>
+            {
+                { "TwitterSiteId", 12345 },
+                { "TwitterCreatorId", new object() },
+            }
+        };
+        var site = CreateSiteManifest();
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
+        result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
+        result.ShouldContain("name=\"twitter:card\"");
+        result.ShouldNotContain("name=\"twitter:site\"");
+        result.ShouldNotContain("name=\"twitter:creator\"");
     }
 
     [Theory]
@@ -195,11 +266,13 @@ public class OpenGraphPluginTests
         string slug,
         string? description = "Document description",
         string? heroImage = "/images/doc-hero.png",
-        string? twitterHandle = null)
+        string? twitterHandle = null,
+        string? sourcePath = "/posts/hello-world.md")
     {
         return new ContentDocument
         {
             Kind = kind,
+            SourcePath = sourcePath ?? string.Empty,
             Metadata = new ContentMetadata
             {
                 Title = title,

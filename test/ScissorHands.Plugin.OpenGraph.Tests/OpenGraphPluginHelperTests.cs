@@ -5,6 +5,66 @@ namespace ScissorHands.Plugin.OpenGraph.Tests;
 
 public class OpenGraphPluginHelperTests
 {
+	[Fact]
+	public void Given_DocumentsNotNull_When_UseContentMetadata_Invoked_Then_It_Should_Return_False()
+	{
+		// Arrange
+		IEnumerable<ContentDocument> documents = new[] { CreateDocument("/hello-world", sourcePath: "/posts/hello-world.md") };
+		var document = CreateDocument("/hello-world", sourcePath: "/posts/hello-world.md");
+
+		// Act
+		var result = OpenGraphPluginHelper.UseContentMetadata(documents, document);
+
+		// Assert
+		result.ShouldBeFalse();
+	}
+
+	[Fact]
+	public void Given_NullDocument_When_UseContentMetadata_Invoked_Then_It_Should_Return_False()
+	{
+		// Arrange
+		IEnumerable<ContentDocument>? documents = null;
+		ContentDocument? document = null;
+
+		// Act
+		var result = OpenGraphPluginHelper.UseContentMetadata(documents, document);
+
+		// Assert
+		result.ShouldBeFalse();
+	}
+
+	[Fact]
+	public void Given_NullDocumentsAndNonNullDocument_When_UseContentMetadata_Invoked_Then_It_Should_Return_True()
+	{
+		// Arrange
+		IEnumerable<ContentDocument>? documents = null;
+		var document = CreateDocument("/hello-world", sourcePath: "/posts/hello-world.md");
+
+		// Act
+		var result = OpenGraphPluginHelper.UseContentMetadata(documents, document);
+
+		// Assert
+		result.ShouldBeTrue();
+	}
+
+	[Theory]
+	[InlineData(null)]
+	[InlineData("")]
+	[InlineData(" ")]
+	[InlineData("\t")]
+	public void Given_NullDocumentsAndDocumentWithEmptySourcePath_When_UseContentMetadata_Invoked_Then_It_Should_Return_False(string? sourcePath)
+	{
+		// Arrange
+		IEnumerable<ContentDocument>? documents = null;
+		var document = CreateDocument("/hello-world", sourcePath: sourcePath);
+
+		// Act
+		var result = OpenGraphPluginHelper.UseContentMetadata(documents, document);
+
+		// Assert
+		result.ShouldBeFalse();
+	}
+
 	[Theory]
 	[InlineData("https://example.com", "", "/hello-world", "https://example.com/hello-world")]
 	[InlineData("https://example.com/", "", "/hello-world", "https://example.com/hello-world")]
@@ -98,11 +158,123 @@ public class OpenGraphPluginHelperTests
 		result.ShouldBe("/");
 	}
 
-	private static ContentDocument CreateDocument(string slug, string? heroImage = null)
+	[Fact]
+	public void Given_NullPlugin_When_GetOptionValue_Invoked_Then_It_Should_Return_Default()
+	{
+		// Arrange
+		PluginManifest? plugin = null;
+
+		// Act
+		var result = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
+
+		// Assert
+		result.ShouldBeNull();
+	}
+
+	[Fact]
+	public void Given_NullPluginOptions_When_GetOptionValue_Invoked_Then_It_Should_Return_Default()
+	{
+		// Arrange
+		var plugin = new PluginManifest { Options = null };
+
+		// Act
+		var result = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
+
+		// Assert
+		result.ShouldBeNull();
+	}
+
+	[Fact]
+	public void Given_MissingKey_When_GetOptionValue_Invoked_Then_It_Should_Return_Default()
+	{
+		// Arrange
+		var plugin = new PluginManifest
+		{
+			Options = new Dictionary<string, object?>
+			{
+				{ "SomeOtherKey", "SomeValue" },
+			}
+		};
+
+		// Act
+		var result = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
+
+		// Assert
+		result.ShouldBeNull();
+	}
+
+	[Fact]
+	public void Given_WrongTypeValue_When_GetOptionValue_Invoked_Then_It_Should_Return_Default()
+	{
+		// Arrange
+		var plugin = new PluginManifest
+		{
+			Options = new Dictionary<string, object?>
+			{
+				{ "TwitterSiteId", 12345 },
+			}
+		};
+
+		// Act
+		var result = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
+
+		// Assert
+		result.ShouldBeNull();
+	}
+
+	[Fact]
+	public void Given_ValidTypedValue_When_GetOptionValue_Invoked_Then_It_Should_Return_Value()
+	{
+		// Arrange
+		var plugin = new PluginManifest
+		{
+			Options = new Dictionary<string, object?>
+			{
+				{ "TwitterSiteId", "@site" },
+			}
+		};
+
+		// Act
+		var result = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
+
+		// Assert
+		result.ShouldBe("@site");
+	}
+
+	[Theory]
+	[InlineData("https://example.com", "")]
+	[InlineData("https://example.com/", "blog")]
+	public void Given_NullSlug_When_GetContentUrl_Invoked_Then_It_Should_Throw_NullReferenceException(
+		string siteUrl,
+		string baseUrl)
+	{
+		// Arrange
+		var document = new ContentDocument
+		{
+			Kind = ContentKind.Post,
+			SourcePath = "/posts/hello-world.md",
+			Metadata = new ContentMetadata
+			{
+				Title = "Title",
+				Slug = null!,
+				Description = "Description",
+			}
+		};
+		var site = CreateSite(siteUrl, baseUrl);
+
+		// Act
+		Func<string> func = () => OpenGraphPluginHelper.GetContentUrl(document, site);
+
+		// Assert
+		func.ShouldThrow<NullReferenceException>();
+	}
+
+	private static ContentDocument CreateDocument(string slug, string? heroImage = null, string? sourcePath = "/posts/hello-world.md")
 	{
 		return new ContentDocument
 		{
 			Kind = ContentKind.Post,
+			SourcePath = sourcePath ?? string.Empty,
 			Metadata = new ContentMetadata
 			{
 				Title = "Title",
