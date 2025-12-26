@@ -15,15 +15,15 @@ Collection of the official plugins for ScissorHands.NET
 
     ```bash
     # zsh/bash
-    export GH_PACKAGE_USERNAME="<GITHUB_USERNAME>"
-    export GH_PACKAGE_TOKEN="<GITHUB_TOKEN>"
+    source ./scripts/setup-gh-auth.sh --username "<GITHUB_USERNAME>" --token "<GITHUB_TOKEN>"
     ```
 
     ```powershell
     # PowerShell
-    $env:GH_PACKAGE_USERNAME = "<GITHUB_USERNAME>"
-    $env:GH_PACKAGE_TOKEN = "<GITHUB_TOKEN>"
+    . ./scripts/setup-gh-auth.ps1 -Username "<GITHUB_USERNAME>" -Token "<GITHUB_TOKEN>"
     ```
+
+   > **NOTE**: Make sure to **sourcing** the script instead of executing it.
 
 1. Create a class library.
 
