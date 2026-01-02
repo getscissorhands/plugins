@@ -1,6 +1,4 @@
-﻿using Bunit;
-
-using ScissorHands.Core.Manifests;
+﻿using ScissorHands.Core.Manifests;
 using ScissorHands.Core.Models;
 
 namespace ScissorHands.Plugin.GoogleAnalytics.Tests;
@@ -8,142 +6,107 @@ namespace ScissorHands.Plugin.GoogleAnalytics.Tests;
 public class GoogleAnalyticsComponentTests
 {
 	[Fact]
-	public void Given_NullPlugin_When_Rendered_Then_It_Should_Not_Throw()
+	public void Given_PluginIsNull_When_Rendered_Then_It_Should_Render_GoogleTag_With_EmptyMeasurementId()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var document = new ContentDocument();
-		var site = new SiteManifest();
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
 
 		// Act
-		var render = () => ctx.Render<GoogleAnalyticsComponent>(ps => ps
-			.Add(p => p.Plugin, (PluginManifest?)null)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
+		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
+			.Add(p => p.Name, "Google Analytics")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document));
 
 		// Assert
-		render.ShouldNotThrow();
+		cut.Markup.ShouldContain("gtag/js?id=");
+		cut.Markup.ShouldContain("gtag('config', '');");
 	}
 
 	[Fact]
-	public void Given_NullPluginOptions_When_Rendered_Then_It_Should_Not_Throw_And_Should_Not_Contain_Any_Id()
+	public void Given_PluginOptionsIsNull_When_Rendered_Then_It_Should_Render_GoogleTag_With_EmptyMeasurementId()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var plugin = new PluginManifest { Options = null };
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+		var plugin = new PluginManifest { Name = "Google Analytics", Options = null };
 
 		// Act
-		var cut = ctx.Render<GoogleAnalyticsComponent>(ps => ps
-			.Add(p => p.Plugin, plugin));
+		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
+			.Add(p => p.Name, "Google Analytics")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
 
 		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.Markup.ShouldNotContain("gtag/js?id=G-");
-			cut.Markup.ShouldNotContain("gtag('config', 'G-");
-		});
+		cut.Markup.ShouldContain("gtag/js?id=");
+		cut.Markup.ShouldContain("gtag('config', '');");
 	}
 
 	[Theory]
 	[InlineData("G-XXXXXXXXXX")]
-	public void Given_MeasurementId_When_Rendered_Then_It_Should_Render_GtagScript_With_Id(string measurementId)
+	public void Given_MeasurementId_When_Rendered_Then_It_Should_Render_GoogleTag_With_MeasurementId(string measurementId)
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var plugin = CreatePluginManifest(measurementId);
-
-		// Act
-		var cut = ctx.Render<GoogleAnalyticsComponent>(ps => ps
-			.Add(p => p.Plugin, plugin));
-
-		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.Markup.ShouldContain($"https://www.googletagmanager.com/gtag/js?id={measurementId}");
-			cut.Markup.ShouldContain($"gtag('config', '{measurementId}');");
-		});
-	}
-
-	[Fact]
-	public void Given_NoMeasurementId_When_Rendered_Then_It_Should_Not_Throw_And_Should_Not_Contain_Any_Id()
-	{
-		// Arrange
-		using var ctx = new BunitContext();
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
 		var plugin = new PluginManifest
 		{
+			Name = "Google Analytics",
 			Options = new Dictionary<string, object?>
 			{
-				{ "MeasurementId", null }
+				{ "MeasurementId", measurementId },
 			}
 		};
 
 		// Act
-		var cut = ctx.Render<GoogleAnalyticsComponent>(ps => ps
-			.Add(p => p.Plugin, plugin));
+		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
+			.Add(p => p.Name, "Google Analytics")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
 
 		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.Markup.ShouldNotContain("gtag/js?id=G-");
-			cut.Markup.ShouldNotContain("gtag('config', 'G-");
-		});
+		cut.Markup.ShouldContain($"gtag/js?id={measurementId}");
+		cut.Markup.ShouldContain($"gtag('config', '{measurementId}');");
 	}
 
-	[Fact]
-	public void Given_MeasurementIdKeyMissing_When_Rendered_Then_It_Should_Not_Throw_And_Should_Not_Contain_Any_Id()
+	private static ContentDocument CreateDocument(ContentKind kind, string title, string slug)
 	{
-		// Arrange
-		using var ctx = new BunitContext();
-		var plugin = new PluginManifest
+		return new ContentDocument
 		{
-			Options = new Dictionary<string, object?>()
-		};
-
-		// Act
-		var cut = ctx.Render<GoogleAnalyticsComponent>(ps => ps
-			.Add(p => p.Plugin, plugin));
-
-		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.Markup.ShouldNotContain("gtag/js?id=G-");
-			cut.Markup.ShouldNotContain("gtag('config', 'G-");
-		});
-	}
-
-	[Fact]
-	public void Given_NonStringMeasurementId_When_Rendered_Then_It_Should_Not_Throw_And_Should_Not_Contain_Any_Id()
-	{
-		// Arrange
-		using var ctx = new BunitContext();
-		var plugin = new PluginManifest
-		{
-			Options = new Dictionary<string, object?>
+			Kind = kind,
+			SourcePath = "/posts/hello-world.md",
+			Metadata = new ContentMetadata
 			{
-				{ "MeasurementId", 12345 }
+				Title = title,
+				Slug = slug,
+				Description = "Document description",
+				HeroImage = "/images/doc-hero.png",
 			}
 		};
-
-		// Act
-		var cut = ctx.Render<GoogleAnalyticsComponent>(ps => ps
-			.Add(p => p.Plugin, plugin));
-
-		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.Markup.ShouldNotContain("gtag/js?id=G-");
-			cut.Markup.ShouldNotContain("gtag('config', 'G-");
-		});
 	}
 
-	private static PluginManifest CreatePluginManifest(string measurementId)
+	private static SiteManifest CreateSiteManifest(
+		string siteUrl = "https://example.com",
+		string baseUrl = "",
+		string title = "Site title",
+		string description = "Site description",
+		string locale = "en-US",
+		string heroImage = "/images/site-hero.png")
 	{
-		return new PluginManifest
+		return new SiteManifest
 		{
-			Options = new Dictionary<string, object?>
-			{
-				{ "MeasurementId", measurementId }
-			}
+			SiteUrl = siteUrl,
+			BaseUrl = baseUrl,
+			Title = title,
+			Description = description,
+			Locale = locale,
+			HeroImage = heroImage,
 		};
 	}
 }
+

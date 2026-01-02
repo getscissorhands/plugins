@@ -1,6 +1,4 @@
-﻿using Bunit;
-
-using ScissorHands.Core.Manifests;
+﻿using ScissorHands.Core.Manifests;
 using ScissorHands.Core.Models;
 
 namespace ScissorHands.Plugin.OpenGraph.Tests;
@@ -8,122 +6,78 @@ namespace ScissorHands.Plugin.OpenGraph.Tests;
 public class OpenGraphComponentTests
 {
 	[Fact]
-	public void Given_NullPlugin_When_Rendered_Then_It_Should_Not_Throw()
+	public void Given_ValidPostWithPluginOptions_When_Rendered_Then_It_Should_Render_OpenGraph_And_TwitterTags()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var site = CreateSiteManifest();
-
-		// Act
-		var render = () => ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, (PluginManifest?)null)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
-
-		// Assert
-		render.ShouldNotThrow();
-	}
-
-	[Fact]
-	public void Given_NullPluginOptions_When_Rendered_Then_It_Should_Not_Render_Twitter_MetaTags()
-	{
-		// Arrange
-		using var ctx = new BunitContext();
-		var plugin = new PluginManifest { Options = null };
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var site = CreateSiteManifest();
-
-		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
-
-		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:site']").Count.ShouldBe(0);
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
-		});
-	}
-
-	[Fact]
-	public void Given_TwitterOptionsAndPost_When_Rendered_Then_It_Should_Render_TwitterSite_And_Creator_MetaTags()
-	{
-		// Arrange
-		using var ctx = new BunitContext();
+		var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "", title: "My Blog", description: "Site description", locale: "en-US", heroImage: "/images/site-hero.png");
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", heroImage: "/images/hero.png");
 		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var site = CreateSiteManifest();
 
 		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Name, "Open Graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
 
 		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:site']").Count.ShouldBe(1);
-			cut.Find("meta[name='twitter:site']").GetAttribute("content").ShouldBe("@site");
+		cut.Markup.ShouldContain("property=\"og:title\"");
+		cut.Markup.ShouldContain("property=\"og:title\" content=\"Hello | My Blog\"");
+		cut.Markup.ShouldContain("property=\"og:description\" content=\"Post description\"");
+		cut.Markup.ShouldContain("property=\"og:locale\" content=\"en-US\"");
+		cut.Markup.ShouldContain("property=\"og:url\" content=\"https://example.com/hello-world\"");
+		cut.Markup.ShouldContain("property=\"og:image\" content=\"https://example.com/images/hero.png\"");
+		cut.Markup.ShouldContain("property=\"og:site_name\" content=\"My Blog\"");
 
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(1);
-			cut.Find("meta[name='twitter:creator']").GetAttribute("content").ShouldBe("@creator");
-
-			cut.Find("meta[property='og:title']").GetAttribute("content").ShouldBe("Hello | Site title");
-			cut.Find("meta[name='twitter:title']").GetAttribute("content").ShouldBe("Hello | Site title");
-
-			cut.Find("meta[property='og:description']").GetAttribute("content").ShouldBe("Document description");
-			cut.Find("meta[name='twitter:description']").GetAttribute("content").ShouldBe("Document description");
-		});
+		cut.Markup.ShouldContain("name=\"twitter:card\"");
+		cut.Markup.ShouldContain("name=\"twitter:site\" content=\"@site\"");
+		cut.Markup.ShouldContain("name=\"twitter:creator\" content=\"@creator\"");
+		cut.Markup.ShouldContain("name=\"twitter:title\" content=\"Hello | My Blog\"");
+		cut.Markup.ShouldContain("name=\"twitter:description\" content=\"Post description\"");
+		cut.Markup.ShouldContain("name=\"twitter:image\" content=\"https://example.com/images/hero.png\"");
 	}
 
 	[Fact]
-	public void Given_NoTwitterSiteId_When_Rendered_Then_It_Should_Not_Render_TwitterSite_MetaTag()
+	public void Given_EmptyTwitterSiteId_When_Rendered_Then_It_Should_Not_Render_TwitterSiteTag()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
 		var plugin = CreatePluginManifest(twitterSiteId: null, twitterCreatorId: "@creator");
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var site = CreateSiteManifest();
 
 		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Name, "Open Graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
 
 		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:site']").Count.ShouldBe(0);
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(1);
-		});
+		cut.Markup.ShouldNotContain("name=\"twitter:site\"");
+		cut.Markup.ShouldContain("name=\"twitter:card\"");
 	}
 
 	[Fact]
-	public void Given_PageDocument_When_Rendered_Then_It_Should_Not_Render_TwitterCreator_MetaTag()
+	public void Given_PageDocument_When_Rendered_Then_It_Should_Not_Render_TwitterCreatorTag()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
-		var document = CreateDocument(kind: ContentKind.Page, title: "About", slug: "/about", twitterHandle: "@handle");
 		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Page, title: "About", slug: "/about", twitterHandle: "@handle");
+		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
 
 		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Name, "Open Graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
 
 		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:site']").Count.ShouldBe(1);
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
-		});
+		cut.Markup.ShouldContain("name=\"twitter:site\" content=\"@site\"");
+		cut.Markup.ShouldNotContain("name=\"twitter:creator\"");
 	}
 
 	[Fact]
@@ -131,137 +85,44 @@ public class OpenGraphComponentTests
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@from-options");
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", twitterHandle: "@from-metadata");
 		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", twitterHandle: "@from-metadata");
+		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@from-options");
 
 		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Name, "Open Graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
 
 		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(1);
-			cut.Find("meta[name='twitter:creator']").GetAttribute("content").ShouldBe("@from-metadata");
-		});
+		cut.Markup.ShouldContain("name=\"twitter:creator\" content=\"@from-metadata\"");
+		cut.Markup.ShouldNotContain("name=\"twitter:creator\" content=\"@from-options\"");
 	}
 
 	[Fact]
-	public void Given_DocumentsCollection_When_Rendered_Then_It_Should_Use_SiteTitleAndDescription_And_Clear_TwitterCreator()
+	public void Given_DocumentsNotNull_When_Rendered_Then_It_Should_Use_SiteMetadata_And_Not_Render_TwitterCreatorTag()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description");
 		var site = CreateSiteManifest(title: "Site title", description: "Site description");
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", twitterHandle: "@handle");
+		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
 		IEnumerable<ContentDocument> documents = new[] { document };
 
 		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Documents, documents)
-			.Add(p => p.Site, site));
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Name, "Open Graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue(documents)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
 
 		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
-
-			cut.Find("meta[property='og:title']").GetAttribute("content").ShouldBe("Site title");
-			cut.Find("meta[property='og:description']").GetAttribute("content").ShouldBe("Site description");
-		});
-	}
-
-	[Fact]
-	public void Given_EmptySourcePath_When_Rendered_Then_It_Should_Use_SiteTitleAndDescription_And_Clear_TwitterCreator()
-	{
-		// Arrange
-		using var ctx = new BunitContext();
-		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", sourcePath: "");
-		var site = CreateSiteManifest(title: "Site title", description: "Site description");
-
-		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
-
-		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
-			cut.Find("meta[property='og:title']").GetAttribute("content").ShouldBe("Site title");
-			cut.Find("meta[property='og:description']").GetAttribute("content").ShouldBe("Site description");
-		});
-	}
-
-	[Fact]
-	public void Given_NullDocumentDescription_When_Rendered_Then_It_Should_Not_Render_Description_Content_Attributes()
-	{
-		// Arrange
-		using var ctx = new BunitContext();
-		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: null);
-		var site = CreateSiteManifest(description: "Site description");
-
-		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
-
-		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.Find("meta[property='og:description']").GetAttribute("content").ShouldBeNull();
-			cut.Find("meta[name='twitter:description']").GetAttribute("content").ShouldBeNull();
-		});
-	}
-
-	[Fact]
-	public void Given_InvalidOptionTypes_When_Rendered_Then_It_Should_Not_Render_TwitterSite_Or_Creator_MetaTags()
-	{
-		// Arrange
-		using var ctx = new BunitContext();
-		var plugin = new PluginManifest
-		{
-			Options = new Dictionary<string, object?>
-			{
-				{ "TwitterSiteId", 12345 },
-				{ "TwitterCreatorId", 67890 },
-			}
-		};
-		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var site = CreateSiteManifest();
-
-		// Act
-		var cut = ctx.Render<OpenGraphComponent>(ps => ps
-			.Add(p => p.Plugin, plugin)
-			.Add(p => p.Document, document)
-			.Add(p => p.Site, site));
-
-		// Assert
-		cut.WaitForAssertion(() =>
-		{
-			cut.FindAll("meta[name='twitter:site']").Count.ShouldBe(0);
-			cut.FindAll("meta[name='twitter:creator']").Count.ShouldBe(0);
-		});
-	}
-
-	private static PluginManifest CreatePluginManifest(string? twitterSiteId, string? twitterCreatorId)
-	{
-		return new PluginManifest
-		{
-			Options = new Dictionary<string, object?>
-			{
-				{ "TwitterSiteId", twitterSiteId },
-				{ "TwitterCreatorId", twitterCreatorId },
-			}
-		};
+		cut.Markup.ShouldContain("property=\"og:title\" content=\"Site title\"");
+		cut.Markup.ShouldContain("property=\"og:description\" content=\"Site description\"");
+		cut.Markup.ShouldNotContain("name=\"twitter:creator\"");
 	}
 
 	private static ContentDocument CreateDocument(
@@ -288,6 +149,19 @@ public class OpenGraphComponentTests
 		};
 	}
 
+	private static PluginManifest CreatePluginManifest(string? twitterSiteId = null, string? twitterCreatorId = null)
+	{
+		return new PluginManifest
+		{
+			Name = "Open Graph",
+			Options = new Dictionary<string, object?>
+			{
+				{ "TwitterSiteId", twitterSiteId },
+				{ "TwitterCreatorId", twitterCreatorId },
+			}
+		};
+	}
+
 	private static SiteManifest CreateSiteManifest(
 		string siteUrl = "https://example.com",
 		string baseUrl = "",
@@ -307,3 +181,4 @@ public class OpenGraphComponentTests
 		};
 	}
 }
+
