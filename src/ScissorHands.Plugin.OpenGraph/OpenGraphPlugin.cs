@@ -6,7 +6,7 @@ namespace ScissorHands.Plugin.OpenGraph;
 /// <summary>
 /// This represents the plugin entity for Open Graph.
 /// </summary>
-public class OpenGraphPlugin : ContentPlugin
+public sealed class OpenGraphPlugin : ContentPlugin
 {
     private const string OPEN_GRAPH_TEMPLATE = """
     <meta property="og:title" content="{{CONTENT_TITLE}}" />

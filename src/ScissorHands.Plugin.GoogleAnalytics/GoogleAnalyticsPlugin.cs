@@ -6,7 +6,7 @@ namespace ScissorHands.Plugin.GoogleAnalytics;
 /// <summary>
 /// This represents the plugin entity for Google Analytics.
 /// </summary>
-public class GoogleAnalyticsPlugin : ContentPlugin
+public sealed class GoogleAnalyticsPlugin : ContentPlugin
 {
     private const string GOOGLE_ANALYTICS_SCRIPT = """
     <!-- Google tag (gtag.js) -->
