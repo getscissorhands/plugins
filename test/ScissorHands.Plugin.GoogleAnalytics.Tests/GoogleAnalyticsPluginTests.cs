@@ -130,6 +130,30 @@ public class GoogleAnalyticsPluginTests
     }
 
     [Theory]
+    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>")]
+    public async Task Given_SourceOptionsMutatedAfterManifestCreation_When_PostHtmlAsync_Invoked_Then_It_Should_Use_DefensiveCopy(string html)
+    {
+        // Arrange
+        var pg = new GoogleAnalyticsPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var options = new Dictionary<string, object?>
+        {
+            { "MeasurementId", "G-ORIGINAL" },
+        };
+        var plugin = new PluginManifest { Options = options };
+        var site = CreateSiteManifest();
+        options["MeasurementId"] = "G-MUTATED";
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
+        result.ShouldContain("gtag/js?id=G-ORIGINAL");
+        result.ShouldContain("gtag('config', 'G-ORIGINAL');");
+        result.ShouldNotContain("G-MUTATED");
+    }
+
+    [Theory]
     [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>", "G-XXXXXXXXXX")]
     public async Task Given_MeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Insert_GoogleTagScript(string html, string measurementId)
     {

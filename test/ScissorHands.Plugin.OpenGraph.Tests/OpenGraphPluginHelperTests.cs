@@ -70,6 +70,7 @@ public class OpenGraphPluginHelperTests
 	[InlineData("https://example.com/", "", "/hello-world", "https://example.com/hello-world")]
 	[InlineData("https://example.com", "/blog/", "/hello-world", "https://example.com/blog/hello-world")]
 	[InlineData("https://example.com/", "blog", "hello-world", "https://example.com/blog/hello-world")]
+	[InlineData("", "/blog/", "/hello-world", "blog/hello-world")]
 	public void Given_DocumentAndSite_When_GetContentUrl_Invoked_Then_It_Should_Compose_Url(
 		string siteUrl,
 		string baseUrl,
@@ -112,6 +113,7 @@ public class OpenGraphPluginHelperTests
 	[InlineData("https://example.com", "/blog/", "/images/site.png", null, "https://example.com/blog/images/site.png")]
 	[InlineData("https://example.com", "/blog/", "/images/site.png", "/images/post.png", "https://example.com/blog/images/post.png")]
 	[InlineData("https://example.com/", "blog", "/images/site.png", "images/post.png", "https://example.com/blog/images/post.png")]
+	[InlineData("https://example.com/", "blog", "/images/site.png", "https://cdn.example.com/images/post.png", "https://cdn.example.com/images/post.png")]
 	public void Given_DocumentAndSite_When_GetHeroImageUrl_Invoked_Then_It_Should_Return_Expected(
 		string siteUrl,
 		string baseUrl,
@@ -145,7 +147,7 @@ public class OpenGraphPluginHelperTests
 	}
 
 	[Fact]
-	public void Given_NullArguments_When_GetHeroImageUrl_Invoked_Then_It_Should_Return_Slash()
+	public void Given_NullArguments_When_GetHeroImageUrl_Invoked_Then_It_Should_Return_EmptyString()
 	{
 		// Arrange
 		ContentDocument? document = null;
@@ -155,7 +157,7 @@ public class OpenGraphPluginHelperTests
 		var result = OpenGraphPluginHelper.GetHeroImageUrl(document, site);
 
 		// Assert
-		result.ShouldBe("/");
+		result.ShouldBe(string.Empty);
 	}
 
 	[Fact]
@@ -244,7 +246,7 @@ public class OpenGraphPluginHelperTests
 	[Theory]
 	[InlineData("https://example.com", "")]
 	[InlineData("https://example.com/", "blog")]
-	public void Given_NullSlug_When_GetContentUrl_Invoked_Then_It_Should_Throw_NullReferenceException(
+	public void Given_NullSlug_When_GetContentUrl_Invoked_Then_It_Should_Return_SiteRoot(
 		string siteUrl,
 		string baseUrl)
 	{
@@ -263,10 +265,10 @@ public class OpenGraphPluginHelperTests
 		var site = CreateSite(siteUrl, baseUrl);
 
 		// Act
-		Func<string> func = () => OpenGraphPluginHelper.GetContentUrl(document, site);
+		var result = OpenGraphPluginHelper.GetContentUrl(document, site);
 
 		// Assert
-		func.ShouldThrow<NullReferenceException>();
+		result.ShouldBe(baseUrl.Length == 0 ? "https://example.com" : "https://example.com/blog");
 	}
 
 	private static ContentDocument CreateDocument(string slug, string? heroImage = null, string? sourcePath = "/posts/hello-world.md")

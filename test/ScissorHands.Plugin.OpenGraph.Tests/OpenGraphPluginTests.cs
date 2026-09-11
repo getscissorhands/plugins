@@ -104,6 +104,54 @@ public class OpenGraphPluginTests
     }
 
     [Theory]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>")]
+    public async Task Given_SiteBaseUrl_When_PostHtmlAsync_Invoked_Then_It_Should_Generate_BaseRelativeUrls(string html)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", heroImage: "/images/hero.png");
+        var plugin = CreatePluginManifest();
+        var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "/blog/");
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
+        result.ShouldContain("property=\"og:url\" content=\"https://example.com/blog/hello-world\"");
+        result.ShouldContain("property=\"og:image\" content=\"https://example.com/blog/images/hero.png\"");
+        result.ShouldContain("name=\"twitter:image\" content=\"https://example.com/blog/images/hero.png\"");
+        result.ShouldNotContain("content=\"/hello-world\"");
+        result.ShouldNotContain("content=\"/images/hero.png\"");
+    }
+
+    [Theory]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>")]
+    public async Task Given_SourceOptionsMutatedAfterManifestCreation_When_PostHtmlAsync_Invoked_Then_It_Should_Use_DefensiveCopy(string html)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+        var options = new Dictionary<string, object?>
+        {
+            { "TwitterSiteId", "@original-site" },
+            { "TwitterCreatorId", "@original-creator" },
+        };
+        var plugin = new PluginManifest { Options = options };
+        var site = CreateSiteManifest();
+        options["TwitterSiteId"] = "@mutated-site";
+        options["TwitterCreatorId"] = "@mutated-creator";
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
+        result.ShouldContain("name=\"twitter:site\" content=\"@original-site\"");
+        result.ShouldContain("name=\"twitter:creator\" content=\"@original-creator\"");
+        result.ShouldNotContain("@mutated-site");
+        result.ShouldNotContain("@mutated-creator");
+    }
+
+    [Theory]
     [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>", "")]
     [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>", null)]
     [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>", " ")]
@@ -166,6 +214,24 @@ public class OpenGraphPluginTests
         // Assert
         result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
         result.ShouldContain("name=\"twitter:card\"");
+        result.ShouldNotContain("name=\"twitter:site\"");
+        result.ShouldNotContain("name=\"twitter:creator\"");
+    }
+
+    [Theory]
+    [InlineData("<html><head><plugin:open-graph></plugin:open-graph></head><body>Test</body></html>")]
+    public async Task Given_WhitespaceTwitterIds_When_PostHtmlAsync_Invoked_Then_It_Should_Not_Render_TwitterSite_Or_Creator_Tags(string html)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", twitterHandle: " ");
+        var plugin = CreatePluginManifest(twitterSiteId: " ", twitterCreatorId: "\t");
+        var site = CreateSiteManifest();
+
+        // Act
+        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+
+        // Assert
         result.ShouldNotContain("name=\"twitter:site\"");
         result.ShouldNotContain("name=\"twitter:creator\"");
     }

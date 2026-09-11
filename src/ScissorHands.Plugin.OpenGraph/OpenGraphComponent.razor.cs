@@ -48,38 +48,46 @@ public partial class OpenGraphComponent : PluginComponentBase
     protected string? TwitterCreatorId { get; set; }
 
     /// <inheritdoc />
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        await base.OnInitializedAsync();
+        base.OnParametersSet();
 
-        if (Plugin is null)
+        ContentTitle = default;
+        ContentDescription = default;
+        ContentLocale = default;
+        ContentUrl = default;
+        HeroImageUrl = default;
+        SiteName = default;
+        TwitterSiteId = default;
+        TwitterCreatorId = default;
+
+        if (Plugin is null || Site is null)
         {
             return;
         }
 
-        if (Plugin.Options is null)
-        {
-            TwitterSiteId = default;
-            TwitterCreatorId = default;
-        }
-        else
+        if (Plugin.Options is not null)
         {
             TwitterSiteId = OpenGraphPluginHelper.GetOptionValue<string>(Plugin, "TwitterSiteId");
             TwitterCreatorId = OpenGraphPluginHelper.GetOptionValue<string>(Plugin, "TwitterCreatorId");
         }
 
-        TwitterCreatorId = Document?.Metadata.TwitterHandle is null ? TwitterCreatorId : Document.Metadata.TwitterHandle;
-        if (OpenGraphPluginHelper.UseContentMetadata(Documents, Document) == false || Document?.Kind == ContentKind.Page)
+        TwitterCreatorId = string.IsNullOrWhiteSpace(Document?.Metadata.TwitterHandle)
+            ? TwitterCreatorId
+            : Document.Metadata.TwitterHandle;
+
+        var useContentMetadata = OpenGraphPluginHelper.UseContentMetadata(Documents, Document);
+        if (useContentMetadata == false || Document?.Kind == ContentKind.Page)
         {
             TwitterCreatorId = default;
         }
 
-        ContentTitle = OpenGraphPluginHelper.UseContentMetadata(Documents, Document) == true ? $"{Document?.Metadata.Title} | {Site!.Title}" : Site!.Title;
-        ContentDescription = OpenGraphPluginHelper.UseContentMetadata(Documents, Document) == true ? Document?.Metadata.Description : Site!.Description;
-        ContentLocale = Site!.Locale;
+        ContentTitle = useContentMetadata ? $"{Document?.Metadata.Title} | {Site.Title}" : Site.Title;
+        ContentDescription = useContentMetadata ? Document?.Metadata.Description ?? Site.Description : Site.Description;
+        ContentLocale = Site.Locale;
 
-        ContentUrl = $"{OpenGraphPluginHelper.GetContentUrl(Document, Site)}";
-        HeroImageUrl = $"{OpenGraphPluginHelper.GetHeroImageUrl(Document, Site)}";
-        SiteName = Site!.Title;
+        ContentUrl = OpenGraphPluginHelper.GetContentUrl(Document, Site);
+        HeroImageUrl = OpenGraphPluginHelper.GetHeroImageUrl(Document, Site);
+        SiteName = Site.Title;
     }
 }

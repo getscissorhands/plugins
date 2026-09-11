@@ -11,16 +11,13 @@ public partial class GoogleAnalyticsComponent : PluginComponentBase
     protected string? MeasurementId { get; set; }
 
     /// <inheritdoc />
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        await base.OnInitializedAsync();
+        base.OnParametersSet();
 
-        if (Plugin is null)
-        {
-            return;
-        }
+        MeasurementId = default;
 
-        if (Plugin.Options is null)
+        if (Plugin?.Options is null)
         {
             return;
         }

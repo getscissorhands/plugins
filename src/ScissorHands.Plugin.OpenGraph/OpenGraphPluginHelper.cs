@@ -16,10 +16,7 @@ public static class OpenGraphPluginHelper
     /// <returns>Returns the content URL.</returns>
     public static string GetContentUrl(ContentDocument? document, SiteManifest? site)
     {
-        var siteUrl = GetSiteUrl(site);
-        var contentUrl = document?.Metadata.Slug.TrimStart('/');
-
-        return $"{siteUrl}/{contentUrl}".TrimEnd('/');
+        return CombineSiteUrl(site, document?.Metadata.Slug);
     }
 
     /// <summary>
@@ -30,13 +27,13 @@ public static class OpenGraphPluginHelper
     /// <returns>Returns the hero image URL.</returns>
     public static string GetHeroImageUrl(ContentDocument? document, SiteManifest? site)
     {
-        var siteUrl = GetSiteUrl(site);
-        var siteHeroImage = site?.HeroImage?.TrimStart('/');
-        var contentImage = document?.Metadata.HeroImage?.TrimStart('/');
+        var imageUrl = string.IsNullOrWhiteSpace(document?.Metadata.HeroImage)
+            ? site?.HeroImage
+            : document.Metadata.HeroImage;
 
-        return contentImage is null
-               ? $"{siteUrl}/{siteHeroImage}"
-               : $"{siteUrl}/{contentImage}";
+        return string.IsNullOrWhiteSpace(imageUrl)
+            ? string.Empty
+            : CombineSiteUrl(site, imageUrl);
     }
 
     /// <summary>
@@ -94,9 +91,36 @@ public static class OpenGraphPluginHelper
 
     private static string GetSiteUrl(SiteManifest? site)
     {
-        var siteUrl = site?.SiteUrl.TrimEnd('/');
-        var baseUrl = site?.BaseUrl.Trim('/');
+        var siteUrl = site?.SiteUrl?.TrimEnd('/') ?? string.Empty;
+        var baseUrl = site?.BaseUrl?.Trim('/') ?? string.Empty;
 
-        return $"{siteUrl}/{baseUrl}".TrimEnd('/');
+        if (string.IsNullOrEmpty(siteUrl))
+        {
+            return baseUrl;
+        }
+
+        return string.IsNullOrEmpty(baseUrl)
+            ? siteUrl
+            : $"{siteUrl}/{baseUrl}".TrimEnd('/');
+    }
+
+    private static string CombineSiteUrl(SiteManifest? site, string? path)
+    {
+        if (Uri.TryCreate(path, UriKind.Absolute, out var absoluteUri))
+        {
+            return absoluteUri.ToString();
+        }
+
+        var siteUrl = GetSiteUrl(site);
+        var relativePath = string.IsNullOrWhiteSpace(path) ? string.Empty : path.Trim('/');
+
+        if (string.IsNullOrEmpty(relativePath))
+        {
+            return siteUrl;
+        }
+
+        return string.IsNullOrEmpty(siteUrl)
+            ? relativePath
+            : $"{siteUrl}/{relativePath}";
     }
 }

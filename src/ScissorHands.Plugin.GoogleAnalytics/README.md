@@ -46,21 +46,10 @@ This plugin renders [Google Analytics](https://analytics.google.com) script.
 1. Add a UI component, `<GoogleAnalyticsComponent />` with parameters, to `MainLayout.razor`. **It's strongly advised to place right after the opening `<head>` tag.**
 
     ```razor
-    <GoogleAnalyticsComponent Documents="@Documents" Document="@Document" Plugin="@GoogleAnalyticsPlugin" Theme="@Theme" Site="@Site" />
-
-    @code {
-        protected PluginManifest? GoogleAnalyticsPlugin { get; set; }
-
-        protected override async Task OnInitializedAsync()
-        {
-            await base.OnInitializedAsync();
-    
-            GoogleAnalyticsPlugin = Plugins?.SingleOrDefault(p => p.Name!.Equals("Google Analytics", StringComparison.OrdinalIgnoreCase));
-        }
-    }    
+    <GoogleAnalyticsComponent Name="Google Analytics" />
     ```
 
-   > **NOTE**: Those `@Documents`, `@Document`, `@Theme` and `@Site` values are inherited, and the `@GoogleAnalyticsPlugin` value is calculated from the `OnInitializedAsync()` method.
+   > **NOTE**: The configured plugin manifest is resolved by `Name` using case-insensitive matching. The current documents, document, theme and site are received from the inherited cascading values.
 
 1. Alternatively, use the placeholder, `<plugin:google-analytics />` instead of the `<GoogleAnalyticsComponent />` component. **It's strongly advised to place right after the opening `<head>` tag**.
 

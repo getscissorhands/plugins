@@ -47,7 +47,7 @@ public class GoogleAnalyticsComponentTests
 
 	[Theory]
 	[InlineData("G-XXXXXXXXXX")]
-	public void Given_MeasurementId_When_Rendered_Then_It_Should_Render_GoogleTag_With_MeasurementId(string measurementId)
+	public void Given_CaseInsensitiveNameAndMeasurementId_When_Rendered_Then_It_Should_Render_GoogleTag_With_MeasurementId(string measurementId)
 	{
 		// Arrange
 		using var ctx = new BunitContext();
@@ -64,7 +64,7 @@ public class GoogleAnalyticsComponentTests
 
 		// Act
 		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
-			.Add(p => p.Name, "Google Analytics")
+			.Add(p => p.Name, "google analytics")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -72,6 +72,32 @@ public class GoogleAnalyticsComponentTests
 		// Assert
 		cut.Markup.ShouldContain($"gtag/js?id={measurementId}");
 		cut.Markup.ShouldContain($"gtag('config', '{measurementId}');");
+	}
+
+	[Fact]
+	public void Given_PluginOptionsChange_When_Rerendered_Then_It_Should_Render_UpdatedMeasurementId()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+		var initialPlugin = CreatePluginManifest("Google Analytics", "G-INITIAL");
+		var updatedPlugin = CreatePluginManifest("Updated Analytics", "G-UPDATED");
+
+		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
+			.Add(p => p.Name, "Google Analytics")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { initialPlugin, updatedPlugin }));
+
+		// Act
+		cut.Render(parameters => parameters
+			.Add(p => p.Name, "updated analytics"));
+
+		// Assert
+		cut.Markup.ShouldContain("gtag/js?id=G-UPDATED");
+		cut.Markup.ShouldContain("gtag('config', 'G-UPDATED');");
+		cut.Markup.ShouldNotContain("G-INITIAL");
 	}
 
 	private static ContentDocument CreateDocument(ContentKind kind, string title, string slug)
@@ -86,6 +112,18 @@ public class GoogleAnalyticsComponentTests
 				Slug = slug,
 				Description = "Document description",
 				HeroImage = "/images/doc-hero.png",
+			}
+		};
+	}
+
+	private static PluginManifest CreatePluginManifest(string name, string measurementId)
+	{
+		return new PluginManifest
+		{
+			Name = name,
+			Options = new Dictionary<string, object?>
+			{
+				{ "MeasurementId", measurementId },
 			}
 		};
 	}
@@ -109,4 +147,3 @@ public class GoogleAnalyticsComponentTests
 		};
 	}
 }
-

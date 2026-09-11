@@ -49,21 +49,10 @@ This plugin renders the [Open Graph](https://ogp.me/) tags.
 1. Add a UI component, `<OpenGraphComponent />` with parameters, to `MainLayout.razor`.
 
     ```razor
-    <OpenGraphComponent Documents="@Documents" Document="@Document" Plugin="@OpenGraphPlugin" Theme="@Theme" Site="@Site" />
-
-    @code {
-        protected PluginManifest? OpenGraphPlugin { get; set; }
-
-        protected override async Task OnInitializedAsync()
-        {
-            await base.OnInitializedAsync();
-    
-            OpenGraphPlugin = Plugins?.SingleOrDefault(p => p.Name!.Equals("Open Graph", StringComparison.OrdinalIgnoreCase));
-        }
-    }    
+    <OpenGraphComponent Name="Open Graph" />
     ```
 
-   > **NOTE**: Those `@Documents`, `@Document`, `@Theme` and `@Site` values are inherited, and the `@OpenGraphPlugin` value is calculated from the `OnInitializedAsync()` method.
+   > **NOTE**: The configured plugin manifest is resolved by `Name` using case-insensitive matching. The current documents, document, theme and site are received from the inherited cascading values.
 
 1. Alternatively, use the placeholder, `<plugin:open-graph />` instead of the `<OpenGraphComponent />` component.
 
