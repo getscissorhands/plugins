@@ -6,7 +6,7 @@ namespace ScissorHands.Plugin.GoogleAnalytics.Tests;
 public class GoogleAnalyticsComponentTests
 {
 	[Fact]
-	public void Given_PluginIsNull_When_Rendered_Then_It_Should_Render_GoogleTag_With_EmptyMeasurementId()
+	public void Given_PluginIsNotConfigured_When_Rendered_Then_It_Should_Not_Render_GoogleTag()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
@@ -15,13 +15,12 @@ public class GoogleAnalyticsComponentTests
 
 		// Act
 		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
-			.Add(p => p.Name, "Google Analytics")
+			.Add(p => p.Id, "google-analytics")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document));
 
 		// Assert
-		cut.Markup.ShouldContain("gtag/js?id=");
-		cut.Markup.ShouldContain("gtag('config', '');");
+		cut.Markup.ShouldBeEmpty();
 	}
 
 	[Fact]
@@ -31,11 +30,11 @@ public class GoogleAnalyticsComponentTests
 		using var ctx = new BunitContext();
 		var site = CreateSiteManifest();
 		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var plugin = new PluginManifest { Name = "Google Analytics", Options = null };
+		var plugin = new PluginManifest { Id = "google-analytics", Name = "Google Analytics", Options = null };
 
 		// Act
 		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
-			.Add(p => p.Name, "Google Analytics")
+			.Add(p => p.Id, "google-analytics")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -47,7 +46,7 @@ public class GoogleAnalyticsComponentTests
 
 	[Theory]
 	[InlineData("G-XXXXXXXXXX")]
-	public void Given_CaseInsensitiveNameAndMeasurementId_When_Rendered_Then_It_Should_Render_GoogleTag_With_MeasurementId(string measurementId)
+	public void Given_IdAndMeasurementId_When_Rendered_Then_It_Should_Render_GoogleTag_With_MeasurementId(string measurementId)
 	{
 		// Arrange
 		using var ctx = new BunitContext();
@@ -55,7 +54,8 @@ public class GoogleAnalyticsComponentTests
 		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
 		var plugin = new PluginManifest
 		{
-			Name = "Google Analytics",
+			Id = "google-analytics",
+			Name = "Shared display name",
 			Options = new Dictionary<string, object?>
 			{
 				{ "MeasurementId", measurementId },
@@ -64,7 +64,8 @@ public class GoogleAnalyticsComponentTests
 
 		// Act
 		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
-			.Add(p => p.Name, "google analytics")
+			.Add(p => p.Id, "google-analytics")
+			.Add(p => p.Name, "Different display name")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -81,18 +82,18 @@ public class GoogleAnalyticsComponentTests
 		using var ctx = new BunitContext();
 		var site = CreateSiteManifest();
 		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var initialPlugin = CreatePluginManifest("Google Analytics", "G-INITIAL");
-		var updatedPlugin = CreatePluginManifest("Updated Analytics", "G-UPDATED");
+		var initialPlugin = CreatePluginManifest("google-analytics", "G-INITIAL");
+		var updatedPlugin = CreatePluginManifest("updated-analytics", "G-UPDATED");
 
 		var cut = ctx.Render<GoogleAnalyticsComponent>(parameters => parameters
-			.Add(p => p.Name, "Google Analytics")
+			.Add(p => p.Id, "google-analytics")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { initialPlugin, updatedPlugin }));
 
 		// Act
 		cut.Render(parameters => parameters
-			.Add(p => p.Name, "updated analytics"));
+			.Add(p => p.Id, "updated-analytics"));
 
 		// Assert
 		cut.Markup.ShouldContain("gtag/js?id=G-UPDATED");
@@ -116,11 +117,12 @@ public class GoogleAnalyticsComponentTests
 		};
 	}
 
-	private static PluginManifest CreatePluginManifest(string name, string measurementId)
+	private static PluginManifest CreatePluginManifest(string id, string measurementId)
 	{
 		return new PluginManifest
 		{
-			Name = name,
+			Id = id,
+			Name = "Shared display name",
 			Options = new Dictionary<string, object?>
 			{
 				{ "MeasurementId", measurementId },

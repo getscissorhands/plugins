@@ -10,6 +10,20 @@ public class OpenGraphPluginTests
     private static readonly Regex OpenGraphTitleRegex = new("property=\"og:title\"", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     [Theory]
+    [InlineData("open-graph")]
+    public void When_Instantiated_Then_Id_Should_Be(string id)
+    {
+        // Arrange
+        var pg = new OpenGraphPlugin();
+
+        // Act
+        var result = pg.Id;
+
+        // Assert
+        result.ShouldBe(id);
+    }
+
+    [Theory]
     [InlineData("Open Graph")]
     public void When_Instantiated_Then_Name_Should_Be(string name)
     {
@@ -31,7 +45,7 @@ public class OpenGraphPluginTests
         var pg = new OpenGraphPlugin();
         var html = string.Empty;
         var document = new ContentDocument();
-        var plugin = new PluginManifest();
+        var plugin = new PluginManifest { Id = "open-graph" };
         var site = new SiteManifest();
         var cancellationTokenSource = new CancellationTokenSource();
         cancellationTokenSource.Cancel();
@@ -50,7 +64,7 @@ public class OpenGraphPluginTests
         // Arrange
         var pg = new OpenGraphPlugin();
         var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = new PluginManifest { Options = null };
+        var plugin = new PluginManifest { Id = "open-graph", Options = null };
         var site = CreateSiteManifest();
 
         // Act
@@ -136,7 +150,7 @@ public class OpenGraphPluginTests
             { "TwitterSiteId", "@original-site" },
             { "TwitterCreatorId", "@original-creator" },
         };
-        var plugin = new PluginManifest { Options = options };
+        var plugin = new PluginManifest { Id = "open-graph", Options = options };
         var site = CreateSiteManifest();
         options["TwitterSiteId"] = "@mutated-site";
         options["TwitterCreatorId"] = "@mutated-creator";
@@ -200,6 +214,7 @@ public class OpenGraphPluginTests
         var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
         var plugin = new PluginManifest
         {
+            Id = "open-graph",
             Options = new Dictionary<string, object?>
             {
                 { "TwitterSiteId", 12345 },
@@ -354,6 +369,7 @@ public class OpenGraphPluginTests
     {
         return new PluginManifest
         {
+            Id = "open-graph",
             Options = new Dictionary<string, object?>
             {
                 { "TwitterSiteId", twitterSiteId },

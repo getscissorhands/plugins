@@ -28,6 +28,7 @@ This plugin renders the [Open Graph](https://ogp.me/) tags.
       ...
       "Plugins": [
         {
+          "Id": "open-graph",
           "Name": "Open Graph",
           "Options": {
             "TwitterSiteId": "@your_twitter_handle_site",
@@ -49,10 +50,10 @@ This plugin renders the [Open Graph](https://ogp.me/) tags.
 1. Add a UI component, `<OpenGraphComponent />` with parameters, to `MainLayout.razor`.
 
     ```razor
-    <OpenGraphComponent Name="Open Graph" />
+    <OpenGraphComponent Id="open-graph" />
     ```
 
-   > **NOTE**: The configured plugin manifest is resolved by `Name` using case-insensitive matching. The current documents, document, theme and site are received from the inherited cascading values.
+   > **NOTE**: The configured plugin manifest is resolved by its exact, case-sensitive `Id`. `Name` is optional display metadata. The current documents, document, theme and site are received from the inherited cascading values.
 
 1. Alternatively, use the placeholder, `<plugin:open-graph />` instead of the `<OpenGraphComponent />` component.
 

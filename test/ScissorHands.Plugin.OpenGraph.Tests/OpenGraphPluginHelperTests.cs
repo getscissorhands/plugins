@@ -177,7 +177,7 @@ public class OpenGraphPluginHelperTests
 	public void Given_NullPluginOptions_When_GetOptionValue_Invoked_Then_It_Should_Return_Default()
 	{
 		// Arrange
-		var plugin = new PluginManifest { Options = null };
+		var plugin = new PluginManifest { Id = "open-graph", Options = null };
 
 		// Act
 		var result = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
@@ -192,6 +192,7 @@ public class OpenGraphPluginHelperTests
 		// Arrange
 		var plugin = new PluginManifest
 		{
+			Id = "open-graph",
 			Options = new Dictionary<string, object?>
 			{
 				{ "SomeOtherKey", "SomeValue" },
@@ -211,6 +212,7 @@ public class OpenGraphPluginHelperTests
 		// Arrange
 		var plugin = new PluginManifest
 		{
+			Id = "open-graph",
 			Options = new Dictionary<string, object?>
 			{
 				{ "TwitterSiteId", 12345 },
@@ -230,6 +232,7 @@ public class OpenGraphPluginHelperTests
 		// Arrange
 		var plugin = new PluginManifest
 		{
+			Id = "open-graph",
 			Options = new Dictionary<string, object?>
 			{
 				{ "TwitterSiteId", "@site" },

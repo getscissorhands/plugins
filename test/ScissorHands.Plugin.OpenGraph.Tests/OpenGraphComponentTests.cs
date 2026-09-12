@@ -6,6 +6,24 @@ namespace ScissorHands.Plugin.OpenGraph.Tests;
 public class OpenGraphComponentTests
 {
 	[Fact]
+	public void Given_PluginIsNotConfigured_When_Rendered_Then_It_Should_Not_Render_Metadata()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+
+		// Act
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Id, "open-graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document));
+
+		// Assert
+		cut.Markup.ShouldBeEmpty();
+	}
+
+	[Fact]
 	public void Given_ValidPostWithPluginOptions_When_Rendered_Then_It_Should_Render_OpenGraph_And_TwitterTags()
 	{
 		// Arrange
@@ -16,7 +34,8 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "open graph")
+			.Add(p => p.Id, "open-graph")
+			.Add(p => p.Name, "Different display name")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -45,18 +64,18 @@ public class OpenGraphComponentTests
 		using var ctx = new BunitContext();
 		var site = CreateSiteManifest();
 		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-		var initialPlugin = CreatePluginManifest(name: "Open Graph", twitterSiteId: "@initial-site", twitterCreatorId: "@initial-creator");
-		var updatedPlugin = CreatePluginManifest(name: "Updated Open Graph", twitterSiteId: "@updated-site", twitterCreatorId: "@updated-creator");
+		var initialPlugin = CreatePluginManifest(id: "open-graph", twitterSiteId: "@initial-site", twitterCreatorId: "@initial-creator");
+		var updatedPlugin = CreatePluginManifest(id: "updated-open-graph", twitterSiteId: "@updated-site", twitterCreatorId: "@updated-creator");
 
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { initialPlugin, updatedPlugin }));
 
 		// Act
 		cut.Render(parameters => parameters
-			.Add(p => p.Name, "updated open graph"));
+			.Add(p => p.Id, "updated-open-graph"));
 
 		// Assert
 		cut.Markup.ShouldContain("name=\"twitter:site\" content=\"@updated-site\"");
@@ -76,7 +95,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -97,7 +116,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -118,7 +137,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -140,7 +159,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue(documents)
@@ -177,13 +196,14 @@ public class OpenGraphComponentTests
 	}
 
 	private static PluginManifest CreatePluginManifest(
-		string name = "Open Graph",
+		string id = "open-graph",
 		string? twitterSiteId = null,
 		string? twitterCreatorId = null)
 	{
 		return new PluginManifest
 		{
-			Name = name,
+			Id = id,
+			Name = "Shared display name",
 			Options = new Dictionary<string, object?>
 			{
 				{ "TwitterSiteId", twitterSiteId },

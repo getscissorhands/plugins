@@ -22,6 +22,9 @@ public sealed class GoogleAnalyticsPlugin : ContentPlugin
     private const string PLACEHOLDER = "<plugin:google-analytics></plugin:google-analytics>";
 
     /// <inheritdoc />
+    public override string Id => "google-analytics";
+
+    /// <inheritdoc />
     public override string Name => "Google Analytics";
 
     /// <inheritdoc />

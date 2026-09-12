@@ -28,6 +28,7 @@ This plugin renders [Google Analytics](https://analytics.google.com) script.
       ...
       "Plugins": [
         {
+          "Id": "google-analytics",
           "Name": "Google Analytics",
           "Options": {
             "MeasurementId": "G-XXXXXXXX"
@@ -46,10 +47,10 @@ This plugin renders [Google Analytics](https://analytics.google.com) script.
 1. Add a UI component, `<GoogleAnalyticsComponent />` with parameters, to `MainLayout.razor`. **It's strongly advised to place right after the opening `<head>` tag.**
 
     ```razor
-    <GoogleAnalyticsComponent Name="Google Analytics" />
+    <GoogleAnalyticsComponent Id="google-analytics" />
     ```
 
-   > **NOTE**: The configured plugin manifest is resolved by `Name` using case-insensitive matching. The current documents, document, theme and site are received from the inherited cascading values.
+   > **NOTE**: The configured plugin manifest is resolved by its exact, case-sensitive `Id`. `Name` is optional display metadata. The current documents, document, theme and site are received from the inherited cascading values.
 
 1. Alternatively, use the placeholder, `<plugin:google-analytics />` instead of the `<GoogleAnalyticsComponent />` component. **It's strongly advised to place right after the opening `<head>` tag**.
 

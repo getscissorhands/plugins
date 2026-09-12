@@ -11,20 +11,6 @@ Collection of the official plugins for ScissorHands.NET
 
 ## Build Your Plugin
 
-1. Set environment variables for GitHub NuGet Package Registry.
-
-    ```bash
-    # zsh/bash
-    source ./scripts/setup-gh-auth.sh --username "<GITHUB_USERNAME>" --token "<GITHUB_TOKEN>"
-    ```
-
-    ```powershell
-    # PowerShell
-    . ./scripts/setup-gh-auth.ps1 -Username "<GITHUB_USERNAME>" -Token "<GITHUB_TOKEN>"
-    ```
-
-   > **NOTE**: Make sure to **sourcing** the script instead of executing it.
-
 1. Create a class library.
 
     ```bash
@@ -42,6 +28,8 @@ Collection of the official plugins for ScissorHands.NET
     ```csharp
     public class MyAwesomeScissorHandsPlugin : ContentPlugin
     {
+        public override string Id => "my-awesome-plugin";
+
         public override string Name => "My Awesome ScissorHands Plugin";
     
         public override async Task<ContentDocument> PreMarkdownAsync(ContentDocument document, PluginManifest plugin, SiteManifest site, CancellationToken cancellationToken = default)
@@ -60,6 +48,8 @@ Collection of the official plugins for ScissorHands.NET
         }
     }
     ```
+
+   Plugin IDs are stable, lowercase kebab-case identifiers used by configuration, dependencies, and Razor components. Display names are optional labels and are not used for matching.
 
 ## Issues?
 

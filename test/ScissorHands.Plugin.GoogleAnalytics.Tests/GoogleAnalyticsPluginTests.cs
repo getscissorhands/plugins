@@ -10,6 +10,20 @@ public class GoogleAnalyticsPluginTests
     private static readonly Regex GoogleTagRegex = new("<!-- Google tag \\(gtag\\.js\\) -->", RegexOptions.Compiled);
 
     [Theory]
+    [InlineData("google-analytics")]
+    public void When_Instantiated_Then_Id_Should_Be(string id)
+    {
+        // Arrange
+        var pg = new GoogleAnalyticsPlugin();
+
+        // Act
+        var result = pg.Id;
+
+        // Assert
+        result.ShouldBe(id);
+    }
+
+    [Theory]
     [InlineData("Google Analytics")]
     public void When_Instantiated_Then_Name_Should_Be(string name)
     {
@@ -31,7 +45,7 @@ public class GoogleAnalyticsPluginTests
         var pg = new GoogleAnalyticsPlugin();
         var html = string.Empty;
         var document = new ContentDocument();
-        var plugin = new PluginManifest();
+        var plugin = new PluginManifest { Id = "google-analytics" };
         var site = new SiteManifest();
         var cancellationTokenSource = new CancellationTokenSource();
         cancellationTokenSource.Cancel();
@@ -50,7 +64,7 @@ public class GoogleAnalyticsPluginTests
         // Arrange
         var pg = new GoogleAnalyticsPlugin();
         var document = new ContentDocument();
-        var plugin = new PluginManifest { Options = null };
+        var plugin = new PluginManifest { Id = "google-analytics", Options = null };
         var site = CreateSiteManifest();
 
         // Act
@@ -72,6 +86,7 @@ public class GoogleAnalyticsPluginTests
         var document = new ContentDocument();
         var plugin = new PluginManifest
         {
+            Id = "google-analytics",
             Options = new Dictionary<string, object?>
             {
                 { "SomeOtherKey", "SomeValue" }
@@ -140,7 +155,7 @@ public class GoogleAnalyticsPluginTests
         {
             { "MeasurementId", "G-ORIGINAL" },
         };
-        var plugin = new PluginManifest { Options = options };
+        var plugin = new PluginManifest { Id = "google-analytics", Options = options };
         var site = CreateSiteManifest();
         options["MeasurementId"] = "G-MUTATED";
 
@@ -237,6 +252,7 @@ public class GoogleAnalyticsPluginTests
         var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
         var plugin = new PluginManifest
         {
+            Id = "google-analytics",
             Options = new Dictionary<string, object?>
             {
                 { "MeasurementId", measurementId }
@@ -280,6 +296,7 @@ public class GoogleAnalyticsPluginTests
     {
         return new PluginManifest
         {
+            Id = "google-analytics",
             Options = new Dictionary<string, object?>
             {
                 { "MeasurementId", measurementId },

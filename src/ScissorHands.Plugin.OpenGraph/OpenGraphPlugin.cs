@@ -28,6 +28,9 @@ public sealed class OpenGraphPlugin : ContentPlugin
     private const string PLACEHOLDER = "<plugin:open-graph></plugin:open-graph>";
 
     /// <inheritdoc />
+    public override string Id => "open-graph";
+
+    /// <inheritdoc />
     public override string Name => "Open Graph";
 
     /// <inheritdoc />
