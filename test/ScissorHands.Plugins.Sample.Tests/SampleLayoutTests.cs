@@ -209,11 +209,9 @@ public class SampleLayoutTests
         {
             configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"));
         }
+        var args = usePlaceholders ? new[] { "--preview", "--use-placeholders" } : new[] { "--preview" };
         context.Services.AddSingleton<IConfiguration>(configuration
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Sample:UsePlaceholders"] = usePlaceholders.ToString(),
-            })
+            .AddCommandLine(SampleArguments.ToHostArguments(args))
             .Build());
         context.Services.AddSingleton(Substitute.For<IThemeService>());
         return context;

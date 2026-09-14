@@ -60,9 +60,11 @@ and `Site.SiteUrl` uses it for static metadata. Without a launch profile or
 another endpoint override, ASP.NET Core defaults to the same address. If the
 port is busy, stop your existing preview before starting another.
 
-Keep configuration overrides before the final `--preview` or `--build` flag;
-the host's command-line configuration parser can consume the next argument
-as the value of a bare mode flag.
+Keep general configuration overrides before the `--preview` or `--build`
+flag; the host's command-line configuration parser can consume the next
+argument as the value of a bare mode flag. The sample's `--use-placeholders`
+switch is translated before the host starts and works before or after the
+mode flag.
 
 Preview regenerates after content changes; refresh the browser manually.
 Changes to C#/Razor require a rebuild and restart. Do not use `--no-build` after
@@ -72,16 +74,17 @@ editing plugin or sample code unless you have rebuilt that configuration.
 
 The default configuration renders `OpenGraphComponent` and
 `GoogleAnalyticsComponent`, with the fake measurement ID `G-EXAMPLE`.
-To insert paired markers for the engine's post-HTML pipeline instead, set
-`Sample:UsePlaceholders` through a command-line override using the same `http`
-profile:
+To insert paired markers for the engine's post-HTML pipeline instead, pass
+`--use-placeholders` using the same `http` profile:
 
 ```powershell
-dotnet run -- --Sample:UsePlaceholders=true --preview
+dotnet run -- --preview --use-placeholders
 ```
 
-There is no separate `hooks` launch profile. You can also set
-`Sample:UsePlaceholders` to `true` in `appsettings.json`. The layout never
+There is no separate `hooks` launch profile or `Sample` block to edit in
+`appsettings.json`. The sample bootstrap translates the switch into the internal
+`Sample:UsePlaceholders=true` setting; omitting the switch uses components by
+default. The layout never
 inserts both paths in one render, and does not emit markers for
 unconfigured plugins. These examples use paired markers rather than assuming
 that self-closing markers are normalized by the host.
@@ -123,7 +126,7 @@ From `sample`, use the build mode to inspect output without starting a server:
 
 ```powershell
 dotnet run --no-launch-profile -- --build
-dotnet run --no-launch-profile -- --Sample:UsePlaceholders=true --build
+dotnet run --no-launch-profile -- --build --use-placeholders
 ```
 
 Preview/build output goes to `sample/preview` and `sample/dist`. These directories

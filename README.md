@@ -24,7 +24,7 @@ dotnet run -c Release --no-build -- --preview
 Open `http://localhost:5000` and inspect page source. Open Graph and Google
 Analytics are enabled; analytics uses the fake ID `G-EXAMPLE`. A fake ID does
 not prevent browser requests to Google. The sample guide includes the alternate
-post-HTML hook mode (`--Sample:UsePlaceholders=true`), static generation and
+post-HTML hook mode (`--use-placeholders`), static generation and
 configuration details. No package publishing or theme symlink is needed.
 
 ## Build Your Plugin
