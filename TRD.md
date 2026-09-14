@@ -4,22 +4,22 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.7 / Implementation-ready |
+| Version / status | 0.8 / Implementation-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | [Catalog PRD](PRD.md) v0.7, Implementation-ready with confirmed product scope, acceptance and release policy; shared requirements and delegated plugin baselines |
+| Product baseline | [Catalog PRD](PRD.md) v0.8, Implementation-ready with confirmed product scope, acceptance and release policy; shared requirements and delegated plugin baselines |
 | Scope | Shared authoring/compatibility obligations and an index of per-plugin technical requirements |
-| Sources | Catalog source baseline `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`, current configuration and plugin-relevant upstream contracts |
+| Sources | Local PRD decisions, source baseline `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`, current configuration and relevant engine API references |
 | Historical dependency baseline | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; preserve this evidence and record the actual resolved graph again for each upgrade/release |
 | Sign-off / owner | @justinyoo owns implementation, verification, support and release authorization; engineering/regression and release-policy requirements confirmed on 2026-09-14, not completed implementation or release acceptance |
 
-Read this gateway plus the owning plugin's PRD/TRD. Shared requirements apply where the plugin uses that surface; local documents must explicitly state applicability or justified exclusions, not silently weaken shared rules. PRDs own product intent, observable acceptance and release policy; TRDs own exact contracts, configuration, implementation constraints, verification methods and technical evidence. Product changes belong in the owning PRD before its TRD. Upstream Plugin/Core contracts remain authoritative; engine implementation and approval history are excluded.
+Read this gateway plus the owning plugin's PRD/TRD. Shared requirements apply where the plugin uses that surface; local documents must explicitly state applicability or justified exclusions, not silently weaken shared rules. PRDs own product intent, observable acceptance and release policy; TRDs own exact contracts, configuration, implementation constraints, verification methods and technical evidence. Product changes belong in the owning PRD before its TRD. Local PRD/TRD pairs and [AGENTS.md](AGENTS.md) govern this repository. The resolved Plugin/Core package APIs constrain compatibility; engine planning and contributor documents do not supply additional requirements.
 
 ## Plugin technical catalog
 
 | Plugin ID | Product baseline | Technical requirements | Evidence location |
 | --- | --- | --- | --- |
-| `google-analytics` | [PRD v0.6](src/ScissorHands.Plugin.GoogleAnalytics/PRD.md) | [Google Analytics TRD v0.6](src/ScissorHands.Plugin.GoogleAnalytics/TRD.md) | [Tests](test/ScissorHands.Plugin.GoogleAnalytics.Tests) |
-| `open-graph` | [PRD v0.6](src/ScissorHands.Plugin.OpenGraph/PRD.md) | [Open Graph TRD v0.6](src/ScissorHands.Plugin.OpenGraph/TRD.md) | [Tests](test/ScissorHands.Plugin.OpenGraph.Tests) |
+| `google-analytics` | [PRD v0.7](src/ScissorHands.Plugin.GoogleAnalytics/PRD.md) | [Google Analytics TRD v0.7](src/ScissorHands.Plugin.GoogleAnalytics/TRD.md) | [Tests](test/ScissorHands.Plugin.GoogleAnalytics.Tests) |
+| `open-graph` | [PRD v0.7](src/ScissorHands.Plugin.OpenGraph/PRD.md) | [Open Graph TRD v0.7](src/ScissorHands.Plugin.OpenGraph/TRD.md) | [Tests](test/ScissorHands.Plugin.OpenGraph.Tests) |
 
 ## 1. Shared boundaries
 
@@ -29,15 +29,17 @@ Do not infer catalog-wide implementation rules from the first two plugins. Suppo
 
 Configuration sources are [root props](Directory.Build.props), [source props](src/Directory.Build.props), [test props](test/Directory.Build.props), [central packages](Directory.Packages.props) and [global.json](global.json). These select .NET 10, nullable/implicit usings, the language version, central major floats, and MTP/xUnit v3 test executables. Warnings-as-errors is currently a validation flag, not a root property.
 
-**Technical provenance, relocated from catalog PRD v0.6:** source/tests, these build settings and the workflow establish the implementation baseline, not delivery of pending target behavior. Upstream source was consulted at `7b5db6e1f27327cd8be50c08e4163e72e0a28425` on 2026-09-14. Its [TRD][upstream-trd] supplies relevant identity, immutable-input, compatibility, cancellation and output/URL obligations; its [TDD][upstream-tdd] supplies trusted-extension/raw-rendering context only; its [AGENTS][upstream-agents] supplies applicable authoring, testing and package guardrails. These references do not import engine designs, approvals or release claims. The catalog PRD retains the product provenance.
+**Local requirement basis:** source/tests, these build settings and the workflow establish the implementation baseline, not delivery of pending target behavior. Identity, immutable-input, compatibility, cancellation, output/trust and package obligations are explicitly stated in T-001 through T-010, the local plugin pairs and AGENTS.md. Their accepted scope remains binding without external planning/contributor citations. Historical derivation is available in Git history; it is not required reading.
+
+**External API references:** retain the [plugin-authoring API guide][upstream-plugin] for identity, hooks and component integration, and [Core URL-helper documentation][upstream-urls] for formatting semantics. The pinned documentation snapshot was consulted on 2026-09-14 and is a historical compatibility reference, not proof of support for every package release. Before adopting or changing an API, check documentation or source matching the resolved NuGet release and record that reference with the compatibility evidence. A moving branch or newer API description must not silently redefine the local baseline. Migration-guide discovery links are in [AGENTS.md](AGENTS.md#scope-and-sources).
 
 ## 2. Shared technical requirements
 
-Shared T-records retain the existing authoring baseline, with accepted release-policy changes in T-007/T-008. Local v0.6 TRDs distinguish explicitly confirmed requirements from current code and pending implementation. Technical details relocated from the PRDs retain their prior user-confirmed authority; they are not new obligations inferred from a shorter product statement. Each record states its source, obligation and verification; stable IDs and redirects remain intact.
+Shared T-records retain the existing authoring baseline, with accepted release-policy changes in T-007/T-008. Local v0.7 TRDs distinguish explicitly confirmed requirements from current code and pending implementation. Technical details relocated from the PRDs retain their prior user-confirmed authority; they are not new obligations inferred from a shorter product statement. Each record states its source, obligation and verification; stable IDs and redirects remain intact.
 
 ### T-001: Identity and dependency integration
 
-**Source / rationale:** P-FR-001, P-NFR-001; [upstream plugin contract][upstream-plugin]. Preserve stable selection independent of display labels.
+**Source / rationale:** P-FR-001, P-NFR-001 and the locally accepted identity contract; [plugin API reference][upstream-plugin]. Preserve stable selection independent of display labels.
 
 Implementations must use unique lowercase ASCII kebab-case IDs and non-empty display names; manifests/selectors/dependency targets use exact IDs with no normalization or name fallback. Manifest presence enables host hooks; components must omit output for an absent manifest. There is no universal `Options.Enabled` switch.
 
@@ -47,7 +49,7 @@ Declare actual stage prerequisites through `DependsOn`/`PluginDependency(PluginI
 
 ### T-002: Hook transformation and cancellation
 
-**Source / rationale:** P-FR-004, P-NFR-002; upstream hook signatures. Keep transformations composable.
+**Source / rationale:** P-FR-004, P-NFR-002 and the locally accepted cancellation contract; [hook API reference][upstream-plugin]. Keep transformations composable.
 
 Override only supported stages, inherit unused pass-through hooks and return the transformed value. Preserve non-null hook parameter contracts and pass supplied cancellation through supported operations. Observed cancellation and errors must propagate rather than become success-shaped output. A direct hook call does not enforce host enablement.
 
@@ -57,7 +59,7 @@ Each plugin defines its own insertion/replacement contract; paired markers and r
 
 ### T-003: Component lifecycle and cascading input
 
-**Source / rationale:** P-FR-001/P-FR-004, P-NFR-002; `PluginComponentBase`. Applies to plugins that provide a Razor component.
+**Source / rationale:** P-FR-001/P-FR-004, P-NFR-002; `PluginComponentBase` in the [plugin API reference][upstream-plugin]. Applies to plugins that provide a Razor component.
 
 Call `base.OnParametersSet()` before using the selected manifest; recompute/clear derived state when context changes. Use `Id` for selection and upstream cascading parameters for site/document/manifests; `Plugin` is not a direct component parameter. Define missing-context behavior locally without promising universal surface parity.
 
@@ -81,7 +83,7 @@ The applicable catalog-wide rule is P-NFR-005: use upstream [ContentUrlHelper se
 
 ### T-006: Output integrity, privacy and failure policy
 
-**Source / rationale:** P-NFR-003/P-NFR-005; upstream output/trust boundary. Assess the contexts each plugin emits.
+**Source / rationale:** P-NFR-003/P-NFR-005 and the locally accepted trusted-extension/output boundary. Assess the contexts each plugin emits.
 
 Preserve ordinary Razor metadata encoding and review raw HTML, attributes, JavaScript strings and URL schemes separately. Formatting helpers are not sanitizers or scheme allowlists. Use synthetic inputs; do not expose secrets or treat content as commands. Do not introduce blanket sanitization as a compatibility shortcut.
 
@@ -193,10 +195,9 @@ The v0.7 catalog and v0.6 plugin pairs separate document responsibilities withou
 
 **v0.7 separation (2026-09-14):** moves detailed contracts, technical baselines, verification and operational evidence out of the PRDs and into their existing technical owners. T-009 now makes that boundary explicit. The relocation table preserves traceability; no behavior, pending work or release gate is weakened.
 
-**Readiness:** Implementation-ready against catalog PRD v0.7: technical behavior, acceptance conditions and verification obligations are unchanged and confirmed, with no unresolved product or technical decision blocking the agreed implementation. Runtime changes, regression/integration evidence and actual publishing verification remain execution work, not deferred requirements. @justinyoo owns those gates; selecting and authorizing a release remains separate. The [catalog source record](PRD.md#sources-and-review-status) retains product provenance without importing engine approval or asserting release readiness.
+**v0.8 reference policy (2026-09-14):** removes engine planning/contributor documents as ongoing sources of requirements. Accepted obligations remain explicit locally; relevant API references and release-matching verification remain. Historical citations can be recovered from Git history. No technical contract, evidence gap or release gate changes.
+
+**Readiness:** Implementation-ready against catalog PRD v0.8: technical behavior, acceptance conditions and verification obligations are unchanged and confirmed, with no unresolved product or technical decision blocking the agreed implementation. Runtime changes, regression/integration evidence and actual publishing verification remain execution work, not deferred requirements. @justinyoo owns those gates; selecting and authorizing a release remains separate. The [catalog source record](PRD.md#sources-and-review-status) retains the local product-decision basis without asserting release readiness.
 
 [upstream-plugin]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#plugin-authoring
 [upstream-urls]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers
-[upstream-trd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/TRD.md
-[upstream-tdd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/TDD.md
-[upstream-agents]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/AGENTS.md

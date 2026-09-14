@@ -6,7 +6,9 @@ This repository authors the official plugins for ScissorHands.NET and includes a
 
 Start with the [catalog PRD](PRD.md) and [catalog TRD](TRD.md), then read the owning plugin's adjacent `PRD.md` and `TRD.md`. The roots own shared requirements and navigation; plugin pairs own behavior, acceptance and gaps. Distinguish accepted target policy from current implementation and pending evidence. Documenting a gap is not an instruction to implement it, and a plugin's policy must not silently become a catalog-wide rule.
 
-Use the [upstream plugin guide](https://github.com/getscissorhands/ScissorHands.NET/blob/vnext/docs/website-documentation.md#plugin-authoring) and [migration reference](https://github.com/getscissorhands/ScissorHands.NET/blob/vnext/docs/website-documentation.md#upgrading-to-vnext) for external contracts. Check the source/docs matching the resolved NuGet release before adapting new APIs: the moving `vnext` branch can be newer. Adapt only plugin-authoring material, not upstream engine plans, approvals, or release claims.
+This file and the local PRD/TRD pairs govern this repository. Engine planning documents and its contributor instructions are not required reading or sources of additional product, release or authoring policy. Preserve accepted obligations explicitly in the local documents; historical derivation is available in Git history.
+
+Keep the [plugin-authoring guide](https://github.com/getscissorhands/ScissorHands.NET/blob/vnext/docs/website-documentation.md#plugin-authoring) and [migration reference](https://github.com/getscissorhands/ScissorHands.NET/blob/vnext/docs/website-documentation.md#upgrading-to-vnext) as discovery links for external API compatibility. Before adapting an API, consult source/docs matching the resolved NuGet release and record the matching reference in the TRD: the moving `vnext` branch can be newer. Use these references for identity, hooks, component lifecycle, URL helpers and migration mechanics, not engine plans, approvals or contributor policy.
 
 ## Repository map
 
@@ -22,7 +24,7 @@ Use the [upstream plugin guide](https://github.com/getscissorhands/ScissorHands.
 | [Central packages](Directory.Packages.props) | Major-version floating dependencies and central-floating opt-in |
 | [Workflow](.github/workflows/main.yaml) | Build/test matrix and tag-triggered packaging/publishing |
 
-Source/test props must import root props because MSBuild discovers only the nearest `Directory.Build.props`. Keep project-specific descriptions/tags and project references in `.csproj`; avoid repeating shared settings. Assembly/package IDs derive from project names. Keep the plugin-repository URLs and common ScissorHands.Plugin reference when adopting upstream build conventions.
+Source/test props must import root props because MSBuild discovers only the nearest `Directory.Build.props`. Keep project-specific descriptions/tags and project references in `.csproj`; avoid repeating shared settings. Assembly/package IDs derive from project names. Keep the plugin-repository URLs and common ScissorHands.Plugin reference when maintaining shared build settings.
 
 ## Adding or evolving a plugin
 

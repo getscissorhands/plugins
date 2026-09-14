@@ -6,16 +6,18 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.6 / Implementation-ready |
+| Version / status | 0.7 / Implementation-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Open Graph PRD v0.6, Implementation-ready with unchanged product behavior and acceptance |
-| Shared baseline | Catalog PRD/TRD v0.7; apply shared obligations without silently overriding them |
+| Product baseline | Open Graph PRD v0.7, Implementation-ready with unchanged product behavior and acceptance |
+| Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target runtime changes remain pending |
 | Package / plugin ID | `ScissorHands.Plugin.OpenGraph` / `open-graph` |
 | Approval / owner | @justinyoo owns implementation, verification, support and release authorization; metadata, URL/output and regression requirements confirmed on 2026-09-14, not runtime acceptance or approval to publish |
 | Release stage | Preview, with versioning/releases independent from the upstream engine |
 
 This TRD owns Open Graph's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply; original T-005 is relocated here as the authoritative social-URL requirement, with a gateway redirect. New local records use `OG-TR-*`.
+
+The local PRD, this TRD and catalog requirements define the accepted obligations. Engine identity, hook and component API references are centralized in the [catalog TRD](../../TRD.md#1-shared-boundaries). That release-matching policy also applies to the Core URL-helper reference below. Engine planning/contributor documents are not prerequisites or sources of additional policy.
 
 The plugin is an independent Razor class library consuming Plugin/Core. It overrides only `PostHtmlAsync`, has no `DependsOn` override, and performs no file/network operation in generation. It does not implement route loading, navigation, preview hosting or image fetching. Source links and verification below own the implementation details formerly repeated in the PRD.
 
@@ -64,7 +66,7 @@ The component must call `base.OnParametersSet()`, clear derived fields and recom
 
 ## T-005: Content and image URL boundaries
 
-**State / source:** Confirmed requirement (user, 2026-09-14); P-FR-005, shared P-NFR-005; [local helper](OpenGraphPluginHelper.cs) and [upstream formatting contract](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers). Retain the original catalog ID while adding the agreed validation/omission rules.
+**State / source:** Confirmed requirement (user, 2026-09-14); P-FR-005, shared P-NFR-005; [local helper](OpenGraphPluginHelper.cs) and [Core URL-helper API reference](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers). Retain the original catalog ID and locally agreed validation/omission rules; the helper reference describes dependency semantics, not product policy.
 
 For non-blank slugs, use `ContentUrlHelper.GetContentUrl`: trim outer whitespace, normalize both slash separators, escape segments and reject literal `.`/`..` segments. Convert the helper's root result `.` to the site root. Null/blank local slugs also return the site root; this local fallback does not change upstream null-argument behavior.
 
@@ -115,4 +117,6 @@ No analytics/consent service, database, account system, remote-generation API, n
 
 **v0.6 separation (2026-09-14):** consolidates package/source metadata, JSON/component examples, exact field/URL contracts and technical delivery/migration records here. PRD question IDs retain their product decisions and link to this evidence; no behavior, ID or acceptance obligation changes.
 
-**Readiness:** Implementation-ready against plugin PRD v0.6 and shared v0.7 baselines. No unresolved policy or technical requirement blocks implementation. Runtime parity, validation, omission, URL/output changes and regression evidence remain pending, not deferred. Shared T-008 records reported publishing setup and the limits of independent verification; release evidence and authorization are still required. This is not completed implementation, a completed audit or release approval.
+**v0.7 reference policy (2026-09-14):** makes local requirement authority and release-matched API references explicit. All metadata, URL, lifecycle, privacy, migration and verification obligations remain unchanged.
+
+**Readiness:** Implementation-ready against plugin PRD v0.7 and shared v0.8 baselines. No unresolved policy or technical requirement blocks implementation. Runtime parity, validation, omission, URL/output changes and regression evidence remain pending, not deferred. Shared T-008 records reported publishing setup and the limits of independent verification; release evidence and authorization are still required. This is not completed implementation, a completed audit or release approval.

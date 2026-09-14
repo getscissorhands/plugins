@@ -6,15 +6,15 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.6 / Implementation-ready |
+| Version / status | 0.7 / Implementation-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.7; shared requirements apply as described below |
+| Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
 | Delivery state | Accepted changes remain pending; implementation baseline and evidence are owned by the [TRD](TRD.md#baseline-and-inheritance) |
 | Plugin ID | `open-graph` |
 | Approval / owner | @justinyoo owns implementation, verification, support and release authorization; metadata, URL/output and regression requirements explicitly confirmed on 2026-09-14, not authorization to publish |
 | Release stage | Preview; versioning and releases are independent of the upstream engine |
 
-This PRD owns Open Graph's purpose, scope, observable behavior and product acceptance. It inherits catalog requirements without changing their meaning. The [plugin TRD](TRD.md) owns configuration formats, integration contracts, current-code details and verification; the [README](README.md) provides usage instructions. ScissorHands.NET remains authoritative for external contracts.
+This PRD owns Open Graph's purpose, scope, observable behavior and product acceptance. It inherits local catalog requirements without changing their meaning. The [plugin TRD](TRD.md) owns configuration formats, integration contracts, current-code details and verification; the [README](README.md) provides usage instructions. Product policy is self-contained in these local documents; the engine is a compatibility dependency, not a source of additional product requirements.
 
 The primary user is a site author wanting social metadata without engine changes. A theme author integrates the plugin; browsers and sharing clients consume the result. The existing plugin establishes the current experience, not guaranteed crawler behavior or measured adoption. Technical evidence is recorded in the TRD.
 
@@ -58,7 +58,7 @@ Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview
 
 **Release impact:** stricter publication-address validation and more selective creator/image metadata are breaking changes for affected consumers. They must supply valid site information, correct any unsupported image references and account for fields that may no longer appear; images remain optional. Current-code differences and technical migration details are in [the TRD](TRD.md#gaps-and-readiness); this revision does not deliver the runtime changes.
 
-**Readiness:** Implementation-ready: scope, metadata parity, required/optional inputs, URL/output semantics and regression expectations are explicitly confirmed, with no unresolved policy decision blocking implementation. Runtime changes and evidence remain pending, not deferred. Crawler acceptance is outside the claimed scope; publishing verification remains a release gate under shared Q-005. Document readiness is not completed implementation, a completed audit or release approval. The [catalog source record](../../PRD.md#sources-and-review-status) retains provenance; upstream engine approval history is not inherited.
+**Readiness:** Implementation-ready: scope, metadata parity, required/optional inputs, URL/output semantics and regression expectations are explicitly confirmed, with no unresolved policy decision blocking implementation. Runtime changes and evidence remain pending, not deferred. Crawler acceptance is outside the claimed scope; publishing verification remains a release gate under shared Q-005. Document readiness is not completed implementation, a completed audit or release approval. The [catalog source record](../../PRD.md#sources-and-review-status) records the local decision basis.
 
 **v0.3 clarification:** recorded @justinyoo's ownership and engine-independent preview releases; it did not approve a recovery policy or a specific deferral.
 
@@ -67,3 +67,5 @@ Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview
 **v0.5 confirmation (2026-09-14):** records explicit confirmation of metadata consistency, required/optional inputs, URL/output handling and regressions and aligns with catalog v0.6's publishing-setup evidence. Existing IDs, scope and migration effects are preserved; no runtime delivery is claimed.
 
 **v0.6 separation (2026-09-14):** move configuration examples, exact integration/URL contracts, current-code details and verification tracking to the TRD. Retain product acceptance and release impact here. Existing requirement/question IDs and delivery obligations remain intact.
+
+**v0.7 reference policy (2026-09-14):** align with catalog v0.8's local authority and API-only external-reference policy. Accepted behavior, IDs, evidence gaps and implementation readiness remain unchanged.

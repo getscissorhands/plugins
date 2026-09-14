@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Document version / status | 0.7 / Implementation-ready |
+| Document version / status | 0.8 / Implementation-ready |
 | Last updated | 2026-09-14 |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
@@ -16,7 +16,7 @@
 
 This document is the catalog entry point and owns **shared product requirements**. Each linked plugin PRD owns its purpose, users, scope, observable behavior and product acceptance. [TRD.md](TRD.md) and the plugin TRDs own contracts, configuration formats, implementation constraints, verification methods and technical delivery gaps. READMEs provide usage and operational guidance; [AGENTS.md](AGENTS.md) owns contributor commands and workflow.
 
-Read the shared documents plus the relevant plugin pair. A plugin document specializes shared requirements; it cannot silently waive them or govern a sibling plugin. Resolve conflicts in the owning PRD before updating technical requirements. ScissorHands.NET remains authoritative for external engine/extension contracts.
+Read the shared documents plus the relevant plugin pair. A plugin document specializes shared requirements; it cannot silently waive them or govern a sibling plugin. Resolve conflicts in the owning PRD before updating technical requirements. These local documents govern plugin product scope and policy. Compatibility with the engine is a dependency constraint, documented in the TRDs, not a dependency on the engine's planning or contributor documents.
 
 **States:** Confirmed identifies user instructions or source-backed baseline behavior, not automatic future-policy approval. Proposed means awaiting a decision; Unknown means evidence/decisions are absent. Review-ready is not sign-off. Implementation-ready means the confirmed requirements support starting work, not that implementation or release gates have passed. New plugin proposals enter the catalog with their actual status, not inherited approval.
 
@@ -104,9 +104,9 @@ Q-001 through Q-004 remain routing IDs. On 2026-09-14, the user explicitly confi
 
 ## Sources and review status
 
-Product decisions come from the user's authoring, upgrade, sample and requirements-review requests recorded below. The [upstream PRD][upstream-prd], consulted on 2026-09-14, supplies the plugin-enablement and trusted-extension product boundary only. The [catalog TRD](TRD.md#1-shared-boundaries) owns pinned technical sources, dependency versions, implementation evidence and engineering constraints; no engine plan or approval is inherited.
+Product decisions come from the user's authoring, upgrade, sample and requirements-review requests recorded below and are fully stated in these local PRD/TRD pairs. Plugin enablement, trusted-extension limits and engine responsibilities remain explicit local requirements. The [catalog TRD](TRD.md#1-shared-boundaries) owns relevant API references, dependency versions, implementation evidence and engineering constraints. Historical derivation is available in Git history; reading external planning or contributor documents is not a prerequisite.
 
-**v0.2 change:** on the user's 2026-09-14 request, convert the root documents into extensible gateways, retain shared IDs, relocate specific requirements/questions with explicit mappings, and introduce P-FR-006. Existing runtime scope, upstream provenance and unresolved decisions are preserved.
+**v0.2 change:** on the user's 2026-09-14 request, convert the root documents into extensible gateways, retain shared IDs, relocate specific requirements/questions with explicit mappings, and introduce P-FR-006. Existing runtime scope, source provenance and unresolved decisions were preserved at that revision.
 
 **Sample addition (2026-09-14):** the user requested a local preview directory based on theme-template. P-FR-007 adds a consuming host and fixtures, not a new engine/theme product or a change to either plugin's preview/consent policy.
 
@@ -120,6 +120,6 @@ Product decisions come from the user's authoring, upgrade, sample and requiremen
 
 **v0.7 separation (2026-09-14):** at the user's request, move technical contracts, configuration, verification details and operational evidence into the TRDs. Product behavior, release policy and requirement/question IDs are unchanged. The [relocation record](TRD.md#prd-to-trd-relocation) identifies their technical owners.
 
-**Readiness:** Implementation-ready for the agreed product scope: observable requirements, acceptance conditions, ownership and release policies are confirmed. Delivery and release evidence remain pending, not deferred; the TRDs retain the specific engineering gaps. Quantitative outcome evaluation remains outside the committed scope and under @justinyoo's ownership. No completed audit, upstream approval or release authorization is inherited.
+**v0.8 reference policy (2026-09-14):** at the user's request, remove external planning/contributor documents as governing sources. Previously accepted obligations remain stated locally; technical API references remain in the TRDs. No requirement, delivery gap or release policy changes.
 
-[upstream-prd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/PRD.md
+**Readiness:** Implementation-ready for the agreed product scope: observable requirements, acceptance conditions, ownership and release policies are confirmed. Delivery and release evidence remain pending, not deferred; the TRDs retain the specific engineering gaps. Quantitative outcome evaluation remains outside the committed scope and under @justinyoo's ownership. Document readiness is not a completed audit or release authorization.

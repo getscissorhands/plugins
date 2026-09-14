@@ -6,15 +6,15 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.6 / Implementation-ready |
+| Version / status | 0.7 / Implementation-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.7; shared requirements apply as described below |
+| Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
 | Delivery state | Accepted changes remain pending; implementation baseline and evidence are owned by the [TRD](TRD.md#baseline-and-inheritance) |
 | Plugin ID | `google-analytics` |
 | Approval / owner | @justinyoo owns implementation, verification, support and release authorization; validation/output and regression requirements explicitly confirmed on 2026-09-14, not authorization to publish |
 | Release stage | Preview; versioning and releases are independent of the upstream engine |
 
-This PRD owns Google Analytics's purpose, scope, observable behavior and product acceptance. It inherits the catalog's shared compatibility, identity, failure, output-integrity and authoring constraints. The [plugin TRD](TRD.md) owns configuration formats, integration contracts, current-code details and verification; the [README](README.md) provides usage instructions. No engine requirements or upstream approvals are imported.
+This PRD owns Google Analytics's purpose, scope, observable behavior and product acceptance. It inherits the local catalog's shared compatibility, identity, failure, output-integrity and authoring constraints. The [plugin TRD](TRD.md) owns configuration formats, integration contracts, current-code details and verification; the [README](README.md) provides usage instructions. Product policy is self-contained in these local documents; the engine is a compatibility dependency, not a source of additional product requirements.
 
 The primary user is a site author who wants Google Analytics markup without changing the engine. A theme author chooses where to integrate it; visitors run the emitted browser code. The existing plugin establishes the current experience, not proof of real provider delivery or measured user benefit. Technical evidence is recorded in the TRD.
 
@@ -64,3 +64,5 @@ Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview
 **v0.5 confirmation (2026-09-14):** records explicit confirmation of validation, output handling and regression requirements and aligns with catalog v0.6's publishing-setup evidence. Existing IDs, scope and migration effects are preserved; no runtime delivery is claimed.
 
 **v0.6 separation (2026-09-14):** move configuration examples, exact integration/validation contracts, current-code details and verification tracking to the TRD. Retain product acceptance and release impact here. GA-Q-003 remains a redirect to its technical owner; no policy, ID or delivery obligation is removed.
+
+**v0.7 reference policy (2026-09-14):** align with catalog v0.8's local authority and API-only external-reference policy. Accepted behavior, IDs, evidence gaps and implementation readiness remain unchanged.

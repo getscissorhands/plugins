@@ -6,16 +6,18 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.6 / Implementation-ready |
+| Version / status | 0.7 / Implementation-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Google Analytics PRD v0.6, Implementation-ready with unchanged product behavior and acceptance |
-| Shared baseline | Catalog PRD/TRD v0.7; apply shared obligations without silently overriding them |
+| Product baseline | Google Analytics PRD v0.7, Implementation-ready with unchanged product behavior and acceptance |
+| Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target validation changes remain pending |
 | Package / plugin ID | `ScissorHands.Plugin.GoogleAnalytics` / `google-analytics` |
 | Approval / owner | @justinyoo owns implementation, verification, support and release authorization; validation/output and regression requirements confirmed on 2026-09-14, not runtime acceptance or approval to publish |
 | Release stage | Preview, with versioning/releases independent from the upstream engine |
 
 This TRD owns Google Analytics's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply. Open Graph's delegated T-005 does not: this plugin emits an external Google URL, not content/social-image URLs. Applicable shared P-NFR-005 still prevents prefixing that external URL with the site's base path.
+
+The local PRD, this TRD and catalog requirements define the accepted obligations. Engine identity, hook and component API references are centralized in the [catalog TRD](../../TRD.md#1-shared-boundaries); verify them against the resolved package release when changing integration. Engine planning/contributor documents are not prerequisites or sources of additional policy.
 
 The plugin is an independent Razor class library consuming upstream Plugin/Core. It overrides only `PostHtmlAsync`, has no `DependsOn` override, and performs no filesystem or outbound measurement operation during generation. Removing its manifest disables host hooks/component output; it does not unload or sandbox the assembly. It is not an analytics client service, registry or consent backend. Source links and verification below own the implementation details formerly repeated in the PRD.
 
@@ -91,4 +93,6 @@ No visible controls, local storage, authentication, remote-generation API or per
 
 **v0.6 separation (2026-09-14):** consolidates package/source metadata, JSON/component examples, validation contracts and technical delivery/migration records here. GA-Q-003 is technically owned by GA-TR-002, with its PRD entry retained as a redirect. Product acceptance and all existing IDs remain unchanged.
 
-**Readiness:** Implementation-ready against local PRD v0.6 and shared v0.7 baselines. No unresolved policy or technical requirement blocks implementation. Runtime validation/encoding and related regressions remain pending, not deferred. Shared T-008 records reported publishing setup and the limits of independent verification; release evidence and authorization are still required. This is not completed implementation, a completed audit or release approval.
+**v0.7 reference policy (2026-09-14):** makes local requirement authority and release-matched API references explicit. All validation, lifecycle, privacy, migration and verification obligations remain unchanged.
+
+**Readiness:** Implementation-ready against local PRD v0.7 and shared v0.8 baselines. No unresolved policy or technical requirement blocks implementation. Runtime validation/encoding and related regressions remain pending, not deferred. Shared T-008 records reported publishing setup and the limits of independent verification; release evidence and authorization are still required. This is not completed implementation, a completed audit or release approval.
