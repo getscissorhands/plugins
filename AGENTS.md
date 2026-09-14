@@ -41,8 +41,8 @@ Source/test props must import root props because MSBuild discovers only the near
 Use the SDK selected by [global.json](global.json), targeting .NET 10 with Microsoft.Testing.Platform. Run these from the repository root (PowerShell examples):
 
 ```powershell
-dotnet restore ./ScissorHandsPlugins.sln
-dotnet build ./ScissorHandsPlugins.sln -c Release --no-restore -warnaserror
+dotnet restore ./ScissorHandsPlugins.slnx
+dotnet build ./ScissorHandsPlugins.slnx -c Release --no-restore -warnaserror
 dotnet test -c Release --no-build --verbosity normal
 ```
 
@@ -54,7 +54,7 @@ dotnet test --project ./test/ScissorHands.Plugin.OpenGraph.Tests/ScissorHands.Pl
 
 Use MTP's `--project`/`--solution` selectors when supplying an explicit target, not VSTest's positional project/solution syntax or VSTest filter/logger assumptions. The root-discovery full-suite command above matches this repository's CI. Keep build/test configurations aligned and inspect the test count; a successful build or a zero-test run is not test evidence.
 
-During dependency upgrades, use `dotnet restore ./ScissorHandsPlugins.sln --force-evaluate --no-cache` and inspect the resolved graph, not just the floating ranges. Do not clear shared NuGet caches or re-pin major floats as an incidental cleanup.
+During dependency upgrades, use `dotnet restore ./ScissorHandsPlugins.slnx --force-evaluate --no-cache` and inspect the resolved graph, not just the floating ranges. Do not clear shared NuGet caches or re-pin major floats as an incidental cleanup.
 
 Normal builds do not pack. For local prerelease package inspection:
 

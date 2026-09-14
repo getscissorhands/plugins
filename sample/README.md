@@ -9,8 +9,8 @@ Preview locally built plugins using the NuGet.org engine and its built-in theme.
 From the repository root, using the SDK selected by [global.json](../global.json):
 
 ```powershell
-dotnet restore ./ScissorHandsPlugins.sln
-dotnet build ./ScissorHandsPlugins.sln -c Release --no-restore
+dotnet restore ./ScissorHandsPlugins.slnx
+dotnet build ./ScissorHandsPlugins.slnx -c Release --no-restore
 Set-Location sample
 dotnet run -c Release --no-build -- --preview
 ```

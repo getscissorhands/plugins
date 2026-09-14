@@ -97,6 +97,8 @@ Each plugin must document preview behavior and relevant external requests, stora
 
 Keep versions in `Directory.Packages.props` with central-floating opt-in. Source/test props import root defaults and own common dependencies/settings; projects retain unique metadata/references. Preserve .NET 10, executable xUnit v3 tests, Shouldly/NSubstitute/bUnit and Microsoft.Testing.Platform. Await async assertions and use the xUnit cancellation token where appropriate.
 
+The repository uses [ScissorHandsPlugins.slnx](ScissorHandsPlugins.slnx), the XML solution format. It retains the six projects under `sample`, `src` and `test`, with Debug/Release configurations and Any CPU/x64/x86 solution platforms. Keep a single solution file so root-level build and test discovery remains unambiguous.
+
 **Verification / accepted compatibility policy:** re-evaluate floating packages during upgrades, record the resolved plugin/upstream version combinations and validate affected behavior. Compatibility claims cover that verified graph, not every version in the floating ranges or an indefinite backward-support window. Build Release and run applicable regressions with nonzero discovery; breaking changes require migration guidance and new acceptance tests. Commands live in [AGENTS.md](AGENTS.md).
 
 Plugin versions and release timing must not be coupled to upstream engine version numbers or releases. @justinyoo selects independent preview releases; compatibility is established by dependency declarations and evidence, not matching version labels. No pipeline version value or package dependency range is changed by this documentation clarification.
