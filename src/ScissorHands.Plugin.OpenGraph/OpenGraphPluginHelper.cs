@@ -1,5 +1,6 @@
 using ScissorHands.Core.Manifests;
 using ScissorHands.Core.Models;
+using ScissorHands.Core.Urls;
 
 namespace ScissorHands.Plugin.OpenGraph;
 
@@ -16,7 +17,16 @@ public static class OpenGraphPluginHelper
     /// <returns>Returns the content URL.</returns>
     public static string GetContentUrl(ContentDocument? document, SiteManifest? site)
     {
-        return CombineSiteUrl(site, document?.Metadata.Slug);
+        if (string.IsNullOrWhiteSpace(document?.Metadata.Slug))
+        {
+            return GetSiteUrl(site);
+        }
+
+        var contentUrl = ContentUrlHelper.GetContentUrl(document.Metadata.Slug);
+
+        return contentUrl == "."
+            ? GetSiteUrl(site)
+            : CombineSiteUrl(site, contentUrl);
     }
 
     /// <summary>
@@ -33,7 +43,7 @@ public static class OpenGraphPluginHelper
 
         return string.IsNullOrWhiteSpace(imageUrl)
             ? string.Empty
-            : CombineSiteUrl(site, imageUrl);
+            : CombineSiteUrl(site, ContentUrlHelper.GetImageUrl(imageUrl));
     }
 
     /// <summary>

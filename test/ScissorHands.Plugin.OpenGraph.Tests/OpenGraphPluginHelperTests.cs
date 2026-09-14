@@ -70,6 +70,7 @@ public class OpenGraphPluginHelperTests
 	[InlineData("https://example.com/", "", "/hello-world", "https://example.com/hello-world")]
 	[InlineData("https://example.com", "/blog/", "/hello-world", "https://example.com/blog/hello-world")]
 	[InlineData("https://example.com/", "blog", "hello-world", "https://example.com/blog/hello-world")]
+	[InlineData("https://example.com", "/blog/", @" guides\about & team/ ", "https://example.com/blog/guides/about%20%26%20team")]
 	[InlineData("", "/blog/", "/hello-world", "blog/hello-world")]
 	public void Given_DocumentAndSite_When_GetContentUrl_Invoked_Then_It_Should_Compose_Url(
 		string siteUrl,
@@ -272,6 +273,23 @@ public class OpenGraphPluginHelperTests
 
 		// Assert
 		result.ShouldBe(baseUrl.Length == 0 ? "https://example.com" : "https://example.com/blog");
+	}
+
+	[Theory]
+	[InlineData(".")]
+	[InlineData("..")]
+	[InlineData("guides/../admin")]
+	public void Given_UnsafeSlug_When_GetContentUrl_Invoked_Then_It_Should_Throw_ArgumentException(string slug)
+	{
+		// Arrange
+		var document = CreateDocument(slug);
+		var site = CreateSite("https://example.com", "/blog/");
+
+		// Act
+		Func<string> func = () => OpenGraphPluginHelper.GetContentUrl(document, site);
+
+		// Assert
+		func.ShouldThrow<ArgumentException>();
 	}
 
 	private static ContentDocument CreateDocument(string slug, string? heroImage = null, string? sourcePath = "/posts/hello-world.md")
