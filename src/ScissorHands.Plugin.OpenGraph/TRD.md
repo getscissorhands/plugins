@@ -6,10 +6,10 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.3 / Review-ready |
+| Version / status | 0.4 / Review-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Open Graph PRD v0.3, Review-ready with accepted policy direction and ownership |
-| Shared baseline | Catalog PRD/TRD v0.4; apply shared obligations without silently overriding them |
+| Product baseline | Open Graph PRD v0.4, Review-ready with accepted policies and ownership |
+| Shared baseline | Catalog PRD/TRD v0.5; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target runtime changes remain pending |
 | Approval / owner | @justinyoo owns implementation, verification, support and release authorization; accepted policy direction is not runtime acceptance or approval to publish |
 | Release stage | Preview, with versioning/releases independent from the upstream engine |
@@ -85,7 +85,7 @@ Retain Open Graph output in preview and production under the same validation rul
 | Shared P-NFR-003 | OG-TR-003, T-006 | Context-specific validation review; no comprehensive audit claim |
 | Shared P-NFR-005 | T-005, OG-TR-001/003 | Resolved URLs/site locale; head-only output, no visible UI or measured performance contract |
 
-Use [AGENTS.md](../../AGENTS.md) for commands. Verify this package's assembly, README, license, icon, symbols and dependency metadata under shared T-008. Shared Q-005 governs release/publishing decisions; package creation is not authorization to publish.
+Use [AGENTS.md](../../AGENTS.md) for commands. Verify this package's assembly, README, license, icon, symbols and dependency metadata under shared [T-008](../../TRD.md#t-008-package-and-consumer-documentation). It and [Q-005](../../PRD.md#shared-release-question) govern accepted release/support/recovery and optional-only deferral policies. Required parity/context, URL/output and regression work is pending, not deferred. Package creation and policy agreement are not authorization to publish.
 
 ## Gaps and readiness
 
@@ -93,4 +93,4 @@ Use [AGENTS.md](../../AGENTS.md) for commands. Verify this package's assembly, R
 
 No analytics/consent service, database, account system, remote-generation API, navigation subsystem or accessibility/browser-conformance program is part of this plugin baseline. External image and locale/output semantics remain applicable; future features require a separate applicability review.
 
-**Readiness:** Review-ready against plugin PRD v0.3 and shared v0.4 baselines, with accepted direction and concrete technical acceptance recorded. Runtime implementation and evidence remain pending. v0.2 resolved policy alternatives; v0.3 adds named ownership and independent preview releases, preserving IDs and migration notes. This is not full-document sign-off, a completed audit or release approval.
+**Readiness:** Review-ready against plugin PRD v0.4 and shared v0.5 baselines, with accepted policies and concrete technical acceptance recorded. Runtime implementation and evidence remain pending. v0.2 resolved policy alternatives and v0.3 added named ownership and independent preview releases. v0.4 aligns the accepted support/recovery and optional-only deferral policies, preserving IDs and migration notes and deferring no specific work. This is not full-document sign-off, a completed audit or release approval.

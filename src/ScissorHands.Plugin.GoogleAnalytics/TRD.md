@@ -6,10 +6,10 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.3 / Review-ready |
+| Version / status | 0.4 / Review-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Google Analytics PRD v0.3, Review-ready with accepted policy direction and ownership |
-| Shared baseline | Catalog PRD/TRD v0.4; apply shared obligations without silently overriding them |
+| Product baseline | Google Analytics PRD v0.4, Review-ready with accepted policies and ownership |
+| Shared baseline | Catalog PRD/TRD v0.5; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target validation changes remain pending |
 | Approval / owner | @justinyoo owns implementation, verification, support and release authorization; accepted policy direction is not runtime acceptance or approval to publish |
 | Release stage | Preview, with versioning/releases independent from the upstream engine |
@@ -64,7 +64,7 @@ Retain enabled-when-configured behavior in preview and production, including the
 | Shared P-NFR-003 | T-006, GA-TR-001/003 | Context-specific output/privacy review; not a comprehensive audit |
 | Shared P-NFR-005 | GA-TR-001/003 | External loader URL; no local route/locale/UI generation |
 
-Shared commands and package conventions remain in [AGENTS.md](../../AGENTS.md). Verify this package's assembly, README, license, icon, symbols and dependency metadata. Shared Q-005 controls release-version/publishing questions; packaging is not publication authorization.
+Shared commands and package conventions remain in [AGENTS.md](../../AGENTS.md). Verify this package's assembly, README, license, icon, symbols and dependency metadata. Shared [Q-005](../../PRD.md#shared-release-question) and [T-008](../../TRD.md#t-008-package-and-consumer-documentation) govern accepted release/support/recovery and optional-only deferral policies. Required validation/encoding and regression work is pending, not deferred. Packaging and policy agreement are not publication authorization.
 
 ## Gaps and readiness
 
@@ -72,4 +72,4 @@ Shared commands and package conventions remain in [AGENTS.md](../../AGENTS.md). 
 
 No visible controls, local storage, authentication, remote-generation API or performance SLA is in scope. Privacy/client implications are explicitly applicable because browser code contacts Google. Other capabilities require their own product change, not inherited sibling requirements.
 
-**Readiness:** Review-ready against local PRD v0.3 and shared v0.4 baselines, with accepted policy and concrete technical acceptance recorded. Runtime validation/encoding and related regressions remain to be implemented; release prerequisites are separate. v0.2 replaced the former alternatives; v0.3 adds named ownership and independent preview releases while preserving all IDs. This is not full-document sign-off, a completed audit or release approval.
+**Readiness:** Review-ready against local PRD v0.4 and shared v0.5 baselines, with accepted policies and concrete technical acceptance recorded. Runtime validation/encoding and related regressions remain to be implemented; release prerequisites are separate. v0.2 replaced the former alternatives and v0.3 added named ownership and independent preview releases. v0.4 aligns the accepted support/recovery and optional-only deferral policies, preserving all IDs and deferring no specific work. This is not full-document sign-off, a completed audit or release approval.

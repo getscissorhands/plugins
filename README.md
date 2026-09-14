@@ -77,6 +77,11 @@ publishes to NuGet.org and GitHub Packages and creates a GitHub release. Branch
 and pull-request builds do not publish. The tag supplies the package version,
 so a prerelease dependency requires an appropriate prerelease tag/version.
 
+@justinyoo owns release authorization. Plugin version numbers and release timing
+are independent of the upstream engine; releases remain preview for now.
+Compatibility claims cover verified plugin/engine combinations, not matching
+version labels or every version permitted by floating dependencies.
+
 NuGet.org uses [trusted publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
 with `NuGet/login@v1`, not a stored long-lived API key. Before the first release:
 
@@ -94,12 +99,45 @@ with `NuGet/login@v1`, not a stored long-lived API key. Before the first release
 Only the release job requests OIDC tokens. It uses the short-lived key for
 packages and their adjacent `.snupkg` symbols on NuGet.org. GitHub Packages uses
 `GITHUB_TOKEN` with symbol upload disabled. Both destinations skip existing
-versions so partial runs can be retried; the two registries are not an atomic
-transaction. GitHub release creation follows successful publishing steps and
-marks hyphenated package versions as prereleases.
+versions so partial publication can be retried with the same verified artifacts;
+the two registries are not an atomic transaction. GitHub release creation follows
+successful publishing steps and marks hyphenated package versions as prereleases.
 
 Configuring the workflow does not configure the external trusted-publishing
 policy, publish a package, or authorize pushing a release tag.
+
+## Support and recovery
+
+Support is best-effort through [GitHub Issues](https://github.com/getscissorhands/plugins/issues),
+triaged by @justinyoo. There is no guaranteed response time or commitment to
+maintain every historical preview.
+
+Fix defective code in a new preview version; do not replace a published package.
+Consumers may temporarily pin a previously verified plugin/engine combination.
+There is no automatic rollback.
+
+For partial publication, inspect the failed run and each destination's results.
+Reuse its original verified package/symbol artifacts to finish the missing
+publication steps, allowing the workflow's duplicate skipping to preserve
+existing versions. The release job downloads the build job's `artifacts` output;
+do not blindly rerun the build or rebuild different bytes under the same version.
+If the original artifacts cannot be recovered, stop and resolve that gap with
+@justinyoo rather than assume a rebuild is identical. Record artifact identity
+and destination results before declaring recovery complete.
+
+With @justinyoo's explicit approval for the affected version, deprecate or unlist
+a faulty preview where supported and point users to its replacement. This does
+not remove installed copies. Agreement to this policy is not authorization for
+a particular publication, deprecation or unlisting.
+
+### Optional deferrals
+
+Implement agreed plugin behavior and obtain required release evidence rather
+than defer them; preview status does not waive those obligations. Only optional
+extras may wait, with an issue recording the item, why it is nonblocking and
+@justinyoo as owner. No specific item is deferred by this policy, and there is no
+need to create a deferral list when none is needed. See the
+[catalog release gates](PRD.md#3-release-expectations-and-question-routing).
 
 ## Issues?
 

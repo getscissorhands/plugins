@@ -51,3 +51,8 @@ This plugin renders the [Open Graph](https://ogp.me/) tags.
     ```
 
    Use paired markers for the hook path; self-closing hook markers are not part of the supported contract. Choose one insertion path per intended output to avoid duplicates.
+
+## Support
+
+See the shared [support and recovery policy](https://github.com/getscissorhands/plugins#support-and-recovery)
+for best-effort issue support and preview-release recovery.
