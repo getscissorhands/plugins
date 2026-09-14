@@ -12,7 +12,8 @@ Collection of the official plugins for ScissorHands.NET
 ## Local preview
 
 The [sample application](sample/README.md) previews the plugins from local
-project references using the NuGet.org engine. From the repository root:
+project references using the NuGet.org engine and its packaged default-theme
+CSS/JavaScript. From the repository root:
 
 ```powershell
 dotnet build .\ScissorHandsPlugins.sln -c Release

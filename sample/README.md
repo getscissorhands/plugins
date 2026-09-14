@@ -7,8 +7,36 @@ projects in this checkout, so plugin changes do not require package publishing.
 
 `SampleLayout.razor` supplies plugin insertion points and forwards the upstream
 cascading context. The other six views come from the engine's default theme.
-This is a minimal inspection layout, not a new production theme; no theme
-symlinks, CSS build step, or copied engine sources are required.
+This is an inspection layout, not a new production theme. It uses the built-in
+theme's packaged CSS, JavaScript, favicon and color toggle while retaining the
+sample navigation and plugin controls. No theme symlink or CSS/JavaScript source
+copy needs to be maintained.
+
+## Built-in theme assets
+
+The installed `ScissorHands.Web` package includes `themes/default` as NuGet
+content files, but the current release does not automatically copy them to a
+consumer's output directory. `sample.csproj` opts that package's content into
+build/publish output copying, preserving its linked paths. The package version
+is resolved through central management, not a hardcoded NuGet-cache path.
+
+At runtime, the engine finds `themes/default/theme.json` below the application
+output and copies the assets into the generated site. `SampleLayout` emits
+the manifest's stylesheet/script references using `GetThemeUrl`, so the browser
+can load `themes/default/assets/theme.css` and `theme.js`. The package's
+third-party notice is carried alongside the assets.
+
+The layout initializes the color preference before loading styles, following
+the built-in layout's convention. The packaged theme script implements the
+toggle and stores the preference in the browser's `localStorage`. It is
+unrelated to analytics and loads locally even
+when analytics is disabled. This does not reproduce the complete built-in
+`MainLayout` or its hierarchical navigation.
+
+If styling is missing, rebuild the sample and restart preview before refreshing
+the browser. Confirm the stylesheet/script requests return HTTP 200. Avoid
+creating a partial `sample/themes/default` directory: a local theme directory
+takes precedence over the bundled output directory, even if it has no manifest.
 
 ## Run locally
 
@@ -27,9 +55,10 @@ including when launching from an IDE. Stop the server with Ctrl+C.
 
 Run from the `sample` directory: the engine resolves content/configuration and
 output relative to the working directory. Do not invoke the built executable
-from the repository root. Both the launch profile and `appsettings.json` use
-`http://localhost:5000`, including runs with `--no-launch-profile`. If the port
-is busy, stop your existing preview before starting another.
+from the repository root. The launch profile specifies `http://localhost:5000`,
+and `Site.SiteUrl` uses it for static metadata. Without a launch profile or
+another endpoint override, ASP.NET Core defaults to the same address. If the
+port is busy, stop your existing preview before starting another.
 
 Keep configuration overrides before the final `--preview` or `--build` flag;
 the host's command-line configuration parser can consume the next argument
@@ -105,4 +134,5 @@ engine preview server does not mount output at a configured prefix; changing
 
 The sample is built by the solution but is not a NuGet package or a deployment
 target. Its [layout integration tests](../test/ScissorHands.Plugins.Sample.Tests)
-cover both rendering modes and analytics enablement without provider requests.
+cover both rendering modes, analytics enablement, theme references and bundled
+assets without provider requests.

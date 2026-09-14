@@ -7,9 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ScissorHands.Web" />
+    <PackageReference Include="ScissorHands.Web" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\src\ScissorHands.Plugin.GoogleAnalytics\ScissorHands.Plugin.GoogleAnalytics.csproj" />
     <ProjectReference Include="..\src\ScissorHands.Plugin.OpenGraph\ScissorHands.Plugin.OpenGraph.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="@(Content->WithMetadataValue('NuGetPackageId', 'ScissorHands.Web'))">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <None Include="$(PkgScissorHands_Web)\THIRD-PARTY-NOTICES.md"
+          Link="themes\default\assets\THIRD-PARTY-NOTICES.md"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

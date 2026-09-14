@@ -15,7 +15,7 @@ Use the [upstream plugin guide](https://github.com/getscissorhands/ScissorHands.
 | [Google Analytics](src/ScissorHands.Plugin.GoogleAnalytics) | `google-analytics`; [PRD](src/ScissorHands.Plugin.GoogleAnalytics/PRD.md), [TRD](src/ScissorHands.Plugin.GoogleAnalytics/TRD.md), implementation and package README |
 | [Open Graph](src/ScissorHands.Plugin.OpenGraph) | `open-graph`; [PRD](src/ScissorHands.Plugin.OpenGraph/PRD.md), [TRD](src/ScissorHands.Plugin.OpenGraph/TRD.md), implementation and package README |
 | [Tests](test) | Corresponding plugin-hook, helper and bUnit component suites |
-| [Sample](sample/README.md) | Non-packable preview host using local plugin project references, a minimal insertion layout and the engine's built-in views |
+| [Sample](sample/README.md) | Non-packable preview host using local plugin references, an insertion layout, built-in views and packaged default-theme assets |
 | [Root props](Directory.Build.props) | Shared .NET target, language, nullable and implicit-using settings |
 | [Source props](src/Directory.Build.props) | Common Plugin dependency, package metadata/assets and explicit packing defaults |
 | [Test props](test/Directory.Build.props) | Executable test projects, common packages and global usings |
@@ -64,7 +64,9 @@ Inspect the assembly, dependency metadata, project README (root fallback), licen
 
 For code changes, start with the affected suite and run the full suite for cross-plugin/shared changes. Add regressions alongside the implementation. Documentation-only edits need source/link review, not an unrelated build. Use the [sample guide](sample/README.md) for scoped host integration; there is no browser acceptance suite and a local preview does not establish provider behavior.
 
-Run the sample from its own directory: `Set-Location sample`, then `dotnet run -- --preview` or `dotnet run --no-launch-profile -- --build`. The single `http` launch profile and app settings use `http://localhost:5000`; stop preview with Ctrl+C. Test both the default component path and hook mode (`dotnet run -- --Sample:UsePlaceholders=true --preview`) when changing insertion behavior; there is no separate hook launch profile. Keep analytics disabled unless explicitly testing its markup; browsing analytics-enabled output can contact Google. Never commit `sample/preview` or `sample/dist`, and do not assume a `BaseUrl` change mounts the preview server at a subpath.
+Run the sample from its own directory: `Set-Location sample`, then `dotnet run -- --preview` or `dotnet run --no-launch-profile -- --build`. The single `http` launch profile and `Site.SiteUrl` use `http://localhost:5000`; stop preview with Ctrl+C. Test both the default component path and hook mode (`dotnet run -- --Sample:UsePlaceholders=true --preview`) when changing insertion behavior; there is no separate hook launch profile. Keep analytics disabled unless explicitly testing its markup; browsing analytics-enabled output can contact Google. Never commit `sample/preview` or `sample/dist`, and do not assume a `BaseUrl` change mounts the preview server at a subpath.
+
+Reuse the engine package's default-theme content files through the sample's build/publish copy metadata, not a hardcoded package version or checked-in CSS/JS copy. The sample layout uses the manifest and `GetThemeUrl`; the engine copies bundled assets into generated output. Preserve third-party notices. When changing this integration, verify generated asset requests and the color toggle as well as plugin markup; a partial local `sample/themes/default` shadows the bundled manifest.
 
 ## Plugin contracts
 

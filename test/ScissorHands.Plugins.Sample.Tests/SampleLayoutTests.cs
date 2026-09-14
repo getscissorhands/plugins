@@ -56,6 +56,7 @@ public class SampleLayoutTests
         // Act
         var rendered = context.Render<SampleLayout>(parameters => parameters
             .Add(component => component.Site, site)
+            .Add(component => component.Theme, CreateTheme())
             .Add(component => component.Document, document)
             .Add(component => component.Plugins, manifests)
             .Add(component => component.Body, builder => builder.AddMarkupContent(0, "<p>Sample content</p>")));
@@ -66,6 +67,16 @@ public class SampleLayoutTests
         html.ShouldContain("content=\"Sample post | Plugin preview\"");
         html.ShouldContain("content=\"https://example.com/blog/sample\"");
         html.ShouldNotContain("<plugin:");
+        rendered.Find("head link[rel='stylesheet']").GetAttribute("href")
+            .ShouldBe("themes/default/assets/theme.css");
+        rendered.Find("head link[rel='icon']").GetAttribute("href")
+            .ShouldBe("themes/default/favicon.ico");
+        rendered.Find("body script[src]").GetAttribute("src")
+            .ShouldBe("themes/default/assets/theme.js");
+        rendered.Find("base").GetAttribute("href").ShouldBe("/blog/");
+        rendered.Find(".site-header .navigation-list").ShouldNotBeNull();
+        rendered.Find("#theme-toggle").GetAttribute("aria-label").ShouldBe("Switch color theme");
+        rendered.Find(".site-footer").ShouldNotBeNull();
         html.Split("property=\"og:title\"", StringSplitOptions.None).Length.ShouldBe(2);
         html.IndexOf("property=\"og:title\"", StringComparison.Ordinal)
             .ShouldBeLessThan(html.IndexOf("</head>", StringComparison.Ordinal));
@@ -93,12 +104,66 @@ public class SampleLayoutTests
         // Act
         var rendered = context.Render<SampleLayout>(parameters => parameters
             .Add(component => component.Site, new SiteManifest())
+            .Add(component => component.Theme, CreateTheme())
             .Add(component => component.Plugins, Array.Empty<PluginManifest>()));
 
         // Assert
         rendered.Markup.ShouldNotContain("<plugin:");
         rendered.Markup.ShouldNotContain("property=\"og:");
         rendered.Markup.ShouldNotContain("googletagmanager.com");
+        rendered.Find("link[rel='stylesheet']").GetAttribute("href")
+            .ShouldBe("themes/default/assets/theme.css");
+    }
+
+    [Fact]
+    public void Given_ThemeManifestChanges_When_Rerendered_Then_It_Should_Refresh_AssetReferences()
+    {
+        // Arrange
+        using var context = CreateContext(false);
+        var rendered = context.Render<SampleLayout>(parameters => parameters
+            .Add(component => component.Site, new SiteManifest())
+            .Add(component => component.Theme, CreateTheme()));
+
+        // Act
+        rendered.Render(parameters => parameters.Add(component => component.Theme, new ThemeManifest
+        {
+            Slug = "alternate",
+            Stylesheets = ["/assets/replacement.css"],
+            Scripts = ["/assets/replacement.js"],
+        }));
+
+        // Assert
+        rendered.Find("link[rel='stylesheet']").GetAttribute("href")
+            .ShouldBe("themes/alternate/assets/replacement.css");
+        rendered.Find("script[src]").GetAttribute("src")
+            .ShouldBe("themes/alternate/assets/replacement.js");
+        rendered.Markup.ShouldNotContain("themes/default/");
+    }
+
+    [Fact]
+    public void Given_EmptyAssetLists_When_Rendered_Then_It_Should_Not_Invent_AssetReferences()
+    {
+        // Arrange
+        using var context = CreateContext(false);
+
+        // Act
+        var rendered = context.Render<SampleLayout>(parameters => parameters
+            .Add(component => component.Site, new SiteManifest())
+            .Add(component => component.Theme, new ThemeManifest { Slug = "default" }));
+
+        // Assert
+        rendered.FindAll("link[rel='stylesheet']").ShouldBeEmpty();
+        rendered.FindAll("script[src]").ShouldBeEmpty();
+    }
+
+    private static ThemeManifest CreateTheme()
+    {
+        return new ThemeManifest
+        {
+            Slug = "default",
+            Stylesheets = ["/assets/theme.css"],
+            Scripts = ["/assets/theme.js"],
+        };
     }
 
     private static BunitContext CreateContext(bool usePlaceholders)
