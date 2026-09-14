@@ -68,7 +68,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
@@ -92,7 +92,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "", title: "My Blog", description: "Site description", locale: "en-US", heroImage: "/images/site-hero.png");
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
@@ -128,7 +128,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "/blog/");
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain("property=\"og:url\" content=\"https://example.com/blog/hello-world\"");
@@ -156,7 +156,7 @@ public class OpenGraphPluginTests
         options["TwitterCreatorId"] = "@mutated-creator";
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain("name=\"twitter:site\" content=\"@original-site\"");
@@ -179,7 +179,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest(title: "Site title", description: "Site description");
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain("property=\"og:title\" content=\"Site title\"");
@@ -199,7 +199,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldBe(html);
@@ -224,7 +224,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
@@ -244,7 +244,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("name=\"twitter:site\"");
@@ -262,7 +262,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:open-graph></plugin:open-graph>");
@@ -280,7 +280,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain("name=\"twitter:site\" content=\"@site\"");
@@ -298,7 +298,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain("name=\"twitter:creator\" content=\"@from-metadata\"");
@@ -316,7 +316,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest(description: "Site description");
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
         // Assert
         result.ShouldContain("property=\"og:description\" content=\"Site description\"");
         result.ShouldContain("name=\"twitter:description\" content=\"Site description\"");
@@ -333,7 +333,7 @@ public class OpenGraphPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
         var count = OpenGraphTitleRegex.Count(result);
 
         // Assert

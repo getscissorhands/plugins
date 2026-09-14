@@ -68,7 +68,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
@@ -95,7 +95,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
@@ -115,7 +115,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
@@ -135,7 +135,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain($"https://www.googletagmanager.com/gtag/js?id={measurementId}");
@@ -160,7 +160,7 @@ public class GoogleAnalyticsPluginTests
         options["MeasurementId"] = "G-MUTATED";
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain("gtag/js?id=G-ORIGINAL");
@@ -179,7 +179,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldContain("<!-- Google tag (gtag.js) -->");
@@ -200,7 +200,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldBe(html);
@@ -217,7 +217,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
         var count = GoogleTagRegex.Count(result);
 
         // Assert
@@ -237,7 +237,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldBe(string.Empty);
@@ -261,7 +261,7 @@ public class GoogleAnalyticsPluginTests
         var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site);
+        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
