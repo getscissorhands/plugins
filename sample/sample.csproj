@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ScissorHands.Plugins.Sample</RootNamespace>
+    <DefaultItemExcludes>$(DefaultItemExcludes);preview\**;dist\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ScissorHands.Web" />
+    <ProjectReference Include="..\src\ScissorHands.Plugin.GoogleAnalytics\ScissorHands.Plugin.GoogleAnalytics.csproj" />
+    <ProjectReference Include="..\src\ScissorHands.Plugin.OpenGraph\ScissorHands.Plugin.OpenGraph.csproj" />
+  </ItemGroup>
+
+</Project>

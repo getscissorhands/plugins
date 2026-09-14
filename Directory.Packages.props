@@ -10,6 +10,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.*" />
     <PackageVersion Include="NSubstitute" Version="6.*" />
     <PackageVersion Include="ScissorHands.Plugin" Version="1.*-*" />
+    <PackageVersion Include="ScissorHands.Web" Version="1.*-*" />
     <PackageVersion Include="Shouldly" Version="4.*" />
     <PackageVersion Include="xunit.v3" Version="4.*" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.*" />

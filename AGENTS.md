@@ -2,7 +2,7 @@
 
 ## Scope and sources
 
-This repository authors the official plugins for ScissorHands.NET. It consumes the upstream Plugin/Core contracts; it does not implement the engine, a theme, navigation, preview serving, an analytics backend, or an extension sandbox.
+This repository authors the official plugins for ScissorHands.NET and includes a local validation sample. Plugins consume upstream Plugin/Core contracts; the sample consumes Web to host generation/preview. It does not reimplement the engine, a production theme, navigation, preview serving, an analytics backend, or an extension sandbox.
 
 Start with the [catalog PRD](PRD.md) and [catalog TRD](TRD.md), then read the owning plugin's adjacent `PRD.md` and `TRD.md`. The roots own shared requirements and navigation; plugin pairs own behavior, acceptance and gaps. Documenting a gap is not an instruction to implement it, and a plugin's policy must not silently become a catalog-wide rule.
 
@@ -15,6 +15,7 @@ Use the [upstream plugin guide](https://github.com/getscissorhands/ScissorHands.
 | [Google Analytics](src/ScissorHands.Plugin.GoogleAnalytics) | `google-analytics`; [PRD](src/ScissorHands.Plugin.GoogleAnalytics/PRD.md), [TRD](src/ScissorHands.Plugin.GoogleAnalytics/TRD.md), implementation and package README |
 | [Open Graph](src/ScissorHands.Plugin.OpenGraph) | `open-graph`; [PRD](src/ScissorHands.Plugin.OpenGraph/PRD.md), [TRD](src/ScissorHands.Plugin.OpenGraph/TRD.md), implementation and package README |
 | [Tests](test) | Corresponding plugin-hook, helper and bUnit component suites |
+| [Sample](sample/README.md) | Non-packable preview host using local plugin project references, a minimal insertion layout and the engine's built-in views |
 | [Root props](Directory.Build.props) | Shared .NET target, language, nullable and implicit-using settings |
 | [Source props](src/Directory.Build.props) | Common Plugin dependency, package metadata/assets and explicit packing defaults |
 | [Test props](test/Directory.Build.props) | Executable test projects, common packages and global usings |
@@ -61,7 +62,9 @@ dotnet pack .\src\ScissorHands.Plugin.OpenGraph\ScissorHands.Plugin.OpenGraph.cs
 
 Inspect the assembly, dependency metadata, project README (root fallback), license, icon and symbols. Use a scoped output directory and clean up only artifacts you created. Stable `1.0.0` packaging against a prerelease dependency raises NU5104; choose an appropriate explicit prerelease for validation, not a suppression or an unrequested version-policy change.
 
-For code changes, start with the affected suite and run the full suite for cross-plugin/shared changes. Add regressions alongside the implementation. Documentation-only edits need source/link review, not an unrelated build. There is no local runnable engine sample or browser acceptance suite; a real consumer check must be scoped separately before claiming host/provider behavior.
+For code changes, start with the affected suite and run the full suite for cross-plugin/shared changes. Add regressions alongside the implementation. Documentation-only edits need source/link review, not an unrelated build. Use the [sample guide](sample/README.md) for scoped host integration; there is no browser acceptance suite and a local preview does not establish provider behavior.
+
+Run the sample from its own directory: `Set-Location sample`, then `dotnet run -- --preview` or `dotnet run --no-launch-profile -- --build`. Preview listens on loopback port 5073; stop it with Ctrl+C. Test both the default component path and the `hooks` launch profile when changing insertion behavior. Keep analytics disabled unless explicitly testing its markup; browsing analytics-enabled output can contact Google. Never commit `sample/preview` or `sample/dist`, and do not assume a `BaseUrl` change mounts the preview server at a subpath.
 
 ## Plugin contracts
 

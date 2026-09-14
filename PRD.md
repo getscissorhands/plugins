@@ -33,19 +33,20 @@ Maintain reusable extensions that let site authors add capabilities without chan
 
 The [catalog](README.md), local source and the user's authoring/upgrade requests establish the need for maintainable integration. They do not establish measured adoption or time savings. Candidate outcomes are a consumer integration completed without engine edits and an upgrade without undocumented configuration/output changes. Numerical baselines, targets, owners and evaluation windows are unknown; no telemetry or benchmark program is introduced.
 
-In scope: plugin authoring, compatibility, shared packaging/testing conventions, and separately documented plugin behavior. Out of scope: implementing the engine, registry, scheduler, theme framework, navigation, content loader, preview server, deployment service or extension sandbox. The host owns those responsibilities. A disabled plugin is not an unloaded or isolated assembly.
+In scope: plugin authoring, compatibility, shared packaging/testing conventions, separately documented plugin behavior, and a local integration sample consuming the upstream engine. Out of scope: implementing the engine, registry, scheduler, theme framework, navigation, content loader, preview server, deployment service or extension sandbox. The host owns those responsibilities. A disabled plugin is not an unloaded or isolated assembly.
 
 Additional plugin capabilities are not excluded forever: each requires its own product baseline. This documentation split authorizes no new plugin, feature or publishing change. Detailed design documents are optional when a concrete design warrants one; no speculative templates or roadmap commitments are created.
 
 ## 2. Shared product requirements
 
-The retained records are **Confirmed baseline**; P-FR-006 records the user's catalog-growth/documentation decision. Acceptance describes obligations, not complete evidence.
+The retained records are **Confirmed baseline**; P-FR-006 records the user's catalog-growth/documentation decision and P-FR-007 records the local preview sample request. Acceptance describes obligations, not complete evidence.
 
 | ID | Requirement / rationale | Shared acceptance and limits |
 | --- | --- | --- |
 | P-FR-001 | Stable identity lets site/theme authors select plugins independently of labels | Preserve each catalogued ID; implementations/configuration/selectors use exact lowercase ASCII kebab-case IDs. Display names do not control matching. Components, when supplied, omit disabled output. Upstream owns identity/dependency validation; no universal `Options.Enabled` switch is introduced |
 | P-FR-004 | Authors control documented integration without incidental output changes | Each plugin identifies the hooks/components it supports and its insertion/update behavior. Existing Google Analytics/Open Graph marker, no-marker and refresh guarantees are retained in their PRDs. New plugins are not required to provide both a component and a marker hook; they must define their own observable contract |
 | P-FR-006 | Every plugin has an independently reviewable product/technical baseline | Create `PRD.md` and `TRD.md` beside the plugin project, link both from these gateways, trace local requirements to verification, and record applicable shared constraints and unresolved questions. Adding a catalog entry does not approve its feature/release |
+| P-FR-007 | Plugin authors can preview local changes without publishing packages | The user-requested [sample](sample/README.md) references local plugins and a NuGet.org engine, supports preview/build modes from its directory, and demonstrates component and paired-marker integration. Default configuration enables Open Graph only; analytics requires opt-in. Generated output is ignored and the sample is not packable. Local output/HTTP checks are not provider or production-host acceptance |
 | P-NFR-001 | Keep upgrades compatible and package configuration consistent | Preserve centrally managed major-version floats and the chosen .NET/upstream boundary. Verify resolved dependencies and affected surfaces; document deliberate breaking changes. A floating major is not evidence that every preview in it is compatible |
 | P-NFR-002 | Preserve caller-owned configuration and observable failures | Do not mutate option snapshots or nested caller objects; propagate observed cancellation and errors. Plugin-specific permissive defaults must remain documented, not silently tightened. No bounded interruption or host rollback guarantee is introduced |
 | P-NFR-003 | Protect output/data boundaries without unsupported safety claims | Review relevant text, HTML, JavaScript and URL contexts with synthetic inputs; prevent secret disclosure and content-derived command execution. Raw output and formatting helpers are not universal sanitizers. Each plugin records its own validation/privacy evidence gaps |
@@ -93,6 +94,8 @@ The current source, tests, [shared build props](src/Directory.Build.props), [cen
 - [AGENTS][upstream-agents]: applicable authoring, testing and package guardrails.
 
 **v0.2 change:** on the user's 2026-09-14 request, convert the root documents into extensible gateways, retain shared IDs, relocate specific requirements/questions with explicit mappings, and introduce P-FR-006. Existing runtime scope, upstream provenance and unresolved decisions are preserved.
+
+**Sample addition (2026-09-14):** the user requested a local preview directory based on theme-template. P-FR-007 adds a consuming host and fixtures, not a new engine/theme product or a change to either plugin's preview/consent policy.
 
 **Readiness:** Review-ready for the catalog/document structure and stated shared baseline; not feature or release approval. Each plugin has its own readiness/gap assessment. No upstream approval, engine verification-program ID or issue-specific acceptance is inherited.
 

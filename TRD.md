@@ -116,6 +116,16 @@ Use new plugin-prefixed IDs; preserve existing IDs or provide explicit relocatio
 
 **Verification:** Check gateway/back links, local traceability, source fidelity, statuses and absence of duplicated authoritative behavior. Only explicitly agreed scope can change shared requirements.
 
+### T-010: Local preview integration
+
+**Source / rationale:** P-FR-007; user's local sample request and [theme-template reference](https://github.com/getscissorhands/theme-template/tree/main/sample). Exercise local plugins without package publication.
+
+The non-packable `sample` web project must consume centrally versioned ScissorHands.Web and reference local plugin projects. It reuses six built-in views with a small layout that forwards upstream cascading context and selects either components or paired markers, never both. Only configured plugins produce markers/output. Open Graph is enabled by default; analytics is explicit opt-in and may contact Google if the output is browsed.
+
+Run from the sample directory so upstream working-directory roots resolve correctly. Provide local content, a hero-image fixture, loopback launch profiles and documented preview/build commands. Ignore and exclude generated `preview`/`dist` inputs. The sample consumes upstream serving and does not implement missing subpath-mount behavior or claim provider acceptance.
+
+**Verification:** Build the sample with the solution; exercise its layout with the real plugin runner in both modes, with and without analytics/manifests. Inspect generated root/post/page/tag/404 metadata and loopback HTTP responses. Generation-only analytics checks use synthetic values without fetching provider resources.
+
 ## 3. Product-to-technical routing
 
 | Catalog PRD ID | Technical coverage / owner |
@@ -126,6 +136,7 @@ Use new plugin-prefixed IDs; preserve existing IDs or provide explicit relocatio
 | P-FR-004 | T-002, T-003 plus each plugin's insertion contract |
 | P-FR-005 | [Open Graph T-005](src/ScissorHands.Plugin.OpenGraph/TRD.md#t-005-content-and-image-url-boundaries) |
 | P-FR-006 | T-009 |
+| P-FR-007 | T-010 |
 | P-NFR-001 | T-001, T-007, T-008 |
 | P-NFR-002 | T-002, T-003, T-004 |
 | P-NFR-003 | T-006 |
@@ -139,6 +150,8 @@ Plugin TRDs own local test/evidence mappings and Q-001 through Q-004 follow-ups.
 Identity, contracts, input ownership, failure behavior, build, compatibility and packaging apply catalog-wide. Rendering/URLs, UI, accessibility, localization, performance, storage, networking and privacy require per-plugin applicability review. Engine I/O containment, navigation, serving and deployment are external; no new database, payment, account or AI system is introduced by this catalog structure.
 
 **v0.2:** retains T-001 through T-008; generalizes shared obligations, relocates option details to plugin-prefixed records and T-005 to Open Graph, and adds T-009. Retained headings/mappings preserve earlier references. No runtime change or question resolution is implied.
+
+**Sample addition (2026-09-14):** T-010 implements the separately requested P-FR-007 consumer sample. It does not change plugin runtime contracts or convert local checks into release/provider approval.
 
 **Readiness:** Review-ready. Shared Q-005 and each plugin's policy/evidence gaps remain explicit with unassigned owners; they prevent unconditional release claims and implementation-ready status for proposed changes. The [catalog source record](PRD.md#sources-and-review-status) retains upstream provenance without importing engine requirements or approvals.
 

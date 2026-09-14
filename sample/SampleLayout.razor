@@ -1,0 +1,47 @@
+@inherits MainLayoutBase
+@inject IConfiguration Configuration
+
+<CascadingMainLayoutBase Documents="@Documents" TaggedDocuments="@TaggedDocuments" Tag="@Tag"
+                         TaggedPosts="@TaggedPosts" TaggedPages="@TaggedPages" Document="@Document"
+                         PageNavigation="@PageNavigation" Plugins="@Plugins" Theme="@Theme" Site="@Site">
+    <!DOCTYPE html>
+    <html lang="@PageLocale">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <base href="@Site?.BaseUrl" />
+        <title>@PageTitle</title>
+        <meta name="description" content="@PageDescription" />
+        @if (Configuration.GetValue<bool>("Sample:UsePlaceholders"))
+        {
+            @if (Plugins?.Any(plugin => plugin.Id == "open-graph") == true)
+            {
+                <plugin:open-graph></plugin:open-graph>
+            }
+            @if (Plugins?.Any(plugin => plugin.Id == "google-analytics") == true)
+            {
+                <plugin:google-analytics></plugin:google-analytics>
+            }
+        }
+        else
+        {
+            <OpenGraphComponent Id="open-graph" />
+            <GoogleAnalyticsComponent Id="google-analytics" />
+        }
+    </head>
+    <body>
+        <header>
+            <p><a href=".">@Site?.Title</a></p>
+            <nav aria-label="Sample navigation">
+                <a href=".">Home</a>
+                <a href="about">About</a>
+                <a href="tags">Tags</a>
+            </nav>
+            <p>Rendering with @(Configuration.GetValue<bool>("Sample:UsePlaceholders") ? "post-HTML hooks" : "Razor components").
+                Inspect page source for plugin output in the head.</p>
+        </header>
+        <main>@Body</main>
+        <footer><p>Local plugin preview. Google Analytics is disabled unless explicitly configured.</p></footer>
+    </body>
+    </html>
+</CascadingMainLayoutBase>

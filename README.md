@@ -9,6 +9,22 @@ Collection of the official plugins for ScissorHands.NET
 | [Google Analytics](./src/ScissorHands.Plugin.GoogleAnalytics/README.md) | Google Analytics plugin |
 | [Open Graph](./src/ScissorHands.Plugin.OpenGraph/README.md)             | Open Graph plugin       |
 
+## Local preview
+
+The [sample application](sample/README.md) previews the plugins from local
+project references using the NuGet.org engine. From the repository root:
+
+```powershell
+dotnet build .\ScissorHandsPlugins.sln -c Release
+Set-Location sample
+dotnet run -c Release --no-build -- --preview
+```
+
+Open `http://localhost:5073` and inspect page source. Open Graph is enabled by
+default; Google Analytics is opt-in. The sample guide includes the alternate
+post-HTML hook profile, static generation and configuration details. No package
+publishing or theme symlink is needed.
+
 ## Build Your Plugin
 
 1. Create a class library.
