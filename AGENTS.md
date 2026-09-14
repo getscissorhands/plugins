@@ -40,7 +40,7 @@ Source/test props must import root props because MSBuild discovers only the near
 
 Use the SDK selected by [global.json](global.json), targeting .NET 10 with Microsoft.Testing.Platform. Run these from the repository root (PowerShell examples):
 
-```powershell
+```bash
 dotnet restore ./ScissorHandsPlugins.slnx
 dotnet build ./ScissorHandsPlugins.slnx -c Release --no-restore -warnaserror
 dotnet test -c Release --no-build --verbosity normal
@@ -48,7 +48,7 @@ dotnet test -c Release --no-build --verbosity normal
 
 For one test project:
 
-```powershell
+```bash
 dotnet test --project ./test/ScissorHands.Plugin.OpenGraph.Tests/ScissorHands.Plugin.OpenGraph.Tests.csproj -c Release --no-build
 ```
 
@@ -58,7 +58,7 @@ During dependency upgrades, use `dotnet restore ./ScissorHandsPlugins.slnx --for
 
 Normal builds do not pack. For local prerelease package inspection:
 
-```powershell
+```bash
 dotnet pack ./src/ScissorHands.Plugin.GoogleAnalytics/ScissorHands.Plugin.GoogleAnalytics.csproj -c Release --no-restore -p:Version=1.0.0-preview.local -o "$env:TEMP/ScissorHandsPlugins-pack"
 dotnet pack ./src/ScissorHands.Plugin.OpenGraph/ScissorHands.Plugin.OpenGraph.csproj -c Release --no-restore -p:Version=1.0.0-preview.local -o "$env:TEMP/ScissorHandsPlugins-pack"
 ```

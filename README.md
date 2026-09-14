@@ -13,10 +13,9 @@ Official plugins for ScissorHands.NET. Packages are currently preview releases, 
 
 Use the SDK selected by [global.json](global.json). From the repository root:
 
-```powershell
-dotnet build ./ScissorHandsPlugins.slnx -c Release
-Set-Location sample
-dotnet run -c Release --no-build -- --preview
+```bash
+cd sample
+dotnet run -- --preview
 ```
 
 The sample uses locally built plugins and the engine's built-in theme. Open `http://localhost:5000` and inspect page source; stop preview with Ctrl+C.

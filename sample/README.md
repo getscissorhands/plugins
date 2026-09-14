@@ -8,11 +8,11 @@ Preview locally built plugins using the NuGet.org engine and its built-in theme.
 
 From the repository root, using the SDK selected by [global.json](../global.json):
 
-```powershell
-dotnet restore ./ScissorHandsPlugins.slnx
-dotnet build ./ScissorHandsPlugins.slnx -c Release --no-restore
-Set-Location sample
-dotnet run -c Release --no-build -- --preview
+```bash
+dotnet restore
+dotnet build
+cd sample
+dotnet run -- --preview
 ```
 
 Open `http://localhost:5000`; stop preview with Ctrl+C. The single `http` launch profile does not open a browser automatically. Pass `--preview` explicitly, including in an IDE. If the port is busy, stop your existing preview before starting another.
@@ -25,8 +25,8 @@ Put general configuration overrides before `--preview` or `--build` to avoid com
 
 Components render both plugins by default. To exercise the post-HTML hooks instead, run from `sample`:
 
-```powershell
-dotnet run -c Release --no-build -- --preview --use-placeholders
+```bash
+dotnet run -- --preview --use-placeholders
 ```
 
 No configuration edit or separate launch profile is needed. Omit the switch for components. Each render uses one path, and only configured plugins produce output. Hook mode uses paired placeholders, not self-closing markers.
@@ -52,9 +52,9 @@ To disable analytics, remove the `google-analytics` object from `Plugins` in [ap
 
 From `sample`, generate files without starting a server or contacting Google. Inspect them as text, not in a browser:
 
-```powershell
-dotnet run -c Release --no-build --no-launch-profile -- --build
-dotnet run -c Release --no-build --no-launch-profile -- --build --use-placeholders
+```bash
+dotnet run -- --build
+dotnet run -- --build --use-placeholders
 ```
 
 Preview and build output goes to `sample/preview` and `sample/dist`, respectively. These directories are Git-ignored and replaced on fresh runs; do not keep authored files there or commit generated output.
