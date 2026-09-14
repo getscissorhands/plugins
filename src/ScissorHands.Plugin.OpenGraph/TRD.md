@@ -6,12 +6,13 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.2 / Review-ready |
+| Version / status | 0.3 / Review-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Open Graph PRD v0.2, Review-ready with accepted policy direction |
-| Shared baseline | Catalog PRD/TRD v0.3; apply shared obligations without silently overriding them |
+| Product baseline | Open Graph PRD v0.3, Review-ready with accepted policy direction and ownership |
+| Shared baseline | Catalog PRD/TRD v0.4; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target runtime changes remain pending |
-| Approval / owners | User accepted recommendations on 2026-09-14; this TRD elaborates them. No runtime acceptance or release approval; delivery owners unassigned |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; accepted policy direction is not runtime acceptance or approval to publish |
+| Release stage | Preview, with versioning/releases independent from the upstream engine |
 
 This TRD owns Open Graph's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply; original T-005 is relocated here as the authoritative social-URL requirement, with a gateway redirect. New local records use `OG-TR-*`.
 
@@ -88,8 +89,8 @@ Use [AGENTS.md](../../AGENTS.md) for commands. Verify this package's assembly, R
 
 ## Gaps and readiness
 
-[OG-Q-001 through OG-Q-004](PRD.md#plugin-questions-and-acceptance-limits) retain policy and delivery state: paired-marker/preview choices are settled; parity, missing-context, image/URI and encoding changes plus cancellation/removal evidence remain pending. Owners remain unassigned. Existing passing tests do not establish the stricter target.
+[OG-Q-001 through OG-Q-004](PRD.md#plugin-questions-and-acceptance-limits) retain policy and delivery state: paired-marker/preview choices are settled; parity, missing-context, image/URI and encoding changes plus cancellation/removal evidence remain pending. @justinyoo owns the follow-ups. Existing passing tests do not establish the stricter target.
 
 No analytics/consent service, database, account system, remote-generation API, navigation subsystem or accessibility/browser-conformance program is part of this plugin baseline. External image and locale/output semantics remain applicable; future features require a separate applicability review.
 
-**Readiness:** Review-ready against plugin PRD v0.2 and shared v0.3 baselines, with accepted direction and concrete technical acceptance recorded. Runtime implementation and evidence remain pending. v0.2 resolves policy alternatives, preserves IDs and documents breaking migration effects; it is not full-document sign-off, a completed audit or release approval.
+**Readiness:** Review-ready against plugin PRD v0.3 and shared v0.4 baselines, with accepted direction and concrete technical acceptance recorded. Runtime implementation and evidence remain pending. v0.2 resolved policy alternatives; v0.3 adds named ownership and independent preview releases, preserving IDs and migration notes. This is not full-document sign-off, a completed audit or release approval.

@@ -6,12 +6,13 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.2 / Review-ready |
+| Version / status | 0.3 / Review-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Google Analytics PRD v0.2, Review-ready with accepted policy direction |
-| Shared baseline | Catalog PRD/TRD v0.3; apply shared obligations without silently overriding them |
+| Product baseline | Google Analytics PRD v0.3, Review-ready with accepted policy direction and ownership |
+| Shared baseline | Catalog PRD/TRD v0.4; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target validation changes remain pending |
-| Approval / owners | User accepted recommendations on 2026-09-14; this TRD elaborates them. No runtime acceptance or release approval; delivery owners unassigned |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; accepted policy direction is not runtime acceptance or approval to publish |
+| Release stage | Preview, with versioning/releases independent from the upstream engine |
 
 This TRD owns Google Analytics's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply. Open Graph's delegated T-005 does not: this plugin emits an external Google URL, not content/social-image URLs. Applicable shared P-NFR-005 still prevents prefixing that external URL with the site's base path.
 
@@ -67,8 +68,8 @@ Shared commands and package conventions remain in [AGENTS.md](../../AGENTS.md). 
 
 ## Gaps and readiness
 
-[GA-Q-001 through GA-Q-004](PRD.md#plugin-questions-and-acceptance-limits) now distinguish decisions from delivery: paired-marker documentation is aligned; validation/encoding and cancellation/removal evidence remain pending; preview/consent policy is retained. Owners remain unassigned. Do not equate the user's acceptance of recommendations with completion of those changes.
+[GA-Q-001 through GA-Q-004](PRD.md#plugin-questions-and-acceptance-limits) distinguish decisions from delivery: paired-marker documentation is aligned; validation/encoding and cancellation/removal evidence remain pending; preview/consent policy is retained. @justinyoo owns the follow-ups. Do not equate acceptance of recommendations with completion of those changes.
 
 No visible controls, local storage, authentication, remote-generation API or performance SLA is in scope. Privacy/client implications are explicitly applicable because browser code contacts Google. Other capabilities require their own product change, not inherited sibling requirements.
 
-**Readiness:** Review-ready against local PRD v0.2 and shared v0.3 baselines, with accepted policy and concrete technical acceptance recorded. Runtime validation/encoding and related regressions remain to be implemented; release prerequisites are separate. v0.2 replaces the former alternatives and preserves all IDs. This is not full-document sign-off, a completed audit or release approval.
+**Readiness:** Review-ready against local PRD v0.3 and shared v0.4 baselines, with accepted policy and concrete technical acceptance recorded. Runtime validation/encoding and related regressions remain to be implemented; release prerequisites are separate. v0.2 replaced the former alternatives; v0.3 adds named ownership and independent preview releases while preserving all IDs. This is not full-document sign-off, a completed audit or release approval.

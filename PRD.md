@@ -4,13 +4,15 @@
 
 | Field | Value |
 | --- | --- |
-| Document version / status | 0.3 / Review-ready |
+| Document version / status | 0.4 / Review-ready |
 | Last updated | 2026-09-14 |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
 | Local source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; the accepted policy changes below are pending implementation, not a released baseline |
 | Compatibility reference | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; centrally managed major-version floats remain in use |
-| Approval / release | User accepted the plugin policy recommendations on 2026-09-14; this is policy direction, not implementation evidence or publication authorization. Release timing/owners remain unassigned |
+| Owner | @justinyoo owns implementation, verification, support and release authorization |
+| Approval / release | User accepted policy direction and confirmed ownership on 2026-09-14; this is not implementation evidence or authorization to publish a specific release |
+| Versioning / release stage | Plugins are versioned and released independently from the upstream engine; currently preview. Exact next version/date are selected by @justinyoo when releasing |
 
 This document is the catalog entry point and owns **shared product requirements**. Each linked plugin PRD owns that plugin's behavior, examples, acceptance and questions. [TRD.md](TRD.md) owns shared technical obligations and indexes the plugin TRDs. [AGENTS.md](AGENTS.md) owns contributor commands and workflow.
 
@@ -31,7 +33,7 @@ This lists current plugins, not a closed set. New entries need their own scope a
 
 Maintain reusable extensions that let site authors add capabilities without changing the engine. Authors choose installed plugins by ID; theme authors use the documented integration paths; maintainers evolve each package without undocumented behavior changes. Consumers receive generated output whose meaning and external dependencies are defined by the owning plugin.
 
-The [catalog](README.md), local source and the user's authoring/upgrade requests establish the need for maintainable integration. They do not establish measured adoption or time savings. Candidate outcomes are a consumer integration completed without engine edits and an upgrade without undocumented configuration/output changes. Numerical baselines, targets, owners and evaluation windows are unknown; no telemetry or benchmark program is introduced.
+The [catalog](README.md), local source and the user's authoring/upgrade requests establish the need for maintainable integration. They do not establish measured adoption or time savings. Candidate outcomes are a consumer integration completed without engine edits and an upgrade without undocumented configuration/output changes. Numerical baselines, targets and evaluation windows are unknown; no telemetry or benchmark program is introduced. @justinyoo owns any later evaluation decision.
 
 In scope: plugin authoring, compatibility, shared packaging/testing conventions, separately documented plugin behavior, and a local integration sample consuming the upstream engine. Out of scope: implementing the engine, registry, scheduler, theme framework, navigation, content loader, preview server, deployment service or extension sandbox. The host owns those responsibilities. A disabled plugin is not an unloaded or isolated assembly.
 
@@ -67,13 +69,15 @@ Plugin-specific records retain their original v0.1 IDs at their new authoritativ
 
 **Accepted release gates, not publication authorization:** identify resolved dependencies; pass applicable hook/component, cancellation and output-boundary regressions; build Release; inspect package metadata/README/license/icon/symbols; obtain scoped consumer evidence. An implementation gap in a claimed requirement blocks that release claim. Explicitly defer nonblocking work with an owner and rationale rather than treating old passing tests as acceptance of newly agreed behavior.
 
-Compatibility claims cover verified plugin/upstream version combinations, not every version allowed by a floating development range. Keep the resolved `1.0.0-preview.20260914.1` baseline as historical evidence and record the actual graph again for each release. Do not imply an indefinite backward-support window. Designate a release owner and secure explicit release approval before publishing; neither is assigned by this policy. Rollback/support procedures not yet defined remain release-planning work, not a promise of automatic registry rollback.
+Plugin versions and release timing are independent from the upstream engine. Current releases remain preview; a new engine release does not automatically require a plugin release or matching version number. Compatibility claims still cover verified plugin/upstream combinations, not every version allowed by a floating development range. Keep the resolved `1.0.0-preview.20260914.1` baseline as historical evidence and record the actual graph again for each release.
+
+@justinyoo owns implementation, verification, support and release authorization and selects each next plugin version/date. Ownership is not blanket authorization for an agent to tag or publish. No indefinite backward-support window or response-time SLA is promised. Recovery/support procedures and specific nonblocking deferrals remain under discussion; no particular recovery action or deferral is approved by this revision.
 
 The [current workflow](.github/workflows/main.yaml), updated at the user's 2026-09-14 request, publishes tagged packages to NuGet.org and GitHub Packages before creating a GitHub release. NuGet.org uses OIDC trusted publishing through `nuget-release`; [external setup](README.md#publishing-packages) remains required. Workflow configuration is not evidence of a completed publication or release authorization.
 
 ### Shared release question
 
-**Q-005 (policy settled; execution prerequisites remain):** publish with a version appropriate to the verified dependency graph, including prerelease plugin versions for prerelease dependencies. Retain NuGet.org plus GitHub Packages and the accepted evidence gates above. Configure/verify the environment, `NUGET_USER` and trusted-publishing policy; designate the release owner and document recovery/support procedures before a release. Registry writes remain non-atomic and previously published versions are not replaced. These operational prerequisites and future dates are not claimed complete. See T-007/T-008 in [TRD](TRD.md).
+**Q-005 (ownership/versioning settled; recovery/deferral details pending):** @justinyoo owns delivery, support and release authorization. Plugin version numbers and releases are independent of the engine and remain preview for now. Retain NuGet.org plus GitHub Packages and the accepted evidence gates. Configure/verify the environment, `NUGET_USER` and trusted-publishing policy; explain and settle the recovery/support procedure and any specific deferrals before the relevant release. Registry writes remain non-atomic and previously published versions are not replaced. Exact next version/date and external setup are execution decisions, not claimed complete here. See T-007/T-008 in [TRD](TRD.md).
 
 ### Delegated questions
 
@@ -101,7 +105,9 @@ The current source, tests, [shared build props](src/Directory.Build.props), [cen
 
 **v0.3 decisions (2026-09-14):** the user accepted the review recommendations: paired markers only, explicit validation/failure rules, Open Graph parity/optional-image/URL policy, preserved configured preview behavior and external consent responsibility, and verified release gates. The plugin PRDs define the chosen technical acceptance details; current source behavior is separately retained. Documentation agreement does not claim runtime delivery.
 
-**Readiness:** Review-ready with accepted policy direction. Specific validation/parity work, release ownership and external setup remain pending. Each plugin has its own delivery assessment; no upstream approval, engine verification-program ID, completed audit or release authorization is inherited.
+**v0.4 clarification (2026-09-14):** @justinyoo confirmed ownership and that plugin versioning/releases are independent of the upstream engine and currently preview. The user requested explanation, not approval, of recovery/support and nonblocking deferrals; those details remain open. This does not change pipeline version overrides, mandate separate release trains between the two local plugins, or authorize a release.
+
+**Readiness:** Review-ready with accepted policy direction and a named owner. Specific validation/parity work, recovery/deferral details and external setup remain pending. Each plugin has its own delivery assessment; no upstream approval, engine verification-program ID, completed audit or release authorization is inherited.
 
 [upstream-prd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/PRD.md
 [upstream-trd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/TRD.md

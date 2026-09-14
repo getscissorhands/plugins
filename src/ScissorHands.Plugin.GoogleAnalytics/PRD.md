@@ -6,12 +6,13 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.2 / Review-ready |
+| Version / status | 0.3 / Review-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.3; shared requirements apply as described below |
+| Parent baseline | Catalog PRD v0.4; shared requirements apply as described below |
 | Implementation baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; accepted target changes below are not yet implemented |
 | Package / plugin ID | `ScissorHands.Plugin.GoogleAnalytics` / `google-analytics` |
-| Approval / owners | User accepted the policy recommendations on 2026-09-14; implementation/verification/release owners and release authorization remain unassigned |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; policy recommendations accepted on 2026-09-14, not authorization to publish |
+| Release stage | Preview; versioning and releases are independent of the upstream engine |
 
 This PRD owns Google Analytics behavior, acceptance and plugin-specific questions. It inherits the catalog's shared compatibility, identity, failure, output-integrity and authoring constraints; it cannot silently override them. The [plugin TRD](TRD.md) supplies technical acceptance. No engine requirements or upstream approvals are imported.
 
@@ -58,8 +59,10 @@ Retain the original question IDs as decision/evidence records. The user accepted
 | GA-Q-003 / Q-003 | Await cancellation assertions and cover component removal transitions | Engineering follow-up, not an unresolved product choice; evidence remains incomplete |
 | GA-Q-004 / Q-004 | Reject invalid required IDs, retain configured preview output, and keep consent outside the plugin | Decisions recorded; rejection behavior pending. Preview/consent boundaries already match the target |
 
-Shared [Q-005](../../PRD.md#shared-release-question) governs versioning, verified compatibility and release gates. A release claiming this target requires the new validation/output regressions and consumer evidence; passing the older permissive tests is not acceptance. Release owner, timing and provider acceptance remain unestablished.
+Shared [Q-005](../../PRD.md#shared-release-question) governs versioning, verified compatibility and release gates. A release claiming this target requires the new validation/output regressions and consumer evidence; passing the older permissive tests is not acceptance. @justinyoo selects the next independent preview version/date and authorizes publication. Recovery/deferral details and provider acceptance remain unsettled or unverified as applicable.
 
 **Migration / current behavior:** strict validation is a breaking behavior change for callers relying on empty or arbitrary IDs. Configure an accepted ID or remove the manifest before adopting that future implementation. The current hook/component code still accepts arbitrary strings and falls back to an empty ID; this documentation revision does not change it.
 
 **Readiness:** Review-ready with accepted policy direction and explicit technical elaboration; not a completed implementation, full-document sign-off or release approval. v0.2 replaces the earlier unresolved policy alternatives while preserving question IDs and evidence gaps. Source provenance remains in the [catalog](../../PRD.md#sources-and-review-status).
+
+**v0.3 clarification:** records @justinyoo's ownership and engine-independent preview releases. No new behavior, recovery commitment or nonblocking deferral is approved.

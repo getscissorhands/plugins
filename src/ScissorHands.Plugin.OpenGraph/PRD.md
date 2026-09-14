@@ -6,12 +6,13 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.2 / Review-ready |
+| Version / status | 0.3 / Review-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.3; shared requirements apply as described below |
+| Parent baseline | Catalog PRD v0.4; shared requirements apply as described below |
 | Implementation baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; accepted target changes below are not yet implemented |
 | Package / plugin ID | `ScissorHands.Plugin.OpenGraph` / `open-graph` |
-| Approval / owners | User accepted the policy recommendations on 2026-09-14; implementation/verification/release owners and release authorization remain unassigned |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; policy recommendations accepted on 2026-09-14, not authorization to publish |
+| Release stage | Preview; versioning and releases are independent of the upstream engine |
 
 This PRD owns Open Graph behavior, acceptance and plugin-specific questions. It inherits catalog requirements rather than duplicating them or changing their meaning. The [plugin TRD](TRD.md) defines technical acceptance; ScissorHands.NET remains authoritative for external contracts.
 
@@ -64,8 +65,10 @@ Retain the original question IDs as decision/evidence records. The user accepted
 | OG-Q-003 / Q-003 | Align equivalent contexts using source-backed-post creator eligibility and fail on missing site/origin context | Policy recorded; parity/context changes and awaited cancellation/removal regressions pending |
 | OG-Q-004 / Q-004 | Retain metadata generation in preview with the same rules as production | Decision settled; no suppression feature is introduced |
 
-Shared [Q-005](../../PRD.md#shared-release-question) covers verified compatibility and release gates. A release claiming the accepted behavior requires parity, context, omission and URL/output regressions plus consumer evidence. Crawler acceptance, release owner and timing remain unestablished.
+Shared [Q-005](../../PRD.md#shared-release-question) covers verified compatibility and release gates. A release claiming the accepted behavior requires parity, context, omission and URL/output regressions plus consumer evidence. @justinyoo selects the next independent preview version/date and authorizes publication. Recovery/deferral details and crawler acceptance remain unsettled or unverified as applicable.
 
 **Migration / current behavior:** the current hook still permits a creator for source-less posts, missing-site components can emit defaults, and image/helper paths can return empty or relative values and accept general absolute URI schemes. The stricter target will require valid site configuration and accepted URLs and may remove formerly emitted creator/image tags. It is a breaking behavior change, not an implemented fix in this revision.
 
 **Readiness:** Review-ready with accepted policy direction and explicit technical elaboration, not completed implementation, whole-document sign-off or release approval. v0.2 resolves policy alternatives while retaining delivery/evidence gaps and IDs. The [catalog source record](../../PRD.md#sources-and-review-status) retains provenance; upstream engine approval history is not inherited.
+
+**v0.3 clarification:** records @justinyoo's ownership and engine-independent preview releases. No new behavior, recovery commitment or nonblocking deferral is approved.
