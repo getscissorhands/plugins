@@ -1,53 +1,44 @@
 # ScissorHands.NET: Google Analytics Plugin
 
-This plugin renders [Google Analytics](https://analytics.google.com) script.
+Adds [Google Analytics](https://analytics.google.com) tag markup to a compatible ScissorHands.NET site.
 
 ## Getting Started
 
-1. Assuming that you've got a running [ScissorHands.NET](https://github.com/getscissorhands/Scissorhands.NET) app.
-1. Update the plugin section of `appsettings.json` to add options. `MeasurementId` can be obtained from [Google Analytics](https://analytics.google.com) website.
+Install the preview package in your ScissorHands.NET host:
 
-    ```jsonc
+```bash
+dotnet add package ScissorHands.Plugin.GoogleAnalytics --prerelease
+```
+
+Add this entry to the `Plugins` array in `appsettings.json`. Replace `G-EXAMPLE` with your Google Analytics measurement ID for real tracking:
+
+```json
+{
+  "Plugins": [
     {
-      ...
-      "Plugins": [
-        {
-          "Id": "google-analytics",
-          "Name": "Google Analytics",
-          "Options": {
-            "MeasurementId": "G-XXXXXXXX"
-          }
-        }
-      ]
+      "Id": "google-analytics",
+      "Options": { "MeasurementId": "G-EXAMPLE" }
     }
-    ```
+  ]
+}
+```
 
-1. Add a NuGet package.
+In a layout supplied with the engine's cascading context, place the component just after the opening `<head>` tag:
 
-    ```bash
-    dotnet add package ScissorHands.Plugin.GoogleAnalytics --prerelease
-    ```
+```razor
+<GoogleAnalyticsComponent Id="google-analytics" />
+```
 
-1. Add a UI component, `<GoogleAnalyticsComponent />` with parameters, to `MainLayout.razor`. **It's strongly advised to place right after the opening `<head>` tag.**
+Alternatively, use the paired placeholder for the post-HTML hook:
 
-    ```razor
-    <GoogleAnalyticsComponent Id="google-analytics" />
-    ```
+```html
+<plugin:google-analytics></plugin:google-analytics>
+```
 
-   > **NOTE**: The configured plugin manifest is resolved by its exact, case-sensitive `Id`. `Name` is optional display metadata. The current documents, document, theme and site are received from the inherited cascading values.
+Choose one path per insertion to avoid duplicates. Hook placeholders must be paired, not self-closing. The `Id` is exact and case-sensitive; an optional manifest `Name` is only a display label.
 
-1. Alternatively, use the paired placeholder, `<plugin:google-analytics></plugin:google-analytics>` instead of the `<GoogleAnalyticsComponent />` component. **It's strongly advised to place right after the opening `<head>` tag**.
-
-    ```html
-    <html>
-    <head>
-        <plugin:google-analytics></plugin:google-analytics>
-        ...
-    ```
-
-   Use paired markers for the hook path; self-closing hook markers are not part of the supported contract. Choose one insertion path per intended output to avoid duplicates.
+**Privacy:** browsing generated pages can contact Google, including during preview or with the fake ID. The plugin does not manage consent or suppress preview tracking. Remove its entry from `Plugins` to disable output; clearing `MeasurementId` is not a disable switch.
 
 ## Support
 
-See the shared [support and recovery policy](https://github.com/getscissorhands/plugins#support-and-recovery)
-for best-effort issue support and preview-release recovery.
+See the shared [support and recovery policy](https://github.com/getscissorhands/plugins#support-and-recovery) for best-effort issue support and preview-release recovery.

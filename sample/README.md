@@ -1,46 +1,12 @@
 # Local plugin preview
 
-This non-packable sample follows the small web-host structure of the
-[theme-template sample](https://github.com/getscissorhands/theme-template/tree/main/sample).
-It consumes the NuGet.org `ScissorHands.Web` engine and references both plugin
-projects in this checkout, so plugin changes do not require package publishing.
-
-`SampleLayout.razor` supplies plugin insertion points and forwards the upstream
-cascading context. The other six views come from the engine's default theme.
-This is an inspection layout, not a new production theme. It uses the built-in
-theme's packaged CSS, JavaScript, favicon and color toggle while retaining the
-sample navigation and plugin controls. No theme symlink or CSS/JavaScript source
-copy needs to be maintained.
-
-## Built-in theme assets
-
-The installed `ScissorHands.Web` package includes `themes/default` as NuGet
-content files, but the current release does not automatically copy them to a
-consumer's output directory. `sample.csproj` opts that package's content into
-build/publish output copying, preserving its linked paths. The package version
-is resolved through central management, not a hardcoded NuGet-cache path.
-
-At runtime, the engine finds `themes/default/theme.json` below the application
-output and copies the assets into the generated site. `SampleLayout` emits
-the manifest's stylesheet/script references using `GetThemeUrl`, so the browser
-can load `themes/default/assets/theme.css` and `theme.js`. The package's
-third-party notice is carried alongside the assets.
-
-The layout initializes the color preference before loading styles, following
-the built-in layout's convention. The packaged theme script implements the
-toggle and stores the preference in the browser's `localStorage`. It is
-unrelated to analytics and loads locally even
-when analytics is disabled. This does not reproduce the complete built-in
-`MainLayout` or its hierarchical navigation.
-
-If styling is missing, rebuild the sample and restart preview before refreshing
-the browser. Confirm the stylesheet/script requests return HTTP 200. Avoid
-creating a partial `sample/themes/default` directory: a local theme directory
-takes precedence over the bundled output directory, even if it has no manifest.
+Preview locally built plugins using the NuGet.org engine and its built-in theme. No package publishing, theme symlink or copied CSS/JavaScript source is needed. This is an inspection sample, not a production theme or deployment target.
 
 ## Run locally
 
-From the repository root:
+**Analytics is enabled with fake ID `G-EXAMPLE`; browsing can still contact Google.** To avoid that, [disable analytics](#analytics-uses-a-fake-measurement-id) before browsing or inspect [generated files](#generate-static-output) without opening them in a browser.
+
+From the repository root, using the SDK selected by [global.json](../global.json):
 
 ```powershell
 dotnet restore .\ScissorHandsPlugins.sln
@@ -49,45 +15,21 @@ Set-Location sample
 dotnet run -c Release --no-build -- --preview
 ```
 
-Open `http://localhost:5000`. The single `http` launch profile does not open a
-browser automatically or choose the application mode. Pass `--preview` explicitly,
-including when launching from an IDE. Stop the server with Ctrl+C.
+Open `http://localhost:5000`; stop preview with Ctrl+C. The single `http` launch profile does not open a browser automatically. Pass `--preview` explicitly, including in an IDE. If the port is busy, stop your existing preview before starting another.
 
-Run from the `sample` directory: the engine resolves content/configuration and
-output relative to the working directory. Do not invoke the built executable
-from the repository root. The launch profile specifies `http://localhost:5000`,
-and `Site.SiteUrl` uses it for static metadata. Without a launch profile or
-another endpoint override, ASP.NET Core defaults to the same address. If the
-port is busy, stop your existing preview before starting another.
+Always run from `sample`: content, configuration and output paths are relative to the working directory. Content edits regenerate the site; refresh the browser manually. After C#/Razor changes, rebuild in Release and restart before using `--no-build`.
 
-Keep general configuration overrides before the `--preview` or `--build`
-flag; the host's command-line configuration parser can consume the next
-argument as the value of a bare mode flag. The sample's `--use-placeholders`
-switch is translated before the host starts and works before or after the
-mode flag.
-
-Preview regenerates after content changes; refresh the browser manually.
-Changes to C#/Razor require a rebuild and restart. Do not use `--no-build` after
-editing plugin or sample code unless you have rebuilt that configuration.
+Put general configuration overrides before `--preview` or `--build` to avoid command-line parsing problems. The sample's `--use-placeholders` switch works on either side of those mode flags.
 
 ## Compare rendering paths
 
-The default configuration renders `OpenGraphComponent` and
-`GoogleAnalyticsComponent`, with the fake measurement ID `G-EXAMPLE`.
-To insert paired markers for the engine's post-HTML pipeline instead, pass
-`--use-placeholders` using the same `http` profile:
+Components render both plugins by default. To exercise the post-HTML hooks instead, run from `sample`:
 
 ```powershell
-dotnet run -- --preview --use-placeholders
+dotnet run -c Release --no-build -- --preview --use-placeholders
 ```
 
-There is no separate `hooks` launch profile or `Sample` block to edit in
-`appsettings.json`. The sample bootstrap translates the switch into the internal
-`Sample:UsePlaceholders=true` setting; omitting the switch uses components by
-default. The layout never
-inserts both paths in one render, and does not emit markers for
-unconfigured plugins. Paired hook markers are the supported contract for both
-plugins; self-closing hook markers are not supported.
+No configuration edit or separate launch profile is needed. Omit the switch for components. Each render uses one path, and only configured plugins produce output. Hook mode uses paired placeholders, not self-closing markers.
 
 Inspect page source, not just the visible body:
 
@@ -102,43 +44,27 @@ Inspect page source, not just the visible body:
 
 ## Analytics uses a fake measurement ID
 
-The checked-in `Plugins` array enables Open Graph and Google Analytics. Google
-Analytics uses the synthetic measurement ID `G-EXAMPLE` to make its markup easy
-to inspect in both component and hook modes.
+`G-EXAMPLE` makes analytics markup inspectable in both modes; it is not a network-blocking or consent mechanism. The plugin does not suppress preview tracking.
 
-The fake ID is not a working measurement configuration or a network-blocking
-mechanism. Browsing the output can still contact Google, including in preview;
-the plugin does not implement consent or suppression. To inspect the markup
-without making browser requests, generate the files without opening them:
-
-```powershell
-dotnet run --no-launch-profile -- --build
-```
-
-Remove the `google-analytics` object from the `Plugins` array and restart
-preview to disable it. Clearing `MeasurementId` is not a disable switch.
-Do not commit a real site's configuration; provider delivery and consent
-compliance are not validated by this sample.
+To disable analytics, remove the `google-analytics` object from `Plugins` in [appsettings.json](appsettings.json) and restart preview. Clearing `MeasurementId` is not a disable switch. Do not commit a real site's configuration; the sample does not validate provider delivery or consent compliance.
 
 ## Generate static output
 
-From `sample`, use the build mode to inspect output without starting a server:
+From `sample`, generate files without starting a server or contacting Google. Inspect them as text, not in a browser:
 
 ```powershell
-dotnet run --no-launch-profile -- --build
-dotnet run --no-launch-profile -- --build --use-placeholders
+dotnet run -c Release --no-build --no-launch-profile -- --build
+dotnet run -c Release --no-build --no-launch-profile -- --build --use-placeholders
 ```
 
-Preview/build output goes to `sample/preview` and `sample/dist`. These directories
-are ignored by Git and excluded from project inputs. The engine replaces the
-chosen output on a fresh run; do not keep authored files there.
+Preview and build output goes to `sample\preview` and `sample\dist`, respectively. These directories are Git-ignored and replaced on fresh runs; do not keep authored files there or commit generated output.
 
-For metadata-only subpath checks, pass `--Site:BaseUrl=/blog/` before `--build`
-and inspect the generated URLs. The sample defaults to `/` because the current
-engine preview server does not mount output at a configured prefix; changing
-`BaseUrl` alone is not proof of subpath HTTP serving.
+For a metadata-only subpath check, use `--Site:BaseUrl=/blog/ --build` after `--` and inspect the generated URLs. Preview defaults to `/`: changing `BaseUrl` alone does not mount the server at that prefix.
 
-The sample is built by the solution but is not a NuGet package or a deployment
-target. Its [layout integration tests](../test/ScissorHands.Plugins.Sample.Tests)
-cover both rendering modes, analytics enablement, theme references and bundled
-assets without provider requests.
+## Built-in theme assets
+
+The sample uses the packaged default theme's CSS, JavaScript, favicon and third-party notices. Its small `SampleLayout.razor` supplies plugin insertion and sample navigation; it does not reproduce the full built-in layout. The color toggle stores its preference in browser `localStorage` and works independently of analytics.
+
+If styling is missing, rebuild and restart preview, then refresh. Confirm the stylesheet/script requests return HTTP 200. Avoid a partial `sample\themes\default` directory: a local theme directory shadows the bundled theme, even without a manifest.
+
+Asset-copy and layout implementation details belong in [T-010](../TRD.md#t-010-local-preview-integration); [sample tests](../test/ScissorHands.Plugins.Sample.Tests) cover both rendering paths and bundled assets.

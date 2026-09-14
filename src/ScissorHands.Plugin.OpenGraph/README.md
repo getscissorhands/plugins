@@ -1,58 +1,47 @@
 # ScissorHands.NET: Open Graph Plugin
 
-This plugin renders the [Open Graph](https://ogp.me/) tags.
+Adds [Open Graph](https://ogp.me/) and Twitter-card metadata to a compatible ScissorHands.NET site.
 
 ## Getting Started
 
-1. Assuming that you've got a running [ScissorHands.NET](https://github.com/getscissorhands/Scissorhands.NET) app.
-1. Update the plugin section of `appsettings.json` to add options. `TwitterSiteId` is the Twitter handle for the website, and `TwitterCreatorId` is the default Twitter handle for the content authors.
+Install the preview package in your ScissorHands.NET host:
 
-    ```jsonc
+```bash
+dotnet add package ScissorHands.Plugin.OpenGraph --prerelease
+```
+
+Add this entry to the `Plugins` array in `appsettings.json`:
+
+```json
+{
+  "Plugins": [
     {
-      ...
-      "Plugins": [
-        {
-          "Id": "open-graph",
-          "Name": "Open Graph",
-          "Options": {
-            "TwitterSiteId": "@your_twitter_handle_site",
-            "TwitterCreatorId": "@your_twitter_handle_creator"
-          }
-        }
-      ]
+      "Id": "open-graph",
+      "Options": {
+        "TwitterSiteId": "@example",
+        "TwitterCreatorId": "@author"
+      }
     }
-    ```
+  ]
+}
+```
 
-   > **NOTE**: If you don't have any of both, you can omit the property. For example, you can omit both properties like `"Options": {}`.
+`TwitterSiteId` identifies the website's account; `TwitterCreatorId` is the default content-author handle. Both are optional: omit either or use `"Options": {}`.
 
-1. Add a NuGet package.
+In a layout supplied with the engine's cascading context, place the component inside `<head>`:
 
-    ```bash
-    dotnet add package ScissorHands.Plugin.OpenGraph --prerelease
-    ```
+```razor
+<OpenGraphComponent Id="open-graph" />
+```
 
-1. Add a UI component, `<OpenGraphComponent />` with parameters, to `MainLayout.razor`.
+Alternatively, use the paired placeholder for the post-HTML hook:
 
-    ```razor
-    <OpenGraphComponent Id="open-graph" />
-    ```
+```html
+<plugin:open-graph></plugin:open-graph>
+```
 
-   > **NOTE**: The configured plugin manifest is resolved by its exact, case-sensitive `Id`. `Name` is optional display metadata. The current documents, document, theme and site are received from the inherited cascading values.
-
-1. Alternatively, use the paired placeholder, `<plugin:open-graph></plugin:open-graph>` instead of the `<OpenGraphComponent />` component.
-
-    ```html
-    <html>
-    <head>
-        ...
-        <plugin:open-graph></plugin:open-graph>
-        ...
-    </head>
-    ```
-
-   Use paired markers for the hook path; self-closing hook markers are not part of the supported contract. Choose one insertion path per intended output to avoid duplicates.
+Choose one path per insertion to avoid duplicates. Hook placeholders must be paired, not self-closing. The `Id` is exact and case-sensitive; an optional manifest `Name` is only a display label. Remove the entry from `Plugins` to disable output.
 
 ## Support
 
-See the shared [support and recovery policy](https://github.com/getscissorhands/plugins#support-and-recovery)
-for best-effort issue support and preview-release recovery.
+See the shared [support and recovery policy](https://github.com/getscissorhands/plugins#support-and-recovery) for best-effort issue support and preview-release recovery.
