@@ -6,12 +6,12 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.4 / Review-ready |
+| Version / status | 0.5 / Implementation-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Open Graph PRD v0.4, Review-ready with accepted policies and ownership |
-| Shared baseline | Catalog PRD/TRD v0.5; apply shared obligations without silently overriding them |
+| Product baseline | Open Graph PRD v0.5, Implementation-ready with explicitly confirmed requirements and ownership |
+| Shared baseline | Catalog PRD/TRD v0.6; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target runtime changes remain pending |
-| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; accepted policy direction is not runtime acceptance or approval to publish |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; metadata, URL/output and regression requirements confirmed on 2026-09-14, not runtime acceptance or approval to publish |
 | Release stage | Preview, with versioning/releases independent from the upstream engine |
 
 This TRD owns Open Graph's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply; original T-005 is relocated here as the authoritative social-URL requirement, with a gateway redirect. New local records use `OG-TR-*`.
@@ -20,7 +20,7 @@ The plugin is an independent Razor class library consuming Plugin/Core. It overr
 
 ## OG-TR-001: Option and metadata behavior
 
-**State / source:** Accepted target direction; P-FR-003 and shared T-004. [Hook](OpenGraphPlugin.cs), [component code](OpenGraphComponent.razor.cs) and [helper](OpenGraphPluginHelper.cs) retain the current behavior until implemented.
+**State / source:** Confirmed requirement (user, 2026-09-14); P-FR-003 and shared T-004. [Hook](OpenGraphPlugin.cs), [component code](OpenGraphComponent.razor.cs) and [helper](OpenGraphPluginHelper.cs) retain the current behavior until implemented.
 
 Read nullable options by typed `TryGetValue` without mutation. Equivalent input contexts must produce equivalent metadata values and optional-tag presence across both paths. Retain the following defaults except for the explicit creator change:
 
@@ -38,7 +38,7 @@ The hook has no collection parameter and uses the host-provided document; synthe
 
 ## OG-TR-002: Hook and component integration
 
-**State / source:** Accepted target direction; OG-FR-001 and shared P-FR-001/P-FR-004; T-001/T-002/T-003. Preserve host selection/insertion while replacing the missing-context fallback with an explicit failure.
+**State / source:** Confirmed requirement (user, 2026-09-14); OG-FR-001 and shared P-FR-001/P-FR-004; T-001/T-002/T-003. Preserve host selection/insertion while replacing the missing-context fallback with an explicit failure.
 
 Retain `Id="open-graph"` and non-empty implementation name. The hook checks cancellation, replaces all exact paired markers `<plugin:open-graph></plugin:open-graph>` case-insensitively and leaves unmarked HTML unchanged for otherwise valid inputs. Paired markers are the supported hook syntax; self-closing support is not added. It does not enforce host enablement or deduplicate tags.
 
@@ -48,7 +48,7 @@ The component must call `base.OnParametersSet()`, clear derived fields and recom
 
 ## T-005: Content and image URL boundaries
 
-**State / source:** Accepted target direction; P-FR-005, shared P-NFR-005; [local helper](OpenGraphPluginHelper.cs) and [upstream formatting contract](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers). Retain the original catalog ID while adding the agreed validation/omission rules.
+**State / source:** Confirmed requirement (user, 2026-09-14); P-FR-005, shared P-NFR-005; [local helper](OpenGraphPluginHelper.cs) and [upstream formatting contract](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers). Retain the original catalog ID while adding the agreed validation/omission rules.
 
 For non-blank slugs, use `ContentUrlHelper.GetContentUrl`: trim outer whitespace, normalize both slash separators, escape segments and reject literal `.`/`..` segments. Convert the helper's root result `.` to the site root. Null/blank local slugs also return the site root; this local fallback does not change upstream null-argument behavior.
 
@@ -62,7 +62,7 @@ Classify images before normalization: accept site-local paths (including a leadi
 
 ## OG-TR-003: Output and preview boundaries
 
-**State / source:** Accepted target direction; OG-NFR-001, shared P-NFR-003 and T-006. Keep metadata context and external behavior explicit.
+**State / source:** Confirmed requirement (user, 2026-09-14); OG-NFR-001, shared P-NFR-003 and T-006. Keep metadata context and external behavior explicit.
 
 Normal metadata must remain text in both renderers: escape the hook's attribute values correctly while preserving Razor encoding and avoiding double encoding. Metadata containing quotes, markup-like or placeholder-like text must not become elements, attributes or further template substitutions. Do not blanket-sanitize unrelated document HTML. Apply T-005's accepted URL policy separately from HTML encoding.
 
@@ -93,4 +93,6 @@ Use [AGENTS.md](../../AGENTS.md) for commands. Verify this package's assembly, R
 
 No analytics/consent service, database, account system, remote-generation API, navigation subsystem or accessibility/browser-conformance program is part of this plugin baseline. External image and locale/output semantics remain applicable; future features require a separate applicability review.
 
-**Readiness:** Review-ready against plugin PRD v0.4 and shared v0.5 baselines, with accepted policies and concrete technical acceptance recorded. Runtime implementation and evidence remain pending. v0.2 resolved policy alternatives and v0.3 added named ownership and independent preview releases. v0.4 aligns the accepted support/recovery and optional-only deferral policies, preserving IDs and migration notes and deferring no specific work. This is not full-document sign-off, a completed audit or release approval.
+**v0.5 confirmation (2026-09-14):** the user explicitly confirmed metadata consistency, required versus optional metadata, URL/output handling and regression coverage. OG-TR-001/002/003 and T-005 now record confirmed requirements without changing scope, migration effects or IDs.
+
+**Readiness:** Implementation-ready against plugin PRD v0.5 and shared v0.6 baselines. No unresolved policy or technical requirement blocks implementation. Runtime parity, validation, omission, URL/output changes and regression evidence remain pending, not deferred. Shared T-008 records reported publishing setup and the limits of independent verification; release evidence and authorization are still required. This is not completed implementation, a completed audit or release approval.

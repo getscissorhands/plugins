@@ -6,12 +6,12 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.4 / Review-ready |
+| Version / status | 0.5 / Implementation-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.5; shared requirements apply as described below |
+| Parent baseline | Catalog PRD v0.6; shared requirements apply as described below |
 | Implementation baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; accepted target changes below are not yet implemented |
 | Package / plugin ID | `ScissorHands.Plugin.GoogleAnalytics` / `google-analytics` |
-| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; policy recommendations accepted on 2026-09-14, not authorization to publish |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; validation/output and regression requirements explicitly confirmed on 2026-09-14, not authorization to publish |
 | Release stage | Preview; versioning and releases are independent of the upstream engine |
 
 This PRD owns Google Analytics behavior, acceptance and plugin-specific questions. It inherits the catalog's shared compatibility, identity, failure, output-integrity and authoring constraints; it cannot silently override them. The [plugin TRD](TRD.md) supplies technical acceptance. No engine requirements or upstream approvals are imported.
@@ -50,21 +50,23 @@ Shared `P-NFR-001/002/003/005` apply: preserve package compatibility and read-on
 
 ## Plugin questions and acceptance limits
 
-Retain the original question IDs as decision/evidence records. The user accepted the recommendations on 2026-09-14. This revision interprets the remaining preview choice as retaining enabled-when-configured behavior, consistent with the user's fake-ID sample request; the restricted ID shape above is the technical acceptance elaboration, not a claim about provider registration.
+Retain the original question IDs as decision/evidence records. On 2026-09-14 the user explicitly confirmed the validation, output-handling and regression recommendations. The ID syntax and failure matrix are confirmed requirements, not proof of provider registration. Previously settled enabled-when-configured preview behavior and the fake-ID sample remain unchanged.
 
 | ID / origin | Decision or remaining work | Delivery state |
 | --- | --- | --- |
 | GA-Q-001 / Q-001 | Standardize on paired hook markers; do not add self-closing support | Decision settled; README examples corrected to the supported form |
-| GA-Q-002 / Q-002 | Restrict IDs as in P-FR-002 and protect JavaScript/URL output contexts | Policy recorded; validation/encoding implementation and synthetic boundary evidence pending |
-| GA-Q-003 / Q-003 | Await cancellation assertions and cover component removal transitions | Engineering follow-up, not an unresolved product choice; evidence remains incomplete |
+| GA-Q-002 / Q-002 | Restrict IDs as in P-FR-002 and protect JavaScript/URL output contexts | Requirements confirmed; validation/encoding implementation and synthetic boundary evidence pending |
+| GA-Q-003 / Q-003 | Await cancellation assertions and cover component removal transitions | Requirement confirmed; engineering work and evidence remain pending |
 | GA-Q-004 / Q-004 | Reject invalid required IDs, retain configured preview output, and keep consent outside the plugin | Decisions recorded; rejection behavior pending. Preview/consent boundaries already match the target |
 
 Shared [Q-005](../../PRD.md#shared-release-question) governs versioning, verified compatibility and release gates. A release claiming this target requires the new validation/output regressions and consumer evidence; passing the older permissive tests is not acceptance. @justinyoo selects the next independent preview version/date and authorizes publication. The shared support/recovery and optional-only deferral policies are accepted; this plugin's agreed behavior and required evidence remain pending, not deferred. Real provider acceptance remains unverified and outside the plugin's delivery claims.
 
 **Migration / current behavior:** strict validation is a breaking behavior change for callers relying on empty or arbitrary IDs. Configure an accepted ID or remove the manifest before adopting that future implementation. The current hook/component code still accepts arbitrary strings and falls back to an empty ID; this documentation revision does not change it.
 
-**Readiness:** Review-ready with accepted policy direction and explicit technical elaboration; not a completed implementation, full-document sign-off or release approval. v0.2 replaces the earlier unresolved policy alternatives while preserving question IDs and evidence gaps. Source provenance remains in the [catalog](../../PRD.md#sources-and-review-status).
+**Readiness:** Implementation-ready: scope, validation/output semantics and regression expectations are explicitly confirmed, with no unresolved policy decision blocking implementation. Runtime changes and evidence remain pending, not deferred. Provider acceptance is outside the claimed scope; publishing verification remains a release gate under shared Q-005. Document readiness is not completed implementation, a completed audit or release approval. Source provenance remains in the [catalog](../../PRD.md#sources-and-review-status).
 
 **v0.3 clarification:** recorded @justinyoo's ownership and engine-independent preview releases; it did not approve a recovery policy or a specific deferral.
 
 **v0.4 alignment (2026-09-14):** adopts catalog v0.5's accepted support/recovery and optional-only deferral policies. No runtime change, specific deferral or publication is authorized by this policy update.
+
+**v0.5 confirmation (2026-09-14):** records explicit confirmation of validation, output handling and regression requirements and aligns with catalog v0.6's publishing-setup evidence. Existing IDs, scope and migration effects are preserved; no runtime delivery is claimed.

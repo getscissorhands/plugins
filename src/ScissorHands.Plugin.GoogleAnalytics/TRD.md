@@ -6,12 +6,12 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.4 / Review-ready |
+| Version / status | 0.5 / Implementation-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Google Analytics PRD v0.4, Review-ready with accepted policies and ownership |
-| Shared baseline | Catalog PRD/TRD v0.5; apply shared obligations without silently overriding them |
+| Product baseline | Google Analytics PRD v0.5, Implementation-ready with explicitly confirmed requirements and ownership |
+| Shared baseline | Catalog PRD/TRD v0.6; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target validation changes remain pending |
-| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; accepted policy direction is not runtime acceptance or approval to publish |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; validation/output and regression requirements confirmed on 2026-09-14, not runtime acceptance or approval to publish |
 | Release stage | Preview, with versioning/releases independent from the upstream engine |
 
 This TRD owns Google Analytics's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply. Open Graph's delegated T-005 does not: this plugin emits an external Google URL, not content/social-image URLs. Applicable shared P-NFR-005 still prevents prefixing that external URL with the site's base path.
@@ -20,7 +20,7 @@ The plugin is an independent Razor class library consuming upstream Plugin/Core.
 
 ## GA-TR-001: Measurement configuration
 
-**State / source:** Accepted target direction; P-FR-002, shared P-NFR-002/P-NFR-003 and T-004/T-006. [Hook](GoogleAnalyticsPlugin.cs) and [component code](GoogleAnalyticsComponent.razor.cs) still implement the earlier permissive behavior.
+**State / source:** Confirmed requirement (user, 2026-09-14); P-FR-002, shared P-NFR-002/P-NFR-003 and T-004/T-006. [Hook](GoogleAnalyticsPlugin.cs) and [component code](GoogleAnalyticsComponent.razor.cs) still implement the earlier permissive behavior.
 
 Read nullable options with typed access, without mutating the upstream snapshot or nested caller values. An enabled plugin must require a string `MeasurementId` matching the whole value `G-` plus one or more uppercase ASCII letters/digits (`\AG-[A-Z0-9]+\z`). Do not trim malformed input into acceptance. `G-EXAMPLE` remains an explicitly supported synthetic value, not proof of an active Google property. Missing/null/wrong-type, blank, whitespace-padded and invalid-character values must fail with a contextual configuration exception naming `google-analytics` and `MeasurementId`, without echoing the supplied payload.
 
@@ -72,4 +72,6 @@ Shared commands and package conventions remain in [AGENTS.md](../../AGENTS.md). 
 
 No visible controls, local storage, authentication, remote-generation API or performance SLA is in scope. Privacy/client implications are explicitly applicable because browser code contacts Google. Other capabilities require their own product change, not inherited sibling requirements.
 
-**Readiness:** Review-ready against local PRD v0.4 and shared v0.5 baselines, with accepted policies and concrete technical acceptance recorded. Runtime validation/encoding and related regressions remain to be implemented; release prerequisites are separate. v0.2 replaced the former alternatives and v0.3 added named ownership and independent preview releases. v0.4 aligns the accepted support/recovery and optional-only deferral policies, preserving all IDs and deferring no specific work. This is not full-document sign-off, a completed audit or release approval.
+**v0.5 confirmation (2026-09-14):** the user explicitly confirmed validation, output handling and regression coverage. GA-TR-001's syntax/error/output requirements and GA-TR-002's awaited cancellation/removal evidence are confirmed without changing scope, migration effects or IDs.
+
+**Readiness:** Implementation-ready against local PRD v0.5 and shared v0.6 baselines. No unresolved policy or technical requirement blocks implementation. Runtime validation/encoding and related regressions remain pending, not deferred. Shared T-008 records reported publishing setup and the limits of independent verification; release evidence and authorization are still required. This is not completed implementation, a completed audit or release approval.

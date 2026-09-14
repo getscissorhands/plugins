@@ -6,12 +6,12 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.4 / Review-ready |
+| Version / status | 0.5 / Implementation-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.5; shared requirements apply as described below |
+| Parent baseline | Catalog PRD v0.6; shared requirements apply as described below |
 | Implementation baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; accepted target changes below are not yet implemented |
 | Package / plugin ID | `ScissorHands.Plugin.OpenGraph` / `open-graph` |
-| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; policy recommendations accepted on 2026-09-14, not authorization to publish |
+| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; metadata, URL/output and regression requirements explicitly confirmed on 2026-09-14, not authorization to publish |
 | Release stage | Preview; versioning and releases are independent of the upstream engine |
 
 This PRD owns Open Graph behavior, acceptance and plugin-specific questions. It inherits catalog requirements rather than duplicating them or changing their meaning. The [plugin TRD](TRD.md) defines technical acceptance; ScissorHands.NET remains authoritative for external contracts.
@@ -56,21 +56,23 @@ OG-NFR-001 retains the Open Graph portion of former P-NFR-004. [OG-TR-001](TRD.m
 
 ## Plugin questions and acceptance limits
 
-Retain the original question IDs as decision/evidence records. The user accepted the recommendations on 2026-09-14. To resolve the remaining parity detail, this revision uses the component's existing source-backed-post eligibility as the common creator rule; it does not change source-less title/description fallback policy.
+Retain the original question IDs as decision/evidence records. On 2026-09-14 the user explicitly confirmed metadata consistency, required versus optional metadata, URL/output handling and regression coverage. Source-backed-post creator eligibility is the confirmed common rule; source-less title/description fallbacks and the previously settled preview policy remain unchanged.
 
 | ID / origin | Decision or remaining work | Delivery state |
 | --- | --- | --- |
 | OG-Q-001 / Q-001 | Standardize on paired hook markers; do not add self-closing support | Decision settled; README examples corrected |
-| OG-Q-002 / Q-002 | Treat metadata as text; allow site-local and HTTP(S) images, reject unsupported schemes, preserve supported URL details and omit unavailable image tags | Policy recorded; implementation and URI/output boundary evidence pending |
-| OG-Q-003 / Q-003 | Align equivalent contexts using source-backed-post creator eligibility and fail on missing site/origin context | Policy recorded; parity/context changes and awaited cancellation/removal regressions pending |
+| OG-Q-002 / Q-002 | Treat metadata as text; allow site-local and HTTP(S) images, reject unsupported schemes, preserve supported URL details and omit unavailable image tags | Requirements confirmed; implementation and URI/output boundary evidence pending |
+| OG-Q-003 / Q-003 | Align equivalent contexts using source-backed-post creator eligibility and fail on missing site/origin context | Requirements confirmed; parity/context changes and awaited cancellation/removal regressions pending |
 | OG-Q-004 / Q-004 | Retain metadata generation in preview with the same rules as production | Decision settled; no suppression feature is introduced |
 
 Shared [Q-005](../../PRD.md#shared-release-question) covers verified compatibility and release gates. A release claiming the accepted behavior requires parity, context, omission and URL/output regressions plus consumer evidence. @justinyoo selects the next independent preview version/date and authorizes publication. The shared support/recovery and optional-only deferral policies are accepted; this plugin's agreed behavior and required evidence remain pending, not deferred. Crawler acceptance remains unverified and outside the plugin's delivery claims.
 
 **Migration / current behavior:** the current hook still permits a creator for source-less posts, missing-site components can emit defaults, and image/helper paths can return empty or relative values and accept general absolute URI schemes. The stricter target will require valid site configuration and accepted URLs and may remove formerly emitted creator/image tags. It is a breaking behavior change, not an implemented fix in this revision.
 
-**Readiness:** Review-ready with accepted policy direction and explicit technical elaboration, not completed implementation, whole-document sign-off or release approval. v0.2 resolves policy alternatives while retaining delivery/evidence gaps and IDs. The [catalog source record](../../PRD.md#sources-and-review-status) retains provenance; upstream engine approval history is not inherited.
+**Readiness:** Implementation-ready: scope, metadata parity, required/optional inputs, URL/output semantics and regression expectations are explicitly confirmed, with no unresolved policy decision blocking implementation. Runtime changes and evidence remain pending, not deferred. Crawler acceptance is outside the claimed scope; publishing verification remains a release gate under shared Q-005. Document readiness is not completed implementation, a completed audit or release approval. The [catalog source record](../../PRD.md#sources-and-review-status) retains provenance; upstream engine approval history is not inherited.
 
 **v0.3 clarification:** recorded @justinyoo's ownership and engine-independent preview releases; it did not approve a recovery policy or a specific deferral.
 
 **v0.4 alignment (2026-09-14):** adopts catalog v0.5's accepted support/recovery and optional-only deferral policies. No runtime change, specific deferral or publication is authorized by this policy update.
+
+**v0.5 confirmation (2026-09-14):** records explicit confirmation of metadata consistency, required/optional inputs, URL/output handling and regressions and aligns with catalog v0.6's publishing-setup evidence. Existing IDs, scope and migration effects are preserved; no runtime delivery is claimed.

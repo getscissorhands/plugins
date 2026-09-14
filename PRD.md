@@ -4,21 +4,21 @@
 
 | Field | Value |
 | --- | --- |
-| Document version / status | 0.5 / Review-ready |
+| Document version / status | 0.6 / Implementation-ready |
 | Last updated | 2026-09-14 |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
 | Local source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; the accepted policy changes below are pending implementation, not a released baseline |
 | Compatibility reference | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; centrally managed major-version floats remain in use |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
-| Approval / release | User accepted plugin, support/recovery and deferral policies and confirmed ownership on 2026-09-14; this is not implementation evidence or authorization to publish a specific release |
+| Approval / release | User confirmed the engineering requirements, regression coverage, support/recovery and deferral policies on 2026-09-14; this is not implementation evidence or authorization to publish a specific release |
 | Versioning / release stage | Plugins are versioned and released independently from the upstream engine; currently preview. Exact next version/date are selected by @justinyoo when releasing |
 
 This document is the catalog entry point and owns **shared product requirements**. Each linked plugin PRD owns that plugin's behavior, examples, acceptance and questions. [TRD.md](TRD.md) owns shared technical obligations and indexes the plugin TRDs. [AGENTS.md](AGENTS.md) owns contributor commands and workflow.
 
 Read the shared documents plus the relevant plugin pair. A plugin document specializes shared requirements; it cannot silently waive them or govern a sibling plugin. Resolve conflicts in the owning PRD before updating technical requirements. ScissorHands.NET remains authoritative for external engine/extension contracts.
 
-**States:** Confirmed identifies user instructions or source-backed baseline behavior, not automatic future-policy approval. Proposed means awaiting a decision; Unknown means evidence/decisions are absent. Review-ready is not sign-off. New plugin proposals enter the catalog with their actual status, not inherited approval.
+**States:** Confirmed identifies user instructions or source-backed baseline behavior, not automatic future-policy approval. Proposed means awaiting a decision; Unknown means evidence/decisions are absent. Review-ready is not sign-off. Implementation-ready means the confirmed requirements support starting work, not that implementation or release gates have passed. New plugin proposals enter the catalog with their actual status, not inherited approval.
 
 ## Plugin catalog
 
@@ -73,7 +73,7 @@ Plugin versions and release timing are independent from the upstream engine. Cur
 
 @justinyoo owns implementation, verification, support and release authorization and selects each next plugin version/date. Ownership is not blanket authorization for an agent to tag or publish.
 
-The [current workflow](.github/workflows/main.yaml), updated at the user's 2026-09-14 request, publishes tagged packages to NuGet.org and GitHub Packages before creating a GitHub release. NuGet.org uses OIDC trusted publishing through `nuget-release`; [external setup](README.md#publishing-packages) remains required. Workflow configuration is not evidence of a completed publication or release authorization.
+The [current workflow](.github/workflows/main.yaml), updated at the user's 2026-09-14 request, publishes tagged packages to NuGet.org and GitHub Packages before creating a GitHub release. NuGet.org uses OIDC trusted publishing through `nuget-release`. On 2026-09-14, @justinyoo reported completing the GitHub environment and NuGet account setup; a read-only check confirmed the environment and its `NUGET_USER` secret name. The [setup requirements](README.md#publishing-packages) still apply. NuGet-side trust settings and end-to-end publishing have not been independently verified; see the evidence boundary in [T-008](TRD.md#t-008-package-and-consumer-documentation). Setup is not publication authorization.
 
 ### Support, recovery and deferrals
 
@@ -89,11 +89,11 @@ The [release guide](README.md#support-and-recovery) describes these operational 
 
 ### Shared release question
 
-**Q-005 (policy settled; release execution remains):** @justinyoo owns delivery, support and release authorization. Independent preview versioning, both publishing destinations, release gates and the support/recovery/optional-only deferral policies above are settled. Configure/verify the environment, `NUGET_USER` and trusted-publishing policy, complete required implementation/evidence, and obtain authorization for the chosen release. Registry writes remain non-atomic and previously published versions are not replaced. Exact next version/date and external setup are execution decisions, not claimed complete here. See T-007/T-008 in [TRD](TRD.md).
+**Q-005 (policy settled; release execution remains):** @justinyoo owns delivery, support and release authorization. Independent preview versioning, both publishing destinations, release gates and the support/recovery/optional-only deferral policies above are settled. Environment/account setup is reported complete, with GitHub environment/secret presence observed; do not treat that as proof of NuGet trust correctness or successful token exchange/publication. Complete required implementation/evidence and obtain authorization for the chosen release. Registry writes remain non-atomic and previously published versions are not replaced. Exact next version/date and live publishing verification remain release-execution responsibilities. See T-007/T-008 in [TRD](TRD.md).
 
 ### Delegated questions
 
-Q-001 through Q-004 remain routing IDs. Local records now distinguish settled policy from pending implementation/evidence: paired-marker support and preview policy are settled; stricter validation, metadata parity and missing-context behavior require implementation. Cancellation/removal tests are engineering follow-ups, not product choices to reopen.
+Q-001 through Q-004 remain routing IDs. On 2026-09-14, the user explicitly confirmed Google Analytics validation, Open Graph consistency, required/optional metadata behavior, URL/output handling and regression coverage. Local records distinguish these confirmed requirements from pending implementation/evidence. Paired-marker and preview policies remain unchanged. No unresolved policy decision blocks starting the agreed engineering work.
 
 | Previous ID / subject | Google Analytics owner | Open Graph owner |
 | --- | --- | --- |
@@ -121,7 +121,9 @@ The current source, tests, [shared build props](src/Directory.Build.props), [cen
 
 **v0.5 decisions (2026-09-14):** the user accepted best-effort issue support, fixes in new previews, same-artifact recovery for partial publication, approval-gated deprecation/unlisting, and optional-only issue-tracked deferrals. Q-005's policy choices are settled; no specific work is deferred or registry action authorized.
 
-**Readiness:** Review-ready with accepted policies and a named owner. Specific validation/parity work and external release setup/evidence remain pending, not deferred. Each plugin has its own delivery assessment; no upstream approval, engine verification-program ID, completed audit or release authorization is inherited.
+**v0.6 confirmation (2026-09-14):** the user confirmed all five engineering recommendations and reported completing GitHub environment/NuGet account setup. GitHub environment and secret-name presence were observed without reading secret values or changing configuration. This closes the requirement-confirmation step, not implementation, NuGet-side verification or publishing.
+
+**Readiness:** Implementation-ready for the agreed scope: requirements, acceptance conditions, ownership and release policies are confirmed, with no unresolved decision blocking implementation. Validation/parity/encoding changes, regression evidence and live publishing verification remain pending, not deferred. Quantitative outcome evaluation remains outside the committed engineering scope and under @justinyoo's ownership. No completed audit, upstream approval or release authorization is inherited.
 
 [upstream-prd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/PRD.md
 [upstream-trd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/TRD.md

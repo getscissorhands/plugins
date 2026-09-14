@@ -4,12 +4,12 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.5 / Review-ready |
+| Version / status | 0.6 / Implementation-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | [Catalog PRD](PRD.md) v0.5, Review-ready with accepted plugin/release policies and ownership; shared requirements and delegated plugin baselines |
+| Product baseline | [Catalog PRD](PRD.md) v0.6, Implementation-ready with confirmed engineering/release requirements and ownership; shared requirements and delegated plugin baselines |
 | Scope | Shared authoring/compatibility obligations and an index of per-plugin technical requirements |
 | Sources | Catalog source baseline `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`, current configuration and plugin-relevant upstream contracts |
-| Sign-off / owner | @justinyoo owns implementation, verification, support and release authorization; plugin/support/recovery/deferral policies confirmed on 2026-09-14, not implementation or release acceptance |
+| Sign-off / owner | @justinyoo owns implementation, verification, support and release authorization; engineering/regression and release-policy requirements confirmed on 2026-09-14, not completed implementation or release acceptance |
 
 Read this gateway plus the owning plugin's PRD/TRD. Shared requirements apply where the plugin uses that surface; local documents must explicitly state applicability or justified exclusions, not silently weaken shared rules. Product changes belong in the owning PRD before its TRD. Upstream Plugin/Core contracts remain authoritative; engine implementation and approval history are excluded.
 
@@ -17,8 +17,8 @@ Read this gateway plus the owning plugin's PRD/TRD. Shared requirements apply wh
 
 | Plugin ID | Product baseline | Technical requirements | Evidence location |
 | --- | --- | --- | --- |
-| `google-analytics` | [PRD v0.4](src/ScissorHands.Plugin.GoogleAnalytics/PRD.md) | [Google Analytics TRD v0.4](src/ScissorHands.Plugin.GoogleAnalytics/TRD.md) | [Tests](test/ScissorHands.Plugin.GoogleAnalytics.Tests) |
-| `open-graph` | [PRD v0.4](src/ScissorHands.Plugin.OpenGraph/PRD.md) | [Open Graph TRD v0.4](src/ScissorHands.Plugin.OpenGraph/TRD.md) | [Tests](test/ScissorHands.Plugin.OpenGraph.Tests) |
+| `google-analytics` | [PRD v0.5](src/ScissorHands.Plugin.GoogleAnalytics/PRD.md) | [Google Analytics TRD v0.5](src/ScissorHands.Plugin.GoogleAnalytics/TRD.md) | [Tests](test/ScissorHands.Plugin.GoogleAnalytics.Tests) |
+| `open-graph` | [PRD v0.5](src/ScissorHands.Plugin.OpenGraph/PRD.md) | [Open Graph TRD v0.5](src/ScissorHands.Plugin.OpenGraph/TRD.md) | [Tests](test/ScissorHands.Plugin.OpenGraph.Tests) |
 
 ## 1. Shared boundaries
 
@@ -30,7 +30,7 @@ Configuration sources are [root props](Directory.Build.props), [source props](sr
 
 ## 2. Shared technical requirements
 
-Shared T-records retain the existing authoring baseline, with accepted release-policy changes in T-007/T-008. Local v0.4 TRDs distinguish accepted target behavior from current code and pending implementation. Each record states its source, obligation and verification; stable IDs and redirects remain intact.
+Shared T-records retain the existing authoring baseline, with accepted release-policy changes in T-007/T-008. Local v0.5 TRDs distinguish explicitly confirmed requirements from current code and pending implementation. Each record states its source, obligation and verification; stable IDs and redirects remain intact.
 
 ### T-001: Identity and dependency integration
 
@@ -106,6 +106,8 @@ The tag-only release workflow publishes to NuGet.org using `NuGet/login@v1`, the
 
 Build/pack receive `-p:Version` without editing project files. [Environment, secret and trusted-publisher setup](README.md#publishing-packages) must match this repository and workflow before a release. Local validation does not exercise OIDC token exchange or grant publication permission.
 
+**Setup evidence (2026-09-14):** @justinyoo reported completing the GitHub environment and NuGet account setup. A read-only GitHub API check confirmed `nuget-release` and an environment-scoped secret named `NUGET_USER`; no secret value was read. The environment returned no protection rules or environment-level branch/tag policy. This records the observed configuration, not a protection-policy audit or authorization to publish. NuGet-side trusted-publisher mappings, account/package permissions and secret-value correctness were not independently inspected. OIDC token exchange and real package/symbol publication remain unverified; configuration was not changed and no release was triggered.
+
 **Accepted release gate:** @justinyoo owns implementation, verification, support and release authorization. Before publishing, record their explicit authorization for that release, the actual dependency graph, applicable build/regression results, package-content checks and scoped consumer-integration evidence. Implement agreed plugin behavior rather than defer it; preview status does not waive requirements or evidence. Only optional extras may be deferred, with an issue identifying the item, nonblocking rationale and @justinyoo as owner. No specific deferral is approved by this revision.
 
 **Accepted support/recovery contract:** use best-effort GitHub Issue triage, without a response-time SLA or maintenance commitment for every historical preview. Code fixes must use a new preview version, not replacement of a published package. A partial release must reuse the same verified artifacts for missing destinations and skip existing duplicates; do not rebuild different bytes under the same version. Deprecation or unlisting requires @justinyoo's explicit approval for the affected release and must point to its replacement where supported. Neither action removes installed copies; no automatic rollback is provided. Consumers may pin a previously verified plugin/engine combination. Operational guidance lives in [README](README.md#support-and-recovery).
@@ -167,7 +169,9 @@ Identity, contracts, input ownership, failure behavior, build, compatibility and
 
 **v0.5 decisions (2026-09-14):** aligns T-008 with the user's accepted support/recovery and optional-only deferral policies in catalog PRD v0.5. Q-005's policy choices are settled; implementation, external setup, evidence and per-action authorization remain execution responsibilities. No specific item is deferred or recovery claimed complete.
 
-**Readiness:** Review-ready with accepted policies, named ownership and technical elaboration, not full-document sign-off or completed implementation. Local runtime/evidence work and external release setup remain outstanding, not deferred. The [catalog source record](PRD.md#sources-and-review-status) retains provenance without importing engine approval or asserting release readiness.
+**v0.6 confirmation (2026-09-14):** aligns with explicit confirmation of all five engineering recommendations in catalog PRD v0.6. T-008 distinguishes user-reported environment/account setup, observed GitHub environment/secret presence and unverified NuGet-side/end-to-end publishing behavior. No source, dependency, test or release configuration is changed by this documentation update.
+
+**Readiness:** Implementation-ready against catalog PRD v0.6: technical behavior, acceptance conditions and verification obligations are confirmed, with no unresolved product or technical decision blocking implementation of the agreed scope. Runtime changes, regression/integration evidence and actual publishing verification remain execution work, not deferred requirements. @justinyoo owns those gates; selecting and authorizing a release remains separate. The [catalog source record](PRD.md#sources-and-review-status) retains provenance without importing engine approval or asserting release readiness.
 
 [upstream-plugin]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#plugin-authoring
 [upstream-urls]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers
