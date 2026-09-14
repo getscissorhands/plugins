@@ -27,6 +27,7 @@ Source/test props must import root props because MSBuild discovers only the near
 ## Adding or evolving a plugin
 
 - Place its `PRD.md` and `TRD.md` beside the source project under `src`. Establish the local PRD before its TRD; cite both shared baselines and map local requirements to technical acceptance/evidence.
+- Keep purpose, users, scope, observable acceptance and release/support policy in PRDs. Put configuration/code examples, exact formats, API/lifecycle contracts, dependency/build constraints, test methods and technical delivery evidence in TRDs, with links from the PRD rather than duplicated detail. Keep usage/recovery procedures in READMEs and concrete design in a TDD when warranted. Relocation must preserve accepted obligations, IDs and evidence gaps.
 - Add the plugin ID, purpose and document links to both root catalogs. Link each local document to its counterpart and the gateways. Keep detailed options, rendering rules and local questions in the plugin pair, not copied into the roots.
 - Use plugin-prefixed IDs for new requirements/questions. Preserve or explicitly map existing IDs when relocating them; never silently drop inherited obligations or previous gaps.
 - Declare supported hooks, optional components, dependencies, outputs and relevant preview/network/storage/privacy/UI behavior. A new plugin need not expose the same integration surfaces or defaults as an existing one.

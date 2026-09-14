@@ -6,35 +6,27 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.5 / Implementation-ready |
+| Version / status | 0.6 / Implementation-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.6; shared requirements apply as described below |
-| Implementation baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; accepted target changes below are not yet implemented |
-| Package / plugin ID | `ScissorHands.Plugin.GoogleAnalytics` / `google-analytics` |
+| Parent baseline | Catalog PRD v0.7; shared requirements apply as described below |
+| Delivery state | Accepted changes remain pending; implementation baseline and evidence are owned by the [TRD](TRD.md#baseline-and-inheritance) |
+| Plugin ID | `google-analytics` |
 | Approval / owner | @justinyoo owns implementation, verification, support and release authorization; validation/output and regression requirements explicitly confirmed on 2026-09-14, not authorization to publish |
 | Release stage | Preview; versioning and releases are independent of the upstream engine |
 
-This PRD owns Google Analytics behavior, acceptance and plugin-specific questions. It inherits the catalog's shared compatibility, identity, failure, output-integrity and authoring constraints; it cannot silently override them. The [plugin TRD](TRD.md) supplies technical acceptance. No engine requirements or upstream approvals are imported.
+This PRD owns Google Analytics's purpose, scope, observable behavior and product acceptance. It inherits the catalog's shared compatibility, identity, failure, output-integrity and authoring constraints. The [plugin TRD](TRD.md) owns configuration formats, integration contracts, current-code details and verification; the [README](README.md) provides usage instructions. No engine requirements or upstream approvals are imported.
 
-The primary user is a site author who wants Google Analytics markup without changing the engine. A theme author chooses where to integrate it; visitors run the emitted browser code. The [implementation](GoogleAnalyticsPlugin.cs), [component](GoogleAnalyticsComponent.razor), and [tests](../../test/ScissorHands.Plugin.GoogleAnalytics.Tests) are the source of the baseline below, not evidence of real provider delivery or measured user benefit.
+The primary user is a site author who wants Google Analytics markup without changing the engine. A theme author chooses where to integrate it; visitors run the emitted browser code. The existing plugin establishes the current experience, not proof of real provider delivery or measured user benefit. Technical evidence is recorded in the TRD.
 
-In scope: measurement-ID configuration, the post-HTML and Razor paths, package compatibility and documentation. Out of scope: analytics dashboards, server-side measurement requests, consent-management UI, provider retention/deletion controls, automatic preview suppression, or other analytics providers. The plugin adds no visible interactive controls; browser/network/privacy behavior still matters. There is no plugin-owned database, account system, or measured performance target.
+In scope: measurement-ID configuration, layout-component and paired-placeholder integration, package compatibility and documentation. Out of scope: analytics dashboards, server-side measurement requests, consent-management UI, provider retention/deletion controls, automatic preview suppression, or other analytics providers. The plugin adds no visible interactive controls; browser/network/privacy behavior still matters. There is no plugin-owned database, account system, or measured performance target.
 
 ## User journey and outcomes
 
-The author installs the package in a compatible host, configures ID `google-analytics` and a `MeasurementId`, then chooses one integration path for each intended insertion. Removing the manifest disables the plugin's host hooks and component output; it does not unload its assembly. Under the accepted target policy, invalid configuration fails rather than silently disabling the plugin or emitting an empty ID. Current code still emits an empty ID for missing/non-string values.
+The author installs the plugin in a compatible host, enables it with a supported measurement identifier, and chooses one integration path per intended insertion. Removing the plugin's configuration entry disables output; leaving an enabled entry without the required identifier is invalid. Under the accepted target policy, invalid configuration produces a clear error rather than silently disabling analytics or emitting an empty identifier.
 
 Success is reusable analytics-markup integration without engine changes. An integration demonstration could measure this outcome; adoption, time savings, evaluation windows and quantitative targets are not established. Rendering a script is acceptance of markup behavior, not proof of analytics collection.
 
-```json
-{
-  "Plugins": [
-    { "Id": "google-analytics", "Options": { "MeasurementId": "G-EXAMPLE" } }
-  ]
-}
-```
-
-Use `<GoogleAnalyticsComponent Id="google-analytics" />` in a layout supplying upstream cascading context, or the paired hook marker `<plugin:google-analytics></plugin:google-analytics>`. Only paired hook markers are part of the supported contract; self-closing marker support is not being added. Do not combine paths unless duplicate output is intended.
+Authors may use a layout component or paired placeholders; self-closing placeholders are not supported. Combining both paths can duplicate output, so choose one unless duplication is intended. Configuration examples and exact syntax are owned by [GA-TR-001](TRD.md#ga-tr-001-measurement-configuration) and [GA-TR-002](TRD.md#ga-tr-002-hook-and-component-integration).
 
 ## Requirements
 
@@ -42,26 +34,26 @@ The following records define the **accepted target policy** following the user's
 
 | ID | Need / required behavior | Observable acceptance and limits |
 | --- | --- | --- |
-| P-FR-002 | Site authors configure the Google tag without silent misconfiguration | When enabled, require a string ID using `G-` followed by one or more uppercase ASCII letters/digits. Preserve `G-EXAMPLE` as an explicitly supported synthetic value; syntax acceptance is not Google-property verification. Missing/null/non-string, blank, whitespace-padded and other malformed values must fail with a clear configuration error, not emit an empty ID. Handle JavaScript and URL output contexts correctly in both paths |
-| GA-FR-001 | Theme authors control insertion and updates; specializes shared P-FR-001/P-FR-004 | Hook replaces every supported paired marker case-insensitively and preserves HTML with no marker for otherwise valid inputs. Component emits nothing without a matched manifest and recomputes when its selected ID changes. No global deduplication is promised |
+| P-FR-002 | Site authors configure the Google tag without silent misconfiguration | When enabled, require a supported measurement identifier. Missing or invalid configuration must fail clearly, never silently disable analytics or emit an empty identifier. Explicitly supported synthetic examples remain accepted; acceptance does not verify a Google property. Both integration paths must produce intact markup. The accepted identifier format and failure matrix are specified in [GA-TR-001](TRD.md#ga-tr-001-measurement-configuration) |
+| GA-FR-001 | Theme authors control insertion and updates; specializes shared P-FR-001/P-FR-004 | Render at every requested insertion point; preserve content without an insertion request for otherwise valid inputs. Disabling the plugin removes output, and selection/configuration changes must not leave stale output. Multiple requested insertions may produce duplicates; no global deduplication is promised. Matching and refresh contracts are specified in [GA-TR-002](TRD.md#ga-tr-002-hook-and-component-integration) |
 | P-NFR-004 | Site owners explicitly control enablement, including preview | Retain rendering in both preview and production when configured; no new automatic suppression switch is introduced. The fake-ID sample remains enabled. Generation makes no measurement request, but visiting output can contact Google even with a fake ID. Consent integration and provider-side retention/deletion remain the consuming site's/provider's responsibility; no compliance, offline or delivery guarantee is provided |
 
-Shared `P-NFR-001/002/003/005` apply: preserve package compatibility and read-only configuration, propagate observed failures/cancellation, review each output context, and assess client/locale impact. The loader URL is an external Google URL, not a site-local asset to prefix with `Site.BaseUrl`; this plugin does not calculate content routes or translate visible UI.
+Shared `P-NFR-001/002/003/005` apply: preserve compatibility and author-supplied configuration, expose observed failures/cancellation and protect output. The plugin depends on an external Google service; it does not own site navigation or localized visible UI. The TRD records the associated URL and client constraints.
 
 ## Plugin questions and acceptance limits
 
-Retain the original question IDs as decision/evidence records. On 2026-09-14 the user explicitly confirmed the validation, output-handling and regression recommendations. The ID syntax and failure matrix are confirmed requirements, not proof of provider registration. Previously settled enabled-when-configured preview behavior and the fake-ID sample remain unchanged.
+Retain the original question IDs as decision/routing records. The user confirmed these policies on 2026-09-14. Technical verification tracking belongs in the TRD; its relocation does not waive any accepted requirement.
 
 | ID / origin | Decision or remaining work | Delivery state |
 | --- | --- | --- |
-| GA-Q-001 / Q-001 | Standardize on paired hook markers; do not add self-closing support | Decision settled; README examples corrected to the supported form |
-| GA-Q-002 / Q-002 | Restrict IDs as in P-FR-002 and protect JavaScript/URL output contexts | Requirements confirmed; validation/encoding implementation and synthetic boundary evidence pending |
-| GA-Q-003 / Q-003 | Await cancellation assertions and cover component removal transitions | Requirement confirmed; engineering work and evidence remain pending |
-| GA-Q-004 / Q-004 | Reject invalid required IDs, retain configured preview output, and keep consent outside the plugin | Decisions recorded; rejection behavior pending. Preview/consent boundaries already match the target |
+| GA-Q-001 / Q-001 | Support paired placeholders, not self-closing ones | Settled; integration contract and evidence in [GA-TR-002](TRD.md#ga-tr-002-hook-and-component-integration) |
+| GA-Q-002 / Q-002 | Reject invalid identifiers and preserve valid analytics output | Settled; accepted format and output assurance in [GA-TR-001](TRD.md#ga-tr-001-measurement-configuration) |
+| GA-Q-003 / Q-003 | Technical verification record, not a product choice | Relocated to [GA-TR-002](TRD.md#ga-tr-002-hook-and-component-integration); evidence remains pending |
+| GA-Q-004 / Q-004 | Keep configured preview output and host-owned consent; fail on invalid required configuration | Settled; delivery limits in [GA-TR-001](TRD.md#ga-tr-001-measurement-configuration) and [GA-TR-003](TRD.md#ga-tr-003-preview-and-privacy) |
 
-Shared [Q-005](../../PRD.md#shared-release-question) governs versioning, verified compatibility and release gates. A release claiming this target requires the new validation/output regressions and consumer evidence; passing the older permissive tests is not acceptance. @justinyoo selects the next independent preview version/date and authorizes publication. The shared support/recovery and optional-only deferral policies are accepted; this plugin's agreed behavior and required evidence remain pending, not deferred. Real provider acceptance remains unverified and outside the plugin's delivery claims.
+Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview releases, support, recovery and optional-only deferrals. A release claiming the target behavior requires evidence for that behavior and scoped consumer integration. @justinyoo selects and authorizes the release. Agreed behavior and evidence remain pending, not deferred; real provider delivery is not claimed.
 
-**Migration / current behavior:** strict validation is a breaking behavior change for callers relying on empty or arbitrary IDs. Configure an accepted ID or remove the manifest before adopting that future implementation. The current hook/component code still accepts arbitrary strings and falls back to an empty ID; this documentation revision does not change it.
+**Release impact:** stricter validation will break configurations that rely on permissive identifier handling. Affected users must supply a supported identifier or disable the plugin before adopting that implementation. Current-code differences and technical migration details are in [the TRD](TRD.md#gaps-and-readiness).
 
 **Readiness:** Implementation-ready: scope, validation/output semantics and regression expectations are explicitly confirmed, with no unresolved policy decision blocking implementation. Runtime changes and evidence remain pending, not deferred. Provider acceptance is outside the claimed scope; publishing verification remains a release gate under shared Q-005. Document readiness is not completed implementation, a completed audit or release approval. Source provenance remains in the [catalog](../../PRD.md#sources-and-review-status).
 
@@ -70,3 +62,5 @@ Shared [Q-005](../../PRD.md#shared-release-question) governs versioning, verifie
 **v0.4 alignment (2026-09-14):** adopts catalog v0.5's accepted support/recovery and optional-only deferral policies. No runtime change, specific deferral or publication is authorized by this policy update.
 
 **v0.5 confirmation (2026-09-14):** records explicit confirmation of validation, output handling and regression requirements and aligns with catalog v0.6's publishing-setup evidence. Existing IDs, scope and migration effects are preserved; no runtime delivery is claimed.
+
+**v0.6 separation (2026-09-14):** move configuration examples, exact integration/validation contracts, current-code details and verification tracking to the TRD. Retain product acceptance and release impact here. GA-Q-003 remains a redirect to its technical owner; no policy, ID or delivery obligation is removed.
