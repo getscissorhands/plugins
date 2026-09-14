@@ -71,7 +71,7 @@ editing plugin or sample code unless you have rebuilt that configuration.
 ## Compare rendering paths
 
 The default configuration renders `OpenGraphComponent` and
-`GoogleAnalyticsComponent`. Google Analytics emits nothing unless configured.
+`GoogleAnalyticsComponent`, with the fake measurement ID `G-EXAMPLE`.
 To insert paired markers for the engine's post-HTML pipeline instead, set
 `Sample:UsePlaceholders` through a command-line override using the same `http`
 profile:
@@ -97,22 +97,25 @@ Inspect page source, not just the visible body:
 | `/tags/` | Engine tag views through the same sample layout |
 | `/404.html` | Custom not-found document; missing-URL routing remains a host responsibility |
 
-## Analytics is opt-in
+## Analytics uses a fake measurement ID
 
-The checked-in `Plugins` array enables only Open Graph. Adding an analytics
-manifest is explicit opt-in because visiting that output can contact Google,
-even in preview; the plugin itself does not implement consent or suppression.
+The checked-in `Plugins` array enables Open Graph and Google Analytics. Google
+Analytics uses the synthetic measurement ID `G-EXAMPLE` to make its markup easy
+to inspect in both component and hook modes.
 
-For local markup inspection with a synthetic ID:
+The fake ID is not a working measurement configuration or a network-blocking
+mechanism. Browsing the output can still contact Google, including in preview;
+the plugin does not implement consent or suppression. To inspect the markup
+without making browser requests, generate the files without opening them:
 
 ```powershell
-dotnet run --no-launch-profile -- --Plugins:1:Id=google-analytics --Plugins:1:Options:MeasurementId=G-EXAMPLE --preview
+dotnet run --no-launch-profile -- --build
 ```
 
-`G-EXAMPLE` is not a working measurement configuration or a network-blocking
-mechanism. Inspect the generated file without browsing it if you do not want
-Google requests. Do not commit a real site's configuration; provider delivery
-and consent compliance are not validated by this sample.
+Remove the `google-analytics` object from the `Plugins` array and restart
+preview to disable it. Clearing `MeasurementId` is not a disable switch.
+Do not commit a real site's configuration; provider delivery and consent
+compliance are not validated by this sample.
 
 ## Generate static output
 

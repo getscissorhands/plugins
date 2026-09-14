@@ -20,4 +20,5 @@ The Open Graph title should combine this post's title with the site title.
 The Twitter creator should be `@post-author`, overriding the configured default.
 
 Visit [the fallback example](fallbacks) and [the about page](about) to compare
-document and site defaults. Google Analytics is not enabled by default.
+document and site defaults. Google Analytics is enabled with the fake measurement
+ID `G-EXAMPLE`; visiting this output can still load Google's script.

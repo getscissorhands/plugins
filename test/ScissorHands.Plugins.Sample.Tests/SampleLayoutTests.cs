@@ -14,6 +14,41 @@ namespace ScissorHands.Plugins.Sample.Tests;
 public class SampleLayoutTests
 {
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Given_DefaultSampleConfiguration_When_Rendered_Then_It_Should_Include_FakeAnalytics(
+        bool usePlaceholders)
+    {
+        // Arrange
+        using var context = CreateContext(usePlaceholders, loadSampleConfiguration: true);
+        var configuration = context.Services.GetRequiredService<IConfiguration>();
+        var manifests = configuration.GetSection("Plugins").Get<PluginManifest[]>()
+            ?? throw new InvalidOperationException("The sample must configure its plugins.");
+        var site = configuration.GetSection("Site").Get<SiteManifest>()
+            ?? throw new InvalidOperationException("The sample must configure its site.");
+        var document = new ContentDocument();
+        var runner = new PluginRunner(manifests,
+            new IContentPlugin[] { new OpenGraphPlugin(), new GoogleAnalyticsPlugin() }, site);
+
+        // Act
+        var rendered = context.Render<SampleLayout>(parameters => parameters
+            .Add(component => component.Site, site)
+            .Add(component => component.Theme, CreateTheme())
+            .Add(component => component.Document, document)
+            .Add(component => component.Plugins, manifests));
+        var html = await runner.RunPostHtmlAsync(rendered.Markup, document, Xunit.TestContext.Current.CancellationToken);
+
+        // Assert
+        manifests.Single(plugin => plugin.Id == "google-analytics").Options!["MeasurementId"]
+            .ShouldBe("G-EXAMPLE");
+        html.Split("gtag/js?id=G-EXAMPLE", StringSplitOptions.None).Length.ShouldBe(2);
+        html.Split("gtag('config', 'G-EXAMPLE');", StringSplitOptions.None).Length.ShouldBe(2);
+        html.Split("property=\"og:title\"", StringSplitOptions.None).Length.ShouldBe(2);
+        html.ShouldNotContain("<plugin:");
+        html.ShouldContain("may contact Google, even with a fake measurement ID");
+    }
+
+    [Theory]
     [InlineData(false, false)]
     [InlineData(false, true)]
     [InlineData(true, false)]
@@ -166,10 +201,15 @@ public class SampleLayoutTests
         };
     }
 
-    private static BunitContext CreateContext(bool usePlaceholders)
+    private static BunitContext CreateContext(bool usePlaceholders, bool loadSampleConfiguration = false)
     {
         var context = new BunitContext();
-        context.Services.AddSingleton<IConfiguration>(new ConfigurationBuilder()
+        var configuration = new ConfigurationBuilder();
+        if (loadSampleConfiguration)
+        {
+            configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"));
+        }
+        context.Services.AddSingleton<IConfiguration>(configuration
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["Sample:UsePlaceholders"] = usePlaceholders.ToString(),
