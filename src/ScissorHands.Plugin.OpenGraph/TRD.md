@@ -7,12 +7,13 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.7 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-14 |
+| Last updated / PRD consulted | 2026-09-15 |
 | Product baseline | Open Graph PRD v0.7, Implementation-ready with unchanged product behavior and acceptance |
 | Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target runtime changes remain pending |
 | Package / plugin ID | `ScissorHands.Plugin.OpenGraph` / `open-graph` |
-| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; metadata, URL/output and regression requirements confirmed on 2026-09-14, not runtime acceptance or approval to publish |
+| Owner | @justinyoo owns implementation, verification, support and release authorization |
+| Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
 | Release stage | Preview, with versioning/releases independent from the upstream engine |
 
 This TRD owns Open Graph's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply; original T-005 is relocated here as the authoritative social-URL requirement, with a gateway redirect. New local records use `OG-TR-*`.

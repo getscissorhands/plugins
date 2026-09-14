@@ -7,11 +7,12 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.7 / Implementation-ready |
-| Last updated | 2026-09-14 |
+| Last updated | 2026-09-15 |
 | Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
 | Delivery state | Accepted changes remain pending; implementation baseline and evidence are owned by the [TRD](TRD.md#baseline-and-inheritance) |
 | Plugin ID | `google-analytics` |
-| Approval / owner | @justinyoo owns implementation, verification, support and release authorization; validation/output and regression requirements explicitly confirmed on 2026-09-14, not authorization to publish |
+| Owner | @justinyoo owns implementation, verification, support and release authorization |
+| Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
 | Release stage | Preview; versioning and releases are independent of the upstream engine |
 
 This PRD owns Google Analytics's purpose, scope, observable behavior and product acceptance. It inherits the local catalog's shared compatibility, identity, failure, output-integrity and authoring constraints. The [plugin TRD](TRD.md) owns configuration formats, integration contracts, current-code details and verification; the [README](README.md) provides usage instructions. Product policy is self-contained in these local documents; the engine is a compatibility dependency, not a source of additional product requirements.

@@ -5,12 +5,13 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.8 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-14 |
+| Last updated / PRD consulted | 2026-09-15 |
 | Product baseline | [Catalog PRD](PRD.md) v0.8, Implementation-ready with confirmed product scope, acceptance and release policy; shared requirements and delegated plugin baselines |
 | Scope | Shared authoring/compatibility obligations and an index of per-plugin technical requirements |
 | Sources | Local PRD decisions, source baseline `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`, current configuration and relevant engine API references |
 | Historical dependency baseline | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; preserve this evidence and record the actual resolved graph again for each upgrade/release |
-| Sign-off / owner | @justinyoo owns implementation, verification, support and release authorization; engineering/regression and release-policy requirements confirmed on 2026-09-14, not completed implementation or release acceptance |
+| Owner | @justinyoo owns implementation, verification, support and release authorization |
+| Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
 
 Read this gateway plus the owning plugin's PRD/TRD. Shared requirements apply where the plugin uses that surface; local documents must explicitly state applicability or justified exclusions, not silently weaken shared rules. PRDs own product intent, observable acceptance and release policy; TRDs own exact contracts, configuration, implementation constraints, verification methods and technical evidence. Product changes belong in the owning PRD before its TRD. Local PRD/TRD pairs and [AGENTS.md](AGENTS.md) govern this repository. The resolved Plugin/Core package APIs constrain compatibility; engine planning and contributor documents do not supply additional requirements.
 

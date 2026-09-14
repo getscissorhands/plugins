@@ -5,13 +5,13 @@
 | Field | Value |
 | --- | --- |
 | Document version / status | 0.8 / Implementation-ready |
-| Last updated | 2026-09-14 |
+| Last updated | 2026-09-15 |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
 | Delivery state | Accepted behavior changes remain pending; the [TRD](TRD.md#baseline-and-authority) records the implementation baseline and technical evidence |
 | Compatibility scope | Verified plugin/engine combinations; the [TRD](TRD.md#t-007-shared-build-and-compatibility-configuration) owns dependency and build constraints |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
-| Approval / release | User confirmed the engineering requirements, regression coverage, support/recovery and deferral policies on 2026-09-14; this is not implementation evidence or authorization to publish a specific release |
+| Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
 | Versioning / release stage | Plugins are versioned and released independently from the upstream engine; currently preview. Exact next version/date are selected by @justinyoo when releasing |
 
 This document is the catalog entry point and owns **shared product requirements**. Each linked plugin PRD owns its purpose, users, scope, observable behavior and product acceptance. [TRD.md](TRD.md) and the plugin TRDs own contracts, configuration formats, implementation constraints, verification methods and technical delivery gaps. READMEs provide usage and operational guidance; [AGENTS.md](AGENTS.md) owns contributor commands and workflow.
@@ -121,5 +121,7 @@ Product decisions come from the user's authoring, upgrade, sample and requiremen
 **v0.7 separation (2026-09-14):** at the user's request, move technical contracts, configuration, verification details and operational evidence into the TRDs. Product behavior, release policy and requirement/question IDs are unchanged. The [relocation record](TRD.md#prd-to-trd-relocation) identifies their technical owners.
 
 **v0.8 reference policy (2026-09-14):** at the user's request, remove external planning/contributor documents as governing sources. Previously accepted obligations remain stated locally; technical API references remain in the TRDs. No requirement, delivery gap or release policy changes.
+
+**Requirements sign-off (2026-09-15, UTC+09:00):** @justinyoo signed off all six current documents: catalog PRD/TRD v0.8 and both plugin pairs v0.7. Their reviewed baseline is commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669`. This revision records the approval without changing requirements or document versions. Pending implementation, verification and release gates remain in force; sign-off does not authorize publishing or merging the pull request.
 
 **Readiness:** Implementation-ready for the agreed product scope: observable requirements, acceptance conditions, ownership and release policies are confirmed. Delivery and release evidence remain pending, not deferred; the TRDs retain the specific engineering gaps. Quantitative outcome evaluation remains outside the committed scope and under @justinyoo's ownership. Document readiness is not a completed audit or release authorization.
