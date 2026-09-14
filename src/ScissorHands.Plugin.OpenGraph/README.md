@@ -2,22 +2,6 @@
 
 This plugin renders the [Open Graph](https://ogp.me/) tags.
 
-## GitHub Nuget Package Registry
-
-1. Set environment variables for GitHub NuGet Package Registry.
-
-    ```bash
-    # zsh/bash
-    export GH_PACKAGE_USERNAME="<GITHUB_USERNAME>"
-    export GH_PACKAGE_TOKEN="<GITHUB_TOKEN>"
-    ```
-
-    ```powershell
-    # PowerShell
-    $env:GH_PACKAGE_USERNAME = "<GITHUB_USERNAME>"
-    $env:GH_PACKAGE_TOKEN = "<GITHUB_TOKEN>"
-    ```
-
 ## Getting Started
 
 1. Assuming that you've got a running [ScissorHands.NET](https://github.com/getscissorhands/Scissorhands.NET) app.
