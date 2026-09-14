@@ -6,12 +6,12 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.1 / Review-ready |
+| Version / status | 0.2 / Review-ready |
 | Last updated | 2026-09-14 |
-| Parent baseline | Catalog PRD v0.2; shared requirements apply as described below |
-| Implementation baseline | Catalog source baseline, including pending local changes; not a published release |
+| Parent baseline | Catalog PRD v0.3; shared requirements apply as described below |
+| Implementation baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; accepted target changes below are not yet implemented |
 | Package / plugin ID | `ScissorHands.Plugin.OpenGraph` / `open-graph` |
-| Approval / owners | Documentation split requested; requirement sign-off and release/verification owners are not established |
+| Approval / owners | User accepted the policy recommendations on 2026-09-14; implementation/verification/release owners and release authorization remain unassigned |
 
 This PRD owns Open Graph behavior, acceptance and plugin-specific questions. It inherits catalog requirements rather than duplicating them or changing their meaning. The [plugin TRD](TRD.md) defines technical acceptance; ScissorHands.NET remains authoritative for external contracts.
 
@@ -36,32 +36,36 @@ Success is reusable social metadata that corresponds to the site's content and a
 }
 ```
 
-Use `<OpenGraphComponent Id="open-graph" />` within the upstream cascade, or the supported paired marker `<plugin:open-graph></plugin:open-graph>`. Select one path per intended insertion. Do not assume the self-closing README example is equivalent without resolving OG-Q-001.
+Use `<OpenGraphComponent Id="open-graph" />` within the upstream cascade, or the paired marker `<plugin:open-graph></plugin:open-graph>`. Select one path per intended insertion. Only paired hook markers are supported; self-closing support is not being added.
 
 ## Requirements
 
-All records are **Confirmed current baseline**, scoped to maintaining this plugin unless a change is explicitly agreed. `P-FR-003` and `P-FR-005` retain their catalog v0.1 IDs and now have authoritative records here. New local IDs use `OG-*`.
+These records define the **accepted target policy** following the user's 2026-09-14 adoption of the review recommendations. Current behavior and implementation gaps are recorded below, separately from agreement. `P-FR-003` and `P-FR-005` retain their catalog v0.1 IDs; new local IDs use `OG-*`.
 
 | ID | Need / required behavior | Observable acceptance and limits |
 | --- | --- | --- |
-| P-FR-003 | Site authors supply social metadata | Emit Open Graph and Twitter-card title, description and image plus the relevant site/locale/URL metadata. Source-backed document titles use document plus site title; null document descriptions fall back to the site description. Collection/source-less contexts use site title/description. Optional Twitter identifiers and creator overrides follow [OG-TR-001](TRD.md#og-tr-001-option-and-metadata-behavior), including existing surface differences |
-| P-FR-005 | Sharing clients receive intended publication URLs | With `SiteUrl=https://example.com`, `BaseUrl=/blog/`, slug `guides/about & team` yields `https://example.com/blog/guides/about%20%26%20team`. Root slugs yield the site root; invalid literal dot segments fail. External HTTP(S) hero images are not site-prefixed. Missing images yield an empty string; no origin means no guarantee of an absolute social URL |
-| OG-FR-001 | Theme authors control insertion and updates; specializes shared P-FR-001/P-FR-004 | Hook replaces all supported paired markers case-insensitively and leaves unmarked HTML unchanged for valid inputs. Component emits nothing without a matched manifest and refreshes selected-manifest state. Full parity and deduplication are not promised |
-| OG-NFR-001 | Authors know preview/external-reference behavior; retains the Open Graph part of former P-NFR-004 | The plugin ignores `Site.IsPreview` and generates metadata in both modes. Generation does not fetch images or call a social platform; consumers may later request external image URLs. No provider-delivery or privacy conformance claim follows |
+| P-FR-003 | Site authors receive consistent social metadata from either integration | For equivalent context, both paths must emit equivalent metadata values and optional-tag presence, not necessarily identical whitespace/serialization. Preserve document/site title/description fallbacks. Emit creator only for an individual source-backed post; omit it for pages, collections and source-less posts. Keep absent optional Twitter identifiers optional. Render normal metadata as text, not injected HTML |
+| P-FR-005 | Sharing clients receive valid publication URLs without empty image tags | Require site context and a valid absolute HTTP(S) `SiteUrl` when emitting metadata; otherwise fail clearly. Preserve root/subpath and segment-escaping behavior. Accept site-local image references and absolute HTTP(S) URLs, reject unsupported schemes/malformed references, and preserve supported queries/fragments/percent encoding. If neither document nor site supplies an image, omit `og:image` and `twitter:image` rather than emit empty values |
+| OG-FR-001 | Theme authors control insertion and updates; specializes shared P-FR-001/P-FR-004 | Preserve case-insensitive replace-all paired-marker behavior and unchanged unmarked HTML for valid inputs. An absent manifest emits no component output; a matched manifest with missing required context fails. Refresh selection/context state. Do not add global deduplication or require byte-identical formatting for parity |
+| OG-NFR-001 | Authors inspect the same metadata in preview and production | Keep Open Graph enabled in both modes when configured, subject to the same validation rules. Generation does not fetch images or call a social platform; consumers may later request external image URLs. No provider-delivery or privacy conformance claim follows |
 
 Shared `P-NFR-001/002/003/005` govern compatibility, read-only options, failures/cancellation, output boundaries and resolved route/locale context. Preserve the supplied slug and site locale rather than independently composing engine locale/date routes. No analytics policy is inherited from the sibling plugin.
 
+OG-NFR-001 retains the Open Graph portion of former P-NFR-004. [OG-TR-001](TRD.md#og-tr-001-option-and-metadata-behavior) elaborates metadata parity without dropping the existing optional-value and title/description rules.
+
 ## Plugin questions and acceptance limits
 
-These questions retain the Open Graph parts of catalog v0.1 Q-001 through Q-004. Owners and dates remain unassigned.
+Retain the original question IDs as decision/evidence records. The user accepted the recommendations on 2026-09-14. To resolve the remaining parity detail, this revision uses the component's existing source-backed-post eligibility as the common creator rule; it does not change source-less title/description fallback policy.
 
-| ID / origin | Issue | Impact / next action |
+| ID / origin | Decision or remaining work | Delivery state |
 | --- | --- | --- |
-| OG-Q-001 / Q-001 | Self-closing README marker versus paired-hook implementation | Verify actual host normalization or reconcile documented support before claiming working examples |
-| OG-Q-002 / Q-002 | Raw metadata substitution and general URI handling lack complete context-specific validation evidence | Define accepted values/errors and verify text, attribute and URI cases; formatting helpers are not scheme sanitizers |
-| OG-Q-003 / Q-003 | Source-less creator behavior differs between hook/component; absent site produces default tags; cancellation assertions are not awaited | Decide intended edge behavior before changing it and strengthen evidence; no full parity/cancellation claim is supported |
-| OG-Q-004 / Q-004 | Preview output is current behavior; a different preview policy is not agreed | A suppression/change requires a scoped product decision, not an incidental documentation or dependency update |
+| OG-Q-001 / Q-001 | Standardize on paired hook markers; do not add self-closing support | Decision settled; README examples corrected |
+| OG-Q-002 / Q-002 | Treat metadata as text; allow site-local and HTTP(S) images, reject unsupported schemes, preserve supported URL details and omit unavailable image tags | Policy recorded; implementation and URI/output boundary evidence pending |
+| OG-Q-003 / Q-003 | Align equivalent contexts using source-backed-post creator eligibility and fail on missing site/origin context | Policy recorded; parity/context changes and awaited cancellation/removal regressions pending |
+| OG-Q-004 / Q-004 | Retain metadata generation in preview with the same rules as production | Decision settled; no suppression feature is introduced |
 
-Shared [Q-005](../../PRD.md#shared-release-question) covers package versioning/publishing and support policy. Apply the catalog's proposed release gates and this plugin's TRD verification; actual crawler acceptance, release authorization and timing are not established.
+Shared [Q-005](../../PRD.md#shared-release-question) covers verified compatibility and release gates. A release claiming the accepted behavior requires parity, context, omission and URL/output regressions plus consumer evidence. Crawler acceptance, release owner and timing remain unestablished.
 
-**Readiness:** Review-ready for this existing baseline, not approved or implementation-ready for open policy changes. This document relocates requirements without changing runtime scope. The [catalog source record](../../PRD.md#sources-and-review-status) retains provenance; upstream engine approval history is not inherited.
+**Migration / current behavior:** the current hook still permits a creator for source-less posts, missing-site components can emit defaults, and image/helper paths can return empty or relative values and accept general absolute URI schemes. The stricter target will require valid site configuration and accepted URLs and may remove formerly emitted creator/image tags. It is a breaking behavior change, not an implemented fix in this revision.
+
+**Readiness:** Review-ready with accepted policy direction and explicit technical elaboration, not completed implementation, whole-document sign-off or release approval. v0.2 resolves policy alternatives while retaining delivery/evidence gaps and IDs. The [catalog source record](../../PRD.md#sources-and-review-status) retains provenance; upstream engine approval history is not inherited.

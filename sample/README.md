@@ -86,8 +86,8 @@ There is no separate `hooks` launch profile or `Sample` block to edit in
 `Sample:UsePlaceholders=true` setting; omitting the switch uses components by
 default. The layout never
 inserts both paths in one render, and does not emit markers for
-unconfigured plugins. These examples use paired markers rather than assuming
-that self-closing markers are normalized by the host.
+unconfigured plugins. Paired hook markers are the supported contract for both
+plugins; self-closing hook markers are not supported.
 
 Inspect page source, not just the visible body:
 

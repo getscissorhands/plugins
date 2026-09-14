@@ -4,13 +4,13 @@
 
 | Field | Value |
 | --- | --- |
-| Document version / status | 0.2 / Review-ready |
+| Document version / status | 0.3 / Review-ready |
 | Last updated | 2026-09-14 |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
-| Local source baseline | Inspected working tree based on `b61a0539b017e02c9eaf7a31ad6791e4692938c6`, including pending package, URL-helper and build-props changes; not a released commit |
+| Local source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; the accepted policy changes below are pending implementation, not a released baseline |
 | Compatibility reference | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; centrally managed major-version floats remain in use |
-| Approval / release | User requested shared gateways and a PRD/TRD pair per plugin; feature sign-off, release timing and owners remain unestablished |
+| Approval / release | User accepted the plugin policy recommendations on 2026-09-14; this is policy direction, not implementation evidence or publication authorization. Release timing/owners remain unassigned |
 
 This document is the catalog entry point and owns **shared product requirements**. Each linked plugin PRD owns that plugin's behavior, examples, acceptance and questions. [TRD.md](TRD.md) owns shared technical obligations and indexes the plugin TRDs. [AGENTS.md](AGENTS.md) owns contributor commands and workflow.
 
@@ -35,7 +35,7 @@ The [catalog](README.md), local source and the user's authoring/upgrade requests
 
 In scope: plugin authoring, compatibility, shared packaging/testing conventions, separately documented plugin behavior, and a local integration sample consuming the upstream engine. Out of scope: implementing the engine, registry, scheduler, theme framework, navigation, content loader, preview server, deployment service or extension sandbox. The host owns those responsibilities. A disabled plugin is not an unloaded or isolated assembly.
 
-Additional plugin capabilities are not excluded forever: each requires its own product baseline. This documentation split authorizes no new plugin, feature or publishing change. Detailed design documents are optional when a concrete design warrants one; no speculative templates or roadmap commitments are created.
+Additional plugin capabilities are not excluded forever: each requires its own product baseline. The accepted policies are recorded in each owning pair and do not authorize unrelated plugin or publishing changes. Detailed design documents are optional when a concrete design warrants one; no speculative templates or roadmap commitments are created.
 
 ## 2. Shared product requirements
 
@@ -48,7 +48,7 @@ The retained records are **Confirmed baseline**; P-FR-006 records the user's cat
 | P-FR-006 | Every plugin has an independently reviewable product/technical baseline | Create `PRD.md` and `TRD.md` beside the plugin project, link both from these gateways, trace local requirements to verification, and record applicable shared constraints and unresolved questions. Adding a catalog entry does not approve its feature/release |
 | P-FR-007 | Plugin authors can preview local changes without publishing packages | The user-requested [sample](sample/README.md) references local plugins and a NuGet.org engine, supports preview/build modes, and uses components by default or paired markers with `--use-placeholders`, without editing a `Sample` JSON block. It reuses packaged default-theme styling/scripts and the color toggle, without replacing the plugin insertion layout. At the user's request, default configuration enables Open Graph and Google Analytics with fake measurement ID `G-EXAMPLE`; this does not prevent browser requests to Google. Generated output is ignored and the sample is not packable. Local output/HTTP checks are not provider or production-host acceptance |
 | P-NFR-001 | Keep upgrades compatible and package configuration consistent | Preserve centrally managed major-version floats and the chosen .NET/upstream boundary. Verify resolved dependencies and affected surfaces; document deliberate breaking changes. A floating major is not evidence that every preview in it is compatible |
-| P-NFR-002 | Preserve caller-owned configuration and observable failures | Do not mutate option snapshots or nested caller objects; propagate observed cancellation and errors. Plugin-specific permissive defaults must remain documented, not silently tightened. No bounded interruption or host rollback guarantee is introduced |
+| P-NFR-002 | Preserve caller-owned configuration and observable failures | Do not mutate option snapshots or nested caller objects; propagate observed cancellation and errors. Keep current defaults and accepted changes distinct: the stricter local policies agreed on 2026-09-14 require explicit migration and regressions, not silent tightening. No bounded interruption or host rollback guarantee is introduced |
 | P-NFR-003 | Protect output/data boundaries without unsupported safety claims | Review relevant text, HTML, JavaScript and URL contexts with synthetic inputs; prevent secret disclosure and content-derived command execution. Raw output and formatting helpers are not universal sanitizers. Each plugin records its own validation/privacy evidence gaps |
 | P-NFR-005 | Preserve resolved site context and assess applicable client concerns | Reuse supplied route/locale context and respect `Site.BaseUrl` for site-local references. Each plugin documents URL, localization, accessibility, performance and client applicability. Existing head-only plugins do not imply every future plugin has no UI/network/storage concerns |
 
@@ -65,17 +65,19 @@ Plugin-specific records retain their original v0.1 IDs at their new authoritativ
 
 ## 3. Release expectations and question routing
 
-**Proposed review gates, not authorization:** identify resolved dependencies; verify shared and affected plugin requirements; build Release; inspect package metadata/README/license/icon; obtain scoped consumer evidence and disclose risks. Publish/support/rollback policies, release owners and dates are not established.
+**Accepted release gates, not publication authorization:** identify resolved dependencies; pass applicable hook/component, cancellation and output-boundary regressions; build Release; inspect package metadata/README/license/icon/symbols; obtain scoped consumer evidence. An implementation gap in a claimed requirement blocks that release claim. Explicitly defer nonblocking work with an owner and rationale rather than treating old passing tests as acceptance of newly agreed behavior.
+
+Compatibility claims cover verified plugin/upstream version combinations, not every version allowed by a floating development range. Keep the resolved `1.0.0-preview.20260914.1` baseline as historical evidence and record the actual graph again for each release. Do not imply an indefinite backward-support window. Designate a release owner and secure explicit release approval before publishing; neither is assigned by this policy. Rollback/support procedures not yet defined remain release-planning work, not a promise of automatic registry rollback.
 
 The [current workflow](.github/workflows/main.yaml), updated at the user's 2026-09-14 request, publishes tagged packages to NuGet.org and GitHub Packages before creating a GitHub release. NuGet.org uses OIDC trusted publishing through `nuget-release`; [external setup](README.md#publishing-packages) remains required. Workflow configuration is not evidence of a completed publication or release authorization.
 
 ### Shared release question
 
-**Q-005 (partly resolved):** publication targets are now NuGet.org plus GitHub Packages, and version overrides no longer edit project files. An appropriate prerelease version may still be necessary for the resolved dependency graph. Configure and verify the GitHub environment, `NUGET_USER` and NuGet trusted-publishing policy before publication; verify pack/consumer behavior and disclose that registry writes are not atomic. Release/support/rollback decisions and their owner remain unknown. See shared T-007/T-008 in [TRD](TRD.md).
+**Q-005 (policy settled; execution prerequisites remain):** publish with a version appropriate to the verified dependency graph, including prerelease plugin versions for prerelease dependencies. Retain NuGet.org plus GitHub Packages and the accepted evidence gates above. Configure/verify the environment, `NUGET_USER` and trusted-publishing policy; designate the release owner and document recovery/support procedures before a release. Registry writes remain non-atomic and previously published versions are not replaced. These operational prerequisites and future dates are not claimed complete. See T-007/T-008 in [TRD](TRD.md).
 
 ### Delegated questions
 
-The old Q-001 through Q-004 are retained as routing IDs; actionable details live with each plugin. No question is closed by this split.
+Q-001 through Q-004 remain routing IDs. Local records now distinguish settled policy from pending implementation/evidence: paired-marker support and preview policy are settled; stricter validation, metadata parity and missing-context behavior require implementation. Cancellation/removal tests are engineering follow-ups, not product choices to reopen.
 
 | Previous ID / subject | Google Analytics owner | Open Graph owner |
 | --- | --- | --- |
@@ -97,7 +99,9 @@ The current source, tests, [shared build props](src/Directory.Build.props), [cen
 
 **Sample addition (2026-09-14):** the user requested a local preview directory based on theme-template. P-FR-007 adds a consuming host and fixtures, not a new engine/theme product or a change to either plugin's preview/consent policy.
 
-**Readiness:** Review-ready for the catalog/document structure and stated shared baseline; not feature or release approval. Each plugin has its own readiness/gap assessment. No upstream approval, engine verification-program ID or issue-specific acceptance is inherited.
+**v0.3 decisions (2026-09-14):** the user accepted the review recommendations: paired markers only, explicit validation/failure rules, Open Graph parity/optional-image/URL policy, preserved configured preview behavior and external consent responsibility, and verified release gates. The plugin PRDs define the chosen technical acceptance details; current source behavior is separately retained. Documentation agreement does not claim runtime delivery.
+
+**Readiness:** Review-ready with accepted policy direction. Specific validation/parity work, release ownership and external setup remain pending. Each plugin has its own delivery assessment; no upstream approval, engine verification-program ID, completed audit or release authorization is inherited.
 
 [upstream-prd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/PRD.md
 [upstream-trd]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/TRD.md

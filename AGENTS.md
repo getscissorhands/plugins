@@ -4,7 +4,7 @@
 
 This repository authors the official plugins for ScissorHands.NET and includes a local validation sample. Plugins consume upstream Plugin/Core contracts; the sample consumes Web to host generation/preview. It does not reimplement the engine, a production theme, navigation, preview serving, an analytics backend, or an extension sandbox.
 
-Start with the [catalog PRD](PRD.md) and [catalog TRD](TRD.md), then read the owning plugin's adjacent `PRD.md` and `TRD.md`. The roots own shared requirements and navigation; plugin pairs own behavior, acceptance and gaps. Documenting a gap is not an instruction to implement it, and a plugin's policy must not silently become a catalog-wide rule.
+Start with the [catalog PRD](PRD.md) and [catalog TRD](TRD.md), then read the owning plugin's adjacent `PRD.md` and `TRD.md`. The roots own shared requirements and navigation; plugin pairs own behavior, acceptance and gaps. Distinguish accepted target policy from current implementation and pending evidence. Documenting a gap is not an instruction to implement it, and a plugin's policy must not silently become a catalog-wide rule.
 
 Use the [upstream plugin guide](https://github.com/getscissorhands/ScissorHands.NET/blob/vnext/docs/website-documentation.md#plugin-authoring) and [migration reference](https://github.com/getscissorhands/ScissorHands.NET/blob/vnext/docs/website-documentation.md#upgrading-to-vnext) for external contracts. Check the source/docs matching the resolved NuGet release before adapting new APIs: the moving `vnext` branch can be newer. Adapt only plugin-authoring material, not upstream engine plans, approvals, or release claims.
 

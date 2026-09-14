@@ -36,11 +36,13 @@ This plugin renders [Google Analytics](https://analytics.google.com) script.
 
    > **NOTE**: The configured plugin manifest is resolved by its exact, case-sensitive `Id`. `Name` is optional display metadata. The current documents, document, theme and site are received from the inherited cascading values.
 
-1. Alternatively, use the placeholder, `<plugin:google-analytics />` instead of the `<GoogleAnalyticsComponent />` component. **It's strongly advised to place right after the opening `<head>` tag**.
+1. Alternatively, use the paired placeholder, `<plugin:google-analytics></plugin:google-analytics>` instead of the `<GoogleAnalyticsComponent />` component. **It's strongly advised to place right after the opening `<head>` tag**.
 
     ```html
     <html>
     <head>
-        <plugin:google-analytics />
+        <plugin:google-analytics></plugin:google-analytics>
         ...
     ```
+
+   Use paired markers for the hook path; self-closing hook markers are not part of the supported contract. Choose one insertion path per intended output to avoid duplicates.

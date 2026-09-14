@@ -39,13 +39,15 @@ This plugin renders the [Open Graph](https://ogp.me/) tags.
 
    > **NOTE**: The configured plugin manifest is resolved by its exact, case-sensitive `Id`. `Name` is optional display metadata. The current documents, document, theme and site are received from the inherited cascading values.
 
-1. Alternatively, use the placeholder, `<plugin:open-graph />` instead of the `<OpenGraphComponent />` component.
+1. Alternatively, use the paired placeholder, `<plugin:open-graph></plugin:open-graph>` instead of the `<OpenGraphComponent />` component.
 
     ```html
     <html>
     <head>
         ...
-        <plugin:open-graph />
+        <plugin:open-graph></plugin:open-graph>
         ...
     </head>
     ```
+
+   Use paired markers for the hook path; self-closing hook markers are not part of the supported contract. Choose one insertion path per intended output to avoid duplicates.

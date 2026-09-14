@@ -6,12 +6,12 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.1 / Review-ready |
+| Version / status | 0.2 / Review-ready |
 | Last updated / PRD consulted | 2026-09-14 |
-| Product baseline | Open Graph PRD v0.1, Review-ready |
-| Shared baseline | Catalog PRD/TRD v0.2; apply shared obligations without silently overriding them |
-| Source baseline | Catalog's inspected working tree and upstream reference; not a release |
-| Approval / owners | No requirement sign-off; implementation, verification and release owners unassigned |
+| Product baseline | Open Graph PRD v0.2, Review-ready with accepted policy direction |
+| Shared baseline | Catalog PRD/TRD v0.3; apply shared obligations without silently overriding them |
+| Source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; target runtime changes remain pending |
+| Approval / owners | User accepted recommendations on 2026-09-14; this TRD elaborates them. No runtime acceptance or release approval; delivery owners unassigned |
 
 This TRD owns Open Graph's technical behavior and evidence expectations. Shared T-001 through T-004 and T-006 through T-009 apply; original T-005 is relocated here as the authoritative social-URL requirement, with a gateway redirect. New local records use `OG-TR-*`.
 
@@ -19,61 +19,63 @@ The plugin is an independent Razor class library consuming Plugin/Core. It overr
 
 ## OG-TR-001: Option and metadata behavior
 
-**State / source:** Confirmed baseline; P-FR-003 and shared T-004; [hook](OpenGraphPlugin.cs), [component code](OpenGraphComponent.razor.cs) and [helper](OpenGraphPluginHelper.cs). Preserve fallback and attribution behavior.
+**State / source:** Accepted target direction; P-FR-003 and shared T-004. [Hook](OpenGraphPlugin.cs), [component code](OpenGraphComponent.razor.cs) and [helper](OpenGraphPluginHelper.cs) retain the current behavior until implemented.
 
-Read nullable options by typed `TryGetValue` without mutation. Keep these rules unless a product change is explicitly scoped:
+Read nullable options by typed `TryGetValue` without mutation. Equivalent input contexts must produce equivalent metadata values and optional-tag presence across both paths. Retain the following defaults except for the explicit creator change:
 
-| Input / context | Current behavior |
+| Input / context | Accepted target |
 | --- | --- |
 | `TwitterSiteId`, `TwitterCreatorId` | Missing/null/non-string values are ignored; empty/whitespace values omit optional tags |
 | `Document.Metadata.TwitterHandle` | Non-whitespace metadata overrides the creator option |
 | Title/description | `UseContentMetadata` requires a document, no collection and a non-blank `SourcePath`. Use document title plus site title, and document description with null fallback; otherwise use site title/description |
-| Creator scope | Hook retains creator only for `ContentKind.Post`; component suppresses it for a page or when `UseContentMetadata` is false |
+| Creator scope | Both paths retain creator only for an individual source-backed `ContentKind.Post` for which content metadata is used. Suppress it for pages, collections and source-less posts |
 | Site metadata | Use supplied `Site.Locale` and `Site.Title`; do not recompose engine locale/date routes |
 
-The hook calls `UseContentMetadata(null, document)` because it has no collection parameter. A component can receive `Documents`; a source-less post can retain creator in the hook but not the component. This difference is OG-Q-003, not universal parity.
+The hook has no collection parameter and uses the host-provided document; synthetic collection documents have no source path. The component additionally considers its `Documents` cascade. Compare equivalent contexts rather than inventing a new hook parameter or engine pass. HTML serialization/whitespace need not be identical.
 
-**Verification:** [Hook tests](../../test/ScissorHands.Plugin.OpenGraph.Tests/OpenGraphPluginTests.cs), [bUnit tests](../../test/ScissorHands.Plugin.OpenGraph.Tests/OpenGraphComponentTests.cs) and [helper tests](../../test/ScissorHands.Plugin.OpenGraph.Tests/OpenGraphPluginHelperTests.cs) cover typed/default options, snapshots, metadata overrides, pages, collections and site fallbacks. Do not treat them as exhaustive edge-context coverage.
+**Current gap / verification:** the hook still emits a creator for source-less posts. Add comparable-context cases for source-backed/source-less posts, pages and synthetic collections in [hook tests](../../test/ScissorHands.Plugin.OpenGraph.Tests/OpenGraphPluginTests.cs) and [bUnit tests](../../test/ScissorHands.Plugin.OpenGraph.Tests/OpenGraphComponentTests.cs), retaining typed/default option, snapshot, override and fallback coverage. Policy agreement does not make the earlier tests evidence of parity.
 
 ## OG-TR-002: Hook and component integration
 
-**State / source:** Confirmed baseline; OG-FR-001 and shared P-FR-001/P-FR-004; T-001/T-002/T-003. Preserve host selection and output insertion.
+**State / source:** Accepted target direction; OG-FR-001 and shared P-FR-001/P-FR-004; T-001/T-002/T-003. Preserve host selection/insertion while replacing the missing-context fallback with an explicit failure.
 
-Retain `Id="open-graph"` and non-empty implementation name. The hook checks cancellation, replaces all exact paired markers `<plugin:open-graph></plugin:open-graph>` case-insensitively and leaves unmarked HTML unchanged for otherwise valid inputs. It does not enforce host enablement or deduplicate tags.
+Retain `Id="open-graph"` and non-empty implementation name. The hook checks cancellation, replaces all exact paired markers `<plugin:open-graph></plugin:open-graph>` case-insensitively and leaves unmarked HTML unchanged for otherwise valid inputs. Paired markers are the supported hook syntax; self-closing support is not added. It does not enforce host enablement or deduplicate tags.
 
-The component calls `base.OnParametersSet()`, clears all derived fields and recomputes from the selected manifest/context. Razor emits nothing without a manifest. When the manifest exists but `Site` is absent, code-behind returns early while the Razor guard still permits empty/default tags. Do not claim valid social metadata for that missing-context case.
+The component must call `base.OnParametersSet()`, clear derived fields and recompute from the selected manifest/context. An absent manifest emits nothing; a matched manifest with missing required site/origin information must fail clearly rather than render default tags. Missing document context is valid for site-level pages when site configuration is valid.
 
-**Verification:** Existing tests cover paired/no/multiple markers and bUnit absent-manifest/selection changes. Self-closing README behavior needs host evidence (OG-Q-001); missing-site/removal/source-less cases remain OG-Q-003. Await the existing unawaited cancellation assertion before treating it as reliable evidence.
+**Current gap / verification:** code-behind currently returns early for a missing site while Razor permits default tags. Add explicit failure cases for that path and invalid origins, preserve absent-manifest suppression, and cover transitions/removal. Await existing cancellation assertions. OG-Q-001 is resolved by paired README examples; OG-Q-003's runtime/evidence work remains pending.
 
 ## T-005: Content and image URL boundaries
 
-**State / source:** Confirmed baseline; P-FR-005, shared P-NFR-005; [local helper](OpenGraphPluginHelper.cs) and [upstream formatting contract](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers). This retains the original catalog ID and obligation.
+**State / source:** Accepted target direction; P-FR-005, shared P-NFR-005; [local helper](OpenGraphPluginHelper.cs) and [upstream formatting contract](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers). Retain the original catalog ID while adding the agreed validation/omission rules.
 
 For non-blank slugs, use `ContentUrlHelper.GetContentUrl`: trim outer whitespace, normalize both slash separators, escape segments and reject literal `.`/`..` segments. Convert the helper's root result `.` to the site root. Null/blank local slugs also return the site root; this local fallback does not change upstream null-argument behavior.
 
-Compose site-local metadata URLs with `SiteUrl` and `BaseUrl`. A configured origin makes social URLs absolute; this is not the base-relative navigation-link contract. Do not drop or double-prefix subpaths, infer slugs from filenames or independently add locale/date prefixes.
+When emitting metadata, require a supplied site and an absolute HTTP(S) `SiteUrl` with a non-empty host. Missing/blank/malformed or unsupported-scheme site URLs must fail with actionable context, not return relative social URLs. Compose site-local URLs with `SiteUrl` and `BaseUrl`; preserve subpaths rather than independently adding routes, dates or locales.
 
-Hero images select a non-whitespace document image, otherwise the site image; absent images yield an empty string. Use `ContentUrlHelper.GetImageUrl`, not content-slug escaping, then compose. Absolute URIs are retained through `Uri.TryCreate`/`ToString`; this is not a scheme allowlist or byte-for-byte preservation guarantee. Without a site origin, the helper can return relative text rather than an absolute social URL.
+Hero images select a non-whitespace document image, otherwise the site image. If both are absent, omit both `og:image` and `twitter:image`; the helper may retain an empty-string absence result, without changing its public return type. Other optional-tag defaults and the card type do not change as an incidental consequence.
 
-**Verification:** Existing helper tests cover root/subpath/null behavior, segment escaping, slash normalization, invalid dot segments, image fallback and absolute HTTPS images. Hook/component tests cover subpaths. Additional image query/fragment/percent-encoding, trailing-slash and scheme cases remain needed before broader preservation/safety claims; helper tests do not establish host mounting.
+Classify images before normalization: accept site-local paths (including a leading single `/`) and absolute HTTP(S) URLs with a host. Other absolute schemes, malformed absolute references and network-path references such as `//host/image.png` must not be silently reinterpreted as local assets; use an explicit HTTP(S) form for an external image. Preserve supported query strings, fragments, existing percent encoding and significant trailing slashes, without applying content-slug escaping to images. Use Core's image helper for its narrow formatting semantics only, after local input policy is enforced.
+
+**Current gap / verification:** the helper still accepts general absolute URI schemes, permits missing origins and composes empty image values; raw renderers always emit image tags. Add root/subpath, HTTP/HTTPS, missing site, malformed/disallowed URL, query/fragment/encoding/trailing-slash and absent-image cases across helper/hook/component tests. Include failures that would otherwise be hidden by slash trimming. Invalid required URLs fail explicitly; optional absence omits tags. Old nullable-helper/fallback assertions must be reconciled with the changed contract. Host mounting and provider acceptance are separate checks.
 
 ## OG-TR-003: Output and preview boundaries
 
-**State / source:** Confirmed baseline; OG-NFR-001, shared P-NFR-003 and T-006. Keep metadata context and external behavior explicit.
+**State / source:** Accepted target direction; OG-NFR-001, shared P-NFR-003 and T-006. Keep metadata context and external behavior explicit.
 
-Ordinary Razor metadata expressions retain HTML encoding. The hook template substitutes metadata/options without explicit HTML encoding; it is not equivalent to the Razor path. Inspect text, attributes and URLs separately with synthetic values. Accepted values/errors and a URI-scheme policy remain OG-Q-002; do not infer a sanitizer from formatting or select a new allowlist in this document.
+Normal metadata must remain text in both renderers: escape the hook's attribute values correctly while preserving Razor encoding and avoiding double encoding. Metadata containing quotes, markup-like or placeholder-like text must not become elements, attributes or further template substitutions. Do not blanket-sanitize unrelated document HTML. Apply T-005's accepted URL policy separately from HTML encoding.
 
-Neither rendering path uses `Site.IsPreview`. Generation does not fetch external images or call social providers; consumers can subsequently request image URLs. No crawler-acceptance, privacy, offline or delivery guarantee is claimed. Preview-policy changes belong in the plugin PRD (OG-Q-004).
+Retain Open Graph output in preview and production under the same validation rules. Neither path fetches external images or calls social providers during generation; consumers can subsequently request image URLs. No crawler-acceptance, privacy, offline or delivery guarantee is claimed. OG-Q-004 is settled without a suppression feature.
 
-**Verification:** Source inspection and scoped output tests when modifying contexts. Existing tests do not constitute comprehensive encoding/scheme or provider acceptance evidence.
+**Current gap / verification (OG-Q-002):** hook metadata is still substituted without explicit HTML encoding. Add synthetic text/attribute/template-shaped and invalid URL cases alongside comparable Razor output. Existing tests do not establish completion of the accepted encoding/scheme rules.
 
 ## Traceability and verification
 
 | Product baseline | Technical coverage | Evidence / limits |
 | --- | --- | --- |
-| P-FR-003 | OG-TR-001/003 | Option/fallback/tag assertions; parity/output gaps remain |
-| P-FR-005 | T-005 | Helper/hook/component URLs; wider URI and host checks not established |
-| OG-FR-001 | OG-TR-002 | Marker and selection tests; self-closing/missing-context/cancellation gaps remain |
+| P-FR-003 | OG-TR-001/003 | Target parity/encoding accepted; runtime/regressions pending |
+| P-FR-005 | T-005 | Target required-origin, image-omission and URL policy accepted; runtime/regressions pending |
+| OG-FR-001 | OG-TR-002 | Paired-marker examples aligned; missing-context/cancellation/removal work pending |
 | OG-NFR-001 | OG-TR-003 | Source-backed preview/external-reference boundary, not provider acceptance |
 | Shared P-FR-001/P-FR-004 | OG-TR-002, T-001/T-002/T-003 | Exact identity, supported insertion and absent-manifest behavior |
 | Shared P-FR-006 | T-009 and this pair | Gateway links, versioned baseline and evidence mapping |
@@ -86,8 +88,8 @@ Use [AGENTS.md](../../AGENTS.md) for commands. Verify this package's assembly, R
 
 ## Gaps and readiness
 
-[OG-Q-001 through OG-Q-004](PRD.md#plugin-questions-and-acceptance-limits) remain authoritative: OG-TR-002 covers integration/cancellation gaps, OG-TR-001 covers metadata parity, T-005/OG-TR-003 cover URI/output gaps, and OG-TR-003 covers preview policy. Owners remain unassigned; the split closes no question.
+[OG-Q-001 through OG-Q-004](PRD.md#plugin-questions-and-acceptance-limits) retain policy and delivery state: paired-marker/preview choices are settled; parity, missing-context, image/URI and encoding changes plus cancellation/removal evidence remain pending. Owners remain unassigned. Existing passing tests do not establish the stricter target.
 
 No analytics/consent service, database, account system, remote-generation API, navigation subsystem or accessibility/browser-conformance program is part of this plugin baseline. External image and locale/output semantics remain applicable; future features require a separate applicability review.
 
-**Readiness:** Review-ready against plugin PRD v0.1 and shared v0.2 baselines, not approved or implementation-ready for open policy changes. Plugin-specific portions of former root T-003/T-004/T-006 are now here; T-005 retains its ID. The [catalog](../../PRD.md#sources-and-review-status) retains source provenance; no new executed verification is claimed from document restructuring.
+**Readiness:** Review-ready against plugin PRD v0.2 and shared v0.3 baselines, with accepted direction and concrete technical acceptance recorded. Runtime implementation and evidence remain pending. v0.2 resolves policy alternatives, preserves IDs and documents breaking migration effects; it is not full-document sign-off, a completed audit or release approval.
