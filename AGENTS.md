@@ -64,7 +64,7 @@ Inspect the assembly, dependency metadata, project README (root fallback), licen
 
 For code changes, start with the affected suite and run the full suite for cross-plugin/shared changes. Add regressions alongside the implementation. Documentation-only edits need source/link review, not an unrelated build. Use the [sample guide](sample/README.md) for scoped host integration; there is no browser acceptance suite and a local preview does not establish provider behavior.
 
-Run the sample from its own directory: `Set-Location sample`, then `dotnet run -- --preview` or `dotnet run --no-launch-profile -- --build`. Preview listens on loopback port 5073; stop it with Ctrl+C. Test both the default component path and the `hooks` launch profile when changing insertion behavior. Keep analytics disabled unless explicitly testing its markup; browsing analytics-enabled output can contact Google. Never commit `sample/preview` or `sample/dist`, and do not assume a `BaseUrl` change mounts the preview server at a subpath.
+Run the sample from its own directory: `Set-Location sample`, then `dotnet run -- --preview` or `dotnet run --no-launch-profile -- --build`. The single `http` launch profile and app settings use `http://localhost:5000`; stop preview with Ctrl+C. Test both the default component path and hook mode (`dotnet run -- --Sample:UsePlaceholders=true --preview`) when changing insertion behavior; there is no separate hook launch profile. Keep analytics disabled unless explicitly testing its markup; browsing analytics-enabled output can contact Google. Never commit `sample/preview` or `sample/dist`, and do not assume a `BaseUrl` change mounts the preview server at a subpath.
 
 ## Plugin contracts
 

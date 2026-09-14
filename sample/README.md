@@ -21,17 +21,15 @@ Set-Location sample
 dotnet run -c Release --no-build -- --preview
 ```
 
-Open `http://localhost:5073`. The launch profile does not open a browser
-automatically or choose the application mode. Pass `--preview` explicitly,
+Open `http://localhost:5000`. The single `http` launch profile does not open a
+browser automatically or choose the application mode. Pass `--preview` explicitly,
 including when launching from an IDE. Stop the server with Ctrl+C.
 
 Run from the `sample` directory: the engine resolves content/configuration and
 output relative to the working directory. Do not invoke the built executable
-from the repository root. If the port is busy, select another loopback port:
-
-```powershell
-dotnet run --no-launch-profile -- --urls=http://localhost:5074 --preview
-```
+from the repository root. Both the launch profile and `appsettings.json` use
+`http://localhost:5000`, including runs with `--no-launch-profile`. If the port
+is busy, stop your existing preview before starting another.
 
 Keep configuration overrides before the final `--preview` or `--build` flag;
 the host's command-line configuration parser can consume the next argument
@@ -43,17 +41,19 @@ editing plugin or sample code unless you have rebuilt that configuration.
 
 ## Compare rendering paths
 
-The default `http` profile renders `OpenGraphComponent` and
+The default configuration renders `OpenGraphComponent` and
 `GoogleAnalyticsComponent`. Google Analytics emits nothing unless configured.
-The `hooks` profile instead inserts paired markers for configured plugins,
-which the engine's post-HTML pipeline replaces:
+To insert paired markers for the engine's post-HTML pipeline instead, set
+`Sample:UsePlaceholders` through a command-line override using the same `http`
+profile:
 
 ```powershell
-dotnet run --launch-profile hooks -- --preview
+dotnet run -- --Sample:UsePlaceholders=true --preview
 ```
 
-Alternatively set `Sample:UsePlaceholders` to `true` via configuration. The
-layout never inserts both paths in one render, and does not emit markers for
+There is no separate `hooks` launch profile. You can also set
+`Sample:UsePlaceholders` to `true` in `appsettings.json`. The layout never
+inserts both paths in one render, and does not emit markers for
 unconfigured plugins. These examples use paired markers rather than assuming
 that self-closing markers are normalized by the host.
 

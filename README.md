@@ -20,10 +20,10 @@ Set-Location sample
 dotnet run -c Release --no-build -- --preview
 ```
 
-Open `http://localhost:5073` and inspect page source. Open Graph is enabled by
+Open `http://localhost:5000` and inspect page source. Open Graph is enabled by
 default; Google Analytics is opt-in. The sample guide includes the alternate
-post-HTML hook profile, static generation and configuration details. No package
-publishing or theme symlink is needed.
+post-HTML hook mode (`--Sample:UsePlaceholders=true`), static generation and
+configuration details. No package publishing or theme symlink is needed.
 
 ## Build Your Plugin
 
