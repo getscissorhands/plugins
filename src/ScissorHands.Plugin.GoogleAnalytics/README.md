@@ -37,7 +37,21 @@ Alternatively, use the paired placeholder for the post-HTML hook:
 
 Choose one path per insertion to avoid duplicates. Hook placeholders must be paired, not self-closing. The `Id` is exact and case-sensitive; an optional manifest `Name` is only a display label.
 
-**Privacy:** browsing generated pages can contact Google, including during preview or with the fake ID. The plugin does not manage consent or suppress preview tracking. Remove its entry from `Plugins` to disable output; clearing `MeasurementId` is not a disable switch.
+The hook replaces every paired marker case-insensitively and leaves unmarked HTML unchanged when configuration is valid. It does not deduplicate existing tags. The component refreshes its configuration when cascading context or selection changes and renders nothing when its selected manifest is absent.
+
+## Configuration and breaking migration
+
+An enabled manifest requires a string `MeasurementId`: `G-` followed by one or more uppercase ASCII letters or digits, without whitespace. `G-EXAMPLE` is a supported synthetic value; syntax validation does not verify a Google property.
+
+Both paths throw `InvalidOperationException` for missing or invalid identifiers, including null/non-string values and whitespace-padded input. The error identifies the plugin and option without exposing the supplied value. The hook validates even when no paired marker is present.
+
+**Breaking change:** earlier versions accepted arbitrary strings and emitted an empty ID for missing or non-string values. Before upgrading, supply a supported identifier or remove the `google-analytics` manifest. Clearing the value or setting an unrelated `Enabled` option does not disable this plugin.
+
+## Preview and privacy
+
+Configured output is retained in preview and production. Generation performs no provider request, but browsing generated pages can contact Google even with the fake ID. The plugin does not manage consent, suppress preview tracking, or provide provider retention/deletion controls. Remove its entry from `Plugins` to disable output.
+
+See the [technical requirements and evidence](https://github.com/getscissorhands/plugins/blob/main/src/ScissorHands.Plugin.GoogleAnalytics/TRD.md) for validation, output handling and verification details.
 
 ## Support
 

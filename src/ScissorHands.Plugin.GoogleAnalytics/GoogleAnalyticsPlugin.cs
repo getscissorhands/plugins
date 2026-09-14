@@ -1,3 +1,5 @@
+using System.Text.Encodings.Web;
+
 using ScissorHands.Core.Manifests;
 using ScissorHands.Core.Models;
 
@@ -10,12 +12,12 @@ public sealed class GoogleAnalyticsPlugin : ContentPlugin
 {
     private const string GOOGLE_ANALYTICS_SCRIPT = """
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{MEASUREMENT_ID}}"></script>
+    <script async src="{{LOADER_URL}}"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '{{MEASUREMENT_ID}}');
+    gtag('config', '{{JAVASCRIPT_MEASUREMENT_ID}}');
     </script>
     """;
 
@@ -28,17 +30,18 @@ public sealed class GoogleAnalyticsPlugin : ContentPlugin
     public override string Name => "Google Analytics";
 
     /// <inheritdoc />
+    /// <exception cref="InvalidOperationException">The configured MeasurementId is missing or invalid.</exception>
+    /// <exception cref="OperationCanceledException">Cancellation is requested before processing.</exception>
     public override async Task<string> PostHtmlAsync(string html, ContentDocument document, PluginManifest plugin, SiteManifest site, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var measurementId = plugin.Options is null
-            ? default
-            : plugin.Options.TryGetValue("MeasurementId", out var measurementIdValue) && measurementIdValue is string measurementIdString
-                ? measurementIdString
-                : default;
-
-        var script = GOOGLE_ANALYTICS_SCRIPT.Replace("{{MEASUREMENT_ID}}", measurementId, StringComparison.OrdinalIgnoreCase);
+        var measurementId = GoogleAnalyticsConfiguration.GetMeasurementId(plugin.Options);
+        var loaderUrl = HtmlEncoder.Default.Encode(GoogleAnalyticsConfiguration.GetLoaderUrl(measurementId));
+        var javaScriptMeasurementId = GoogleAnalyticsConfiguration.GetJavaScriptMeasurementId(measurementId);
+        var script = GOOGLE_ANALYTICS_SCRIPT
+            .Replace("{{LOADER_URL}}", loaderUrl, StringComparison.Ordinal)
+            .Replace("{{JAVASCRIPT_MEASUREMENT_ID}}", javaScriptMeasurementId, StringComparison.Ordinal);
 
         html = html.Replace(PLACEHOLDER, $"\n{script}\n", StringComparison.OrdinalIgnoreCase);
 

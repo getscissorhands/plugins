@@ -1,3 +1,5 @@
+using AngleSharp.Html.Parser;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -189,6 +191,195 @@ public class SampleLayoutTests
         // Assert
         rendered.FindAll("link[rel='stylesheet']").ShouldBeEmpty();
         rendered.FindAll("script[src]").ShouldBeEmpty();
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Given_MetadataBoundaries_When_RenderedInBothModes_Then_It_Should_PreserveValuesAndPreviewOutput(
+        bool isPreview,
+        bool hasImage)
+    {
+        // Arrange
+        const string title = "A \"quoted\" & {{OG_TITLE}} <topic>";
+        const string description = "\"><script data-injected>bad()</script> & {{TWITTER_CARD_SITE}}";
+        const string creator = "@author\" data-injected=\"true";
+        const string image = "https://cdn.example.com/hero%2Fimage.png/?width=800&mode=crop#preview";
+        var site = new SiteManifest
+        {
+            Title = "Site & {{TITLE}}",
+            Description = description,
+            SiteUrl = "https://example.com",
+            BaseUrl = "/blog/",
+            IsPreview = isPreview,
+            HeroImage = null,
+        };
+        var document = new ContentDocument
+        {
+            Kind = ContentKind.Post,
+            SourcePath = "contents/posts/metadata.md",
+            Metadata = new ContentMetadata
+            {
+                Title = title,
+                Slug = "metadata",
+                HeroImage = hasImage ? image : null,
+            },
+        };
+        var manifests = new PluginManifest[]
+        {
+            new()
+            {
+                Id = "open-graph",
+                Options = new Dictionary<string, object?> { ["TwitterCreatorId"] = creator },
+            },
+            new()
+            {
+                Id = "google-analytics",
+                Options = new Dictionary<string, object?> { ["MeasurementId"] = "G-EXAMPLE" },
+            },
+        };
+        var results = new List<Dictionary<string, string?>>();
+
+        foreach (var usePlaceholders in new[] { false, true })
+        {
+            // Act
+            var html = await RenderPluginHtmlAsync(usePlaceholders, site, document, manifests);
+            using var parsed = new HtmlParser().ParseDocument(html);
+            var metadata = ReadPluginMetadata(html);
+            results.Add(metadata);
+
+            // Assert
+            metadata["og:title"].ShouldBe($"{title} | {site.Title}");
+            metadata["twitter:title"].ShouldBe(metadata["og:title"]);
+            metadata["og:description"].ShouldBe(description);
+            metadata["twitter:description"].ShouldBe(description);
+            metadata["twitter:creator"].ShouldBe(creator);
+            metadata["og:url"].ShouldBe("https://example.com/blog/metadata");
+            if (hasImage)
+            {
+                metadata["og:image"].ShouldBe(image);
+                metadata["twitter:image"].ShouldBe(image);
+            }
+            else
+            {
+                metadata.ContainsKey("og:image").ShouldBeFalse();
+                metadata.ContainsKey("twitter:image").ShouldBeFalse();
+            }
+            parsed.QuerySelectorAll("[data-injected]").ShouldBeEmpty();
+            parsed.QuerySelectorAll("script[src='https://www.googletagmanager.com/gtag/js?id=G-EXAMPLE']")
+                .Count().ShouldBe(1);
+            html.ShouldNotContain("<plugin:");
+        }
+        results[1].ShouldBe(results[0]);
+    }
+
+    [Theory]
+    [InlineData(ContentKind.Post, true, true)]
+    [InlineData(ContentKind.Post, false, false)]
+    [InlineData(ContentKind.Page, true, false)]
+    public async Task Given_ContentContext_When_RenderedInBothModes_Then_It_Should_UseTheSameCreatorScope(
+        ContentKind kind,
+        bool hasSource,
+        bool hasCreator)
+    {
+        // Arrange
+        var site = new SiteManifest { Title = "Site", SiteUrl = "https://example.com" };
+        var document = new ContentDocument
+        {
+            Kind = kind,
+            SourcePath = hasSource ? "contents/individual.md" : string.Empty,
+            Metadata = new ContentMetadata { Title = "Content", Slug = "content" },
+        };
+        var manifests = new PluginManifest[]
+        {
+            new()
+            {
+                Id = "open-graph",
+                Options = new Dictionary<string, object?> { ["TwitterCreatorId"] = "@author" },
+            },
+        };
+
+        // Act
+        var components = ReadPluginMetadata(await RenderPluginHtmlAsync(false, site, document, manifests));
+        var hooks = ReadPluginMetadata(await RenderPluginHtmlAsync(true, site, document, manifests));
+
+        // Assert
+        hooks.ShouldBe(components);
+        hooks.ContainsKey("twitter:creator").ShouldBe(hasCreator);
+        hooks["og:title"].ShouldBe(hasSource ? "Content | Site" : "Site");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Given_TagContextWithoutDocument_When_Processed_Then_It_Should_UseOnlyTheSuppliedRoute(
+        bool usePlaceholders)
+    {
+        // Arrange
+        using var context = CreateContext(usePlaceholders);
+        var site = new SiteManifest
+        {
+            Title = "Site",
+            SiteUrl = "https://example.com",
+            BaseUrl = "/blog/",
+            HeroImage = null,
+        };
+        var manifests = new[] { new PluginManifest { Id = "open-graph" } };
+        var runner = new PluginRunner(manifests, new IContentPlugin[] { new OpenGraphPlugin() }, site);
+        var hookDocument = new ContentDocument
+        {
+            Kind = ContentKind.Page,
+            Metadata = new ContentMetadata { Title = "Tag: preview", Slug = "tags/preview" },
+        };
+
+        // Act
+        // The released generator creates the hook document only after rendering the tag layout.
+        var rendered = context.Render<SampleLayout>(parameters => parameters
+            .Add(component => component.Site, site)
+            .Add(component => component.Theme, CreateTheme())
+            .Add(component => component.Tag, "preview")
+            .Add(component => component.TaggedPosts, Array.Empty<ContentDocument>())
+            .Add(component => component.TaggedPages, Array.Empty<ContentDocument>())
+            .Add(component => component.Plugins, manifests));
+        var html = await runner.RunPostHtmlAsync(rendered.Markup, hookDocument, Xunit.TestContext.Current.CancellationToken);
+        var metadata = ReadPluginMetadata(html);
+
+        // Assert
+        metadata["og:title"].ShouldBe("Site");
+        metadata["og:url"].ShouldBe(usePlaceholders
+            ? "https://example.com/blog/tags/preview"
+            : "https://example.com/blog");
+        metadata.ContainsKey("twitter:creator").ShouldBeFalse();
+        metadata.ContainsKey("og:image").ShouldBeFalse();
+    }
+
+    private static async Task<string> RenderPluginHtmlAsync(
+        bool usePlaceholders,
+        SiteManifest site,
+        ContentDocument document,
+        PluginManifest[] manifests)
+    {
+        using var context = CreateContext(usePlaceholders);
+        var runner = new PluginRunner(manifests,
+            new IContentPlugin[] { new OpenGraphPlugin(), new GoogleAnalyticsPlugin() }, site);
+        var rendered = context.Render<SampleLayout>(parameters => parameters
+            .Add(component => component.Site, site)
+            .Add(component => component.Theme, CreateTheme())
+            .Add(component => component.Document, document)
+            .Add(component => component.Plugins, manifests));
+        return await runner.RunPostHtmlAsync(rendered.Markup, document, Xunit.TestContext.Current.CancellationToken);
+    }
+
+    private static Dictionary<string, string?> ReadPluginMetadata(string html)
+    {
+        using var parsed = new HtmlParser().ParseDocument(html);
+        return parsed.QuerySelectorAll("head meta[property^='og:'], head meta[name^='twitter:']")
+            .ToDictionary(
+                element => element.GetAttribute("property") ?? element.GetAttribute("name")
+                    ?? throw new InvalidOperationException("Plugin metadata must have a key."),
+                element => element.GetAttribute("content"));
     }
 
     private static ThemeManifest CreateTheme()

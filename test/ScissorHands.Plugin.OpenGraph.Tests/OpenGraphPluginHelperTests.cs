@@ -71,7 +71,6 @@ public class OpenGraphPluginHelperTests
 	[InlineData("https://example.com", "/blog/", "/hello-world", "https://example.com/blog/hello-world")]
 	[InlineData("https://example.com/", "blog", "hello-world", "https://example.com/blog/hello-world")]
 	[InlineData("https://example.com", "/blog/", @" guides\about & team/ ", "https://example.com/blog/guides/about%20%26%20team")]
-	[InlineData("", "/blog/", "/hello-world", "blog/hello-world")]
 	public void Given_DocumentAndSite_When_GetContentUrl_Invoked_Then_It_Should_Compose_Url(
 		string siteUrl,
 		string baseUrl,
@@ -134,31 +133,31 @@ public class OpenGraphPluginHelperTests
 	}
 
 	[Fact]
-	public void Given_NullArguments_When_GetContentUrl_Invoked_Then_It_Should_Return_EmptyString()
+	public void Given_NullArguments_When_GetContentUrl_Invoked_Then_It_Should_Reject_MissingSite()
 	{
 		// Arrange
 		ContentDocument? document = null;
 		SiteManifest? site = null;
 
 		// Act
-		var result = OpenGraphPluginHelper.GetContentUrl(document, site);
+		Func<string> act = () => OpenGraphPluginHelper.GetContentUrl(document, site);
 
 		// Assert
-		result.ShouldBe(string.Empty);
+		act.ShouldThrow<ArgumentException>().Message.ShouldContain("Site");
 	}
 
 	[Fact]
-	public void Given_NullArguments_When_GetHeroImageUrl_Invoked_Then_It_Should_Return_EmptyString()
+	public void Given_NullArguments_When_GetHeroImageUrl_Invoked_Then_It_Should_Reject_MissingSite()
 	{
 		// Arrange
 		ContentDocument? document = null;
 		SiteManifest? site = null;
 
 		// Act
-		var result = OpenGraphPluginHelper.GetHeroImageUrl(document, site);
+		Func<string> act = () => OpenGraphPluginHelper.GetHeroImageUrl(document, site);
 
 		// Assert
-		result.ShouldBe(string.Empty);
+		act.ShouldThrow<ArgumentException>().Message.ShouldContain("Site");
 	}
 
 	[Fact]

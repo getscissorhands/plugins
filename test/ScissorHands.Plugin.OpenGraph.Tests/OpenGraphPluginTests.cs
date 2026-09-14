@@ -11,7 +11,7 @@ public class OpenGraphPluginTests
 
     [Theory]
     [InlineData("open-graph")]
-    public void When_Instantiated_Then_Id_Should_Be(string id)
+    public void Given_Plugin_When_Instantiated_Then_It_Should_Have_StableId(string id)
     {
         // Arrange
         var pg = new OpenGraphPlugin();
@@ -25,7 +25,7 @@ public class OpenGraphPluginTests
 
     [Theory]
     [InlineData("Open Graph")]
-    public void When_Instantiated_Then_Name_Should_Be(string name)
+    public void Given_Plugin_When_Instantiated_Then_It_Should_Have_DisplayName(string name)
     {
         // Arrange
         var pg = new OpenGraphPlugin();
@@ -37,9 +37,8 @@ public class OpenGraphPluginTests
         result.ShouldBe(name);
     }
 
-    [Theory]
-    [InlineData(typeof(TaskCanceledException))]
-    public void Given_CancellationToken_When_PostHtmlAsync_Invoked_Then_It_Should_Throw_TaskCanceledException(Type exception)
+    [Fact]
+    public async Task Given_CancelledTokenAndInvalidContext_When_PostHtmlAsync_Then_It_Should_Observe_EntryCancellation()
     {
         // Arrange
         var pg = new OpenGraphPlugin();
@@ -47,14 +46,15 @@ public class OpenGraphPluginTests
         var document = new ContentDocument();
         var plugin = new PluginManifest { Id = "open-graph" };
         var site = new SiteManifest();
-        var cancellationTokenSource = new CancellationTokenSource();
+        using var cancellationTokenSource = new CancellationTokenSource();
         cancellationTokenSource.Cancel();
 
         // Act
         Func<Task> func = async () => await pg.PostHtmlAsync(html, document, plugin, site, cancellationTokenSource.Token);
 
         // Assert
-        func.ShouldThrowAsync(exception);
+        var exception = await func.ShouldThrowAsync<OperationCanceledException>();
+        exception.CancellationToken.ShouldBe(cancellationTokenSource.Token);
     }
 
     [Theory]

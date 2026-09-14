@@ -86,7 +86,7 @@ Reuse the engine package's default-theme content files through the sample's buil
 
 Follow [.editorconfig](.editorconfig) and nearby code; do not reformat unrelated files. C# uses file-scoped namespaces and nullable types; XML/JSON/YAML use two-space indentation. Root props do not currently set warnings-as-errors; use the validation flag above rather than claiming otherwise.
 
-Use xUnit v3, Shouldly, NSubstitute and bUnit as configured in test props. Follow `Given_..._When_..._Then_...` naming and arrange/act/assert structure. Qualify `Xunit.TestContext.Current.CancellationToken` to avoid bUnit's similarly named type. Await asynchronous assertions; existing unawaited cancellation tests are not examples to copy.
+Use xUnit v3, Shouldly, NSubstitute and bUnit as configured in test props. Follow `Given_..._When_..._Then_...` naming and arrange/act/assert structure. Qualify `Xunit.TestContext.Current.CancellationToken` to avoid bUnit's similarly named type. Await asynchronous assertions, including cancellation checks, so failures cannot escape test observation.
 
 Cover every surface the affected plugin exposes: relevant option failures/defaults, absent manifests, ID/display-name independence, context updates, marker behavior, root/subpath URLs and cancellation. Add synthetic encoding/URI cases when modifying those boundaries. Keep unit tests independent of real credentials and external provider requests. Helpers and bUnit markup tests cannot demonstrate production mounting, consent or provider acceptance.
 

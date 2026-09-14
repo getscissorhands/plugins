@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using AngleSharp.Html.Parser;
 
 using ScissorHands.Core.Manifests;
 using ScissorHands.Core.Models;
@@ -7,319 +7,223 @@ namespace ScissorHands.Plugin.GoogleAnalytics.Tests;
 
 public class GoogleAnalyticsPluginTests
 {
-    private static readonly Regex GoogleTagRegex = new("<!-- Google tag \\(gtag\\.js\\) -->", RegexOptions.Compiled);
-
-    [Theory]
-    [InlineData("google-analytics")]
-    public void When_Instantiated_Then_Id_Should_Be(string id)
+    [Fact]
+    public void Given_Plugin_When_Instantiated_Then_It_Should_Preserve_Identity_And_Declare_No_Dependencies()
     {
         // Arrange
-        var pg = new GoogleAnalyticsPlugin();
+        var plugin = new GoogleAnalyticsPlugin();
 
         // Act
-        var result = pg.Id;
+        var id = plugin.Id;
+        var name = plugin.Name;
+        var dependencies = plugin.DependsOn;
 
         // Assert
-        result.ShouldBe(id);
+        id.ShouldBe("google-analytics");
+        name.ShouldBe("Google Analytics");
+        dependencies.ShouldBeEmpty();
     }
 
     [Theory]
-    [InlineData("Google Analytics")]
-    public void When_Instantiated_Then_Name_Should_Be(string name)
+    [MemberData(nameof(GoogleAnalyticsTestData.InvalidConfigurationCases), MemberType = typeof(GoogleAnalyticsTestData))]
+    public async Task Given_InvalidConfiguration_When_PostHtmlAsync_Then_It_Should_Throw_Contextual_NonLeaking_Error(string scenario)
     {
         // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-
-        // Act
-        var result = pg.Name;
-
-        // Assert
-        result.ShouldBe(name);
-    }
-
-    [Theory]
-    [InlineData(typeof(TaskCanceledException))]
-    public void Given_CancellationToken_When_PostHtmlAsync_Invoked_Then_It_Should_Throw_TaskCanceledException(Type exception)
-    {
-        // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var html = string.Empty;
-        var document = new ContentDocument();
-        var plugin = new PluginManifest { Id = "google-analytics" };
-        var site = new SiteManifest();
-        var cancellationTokenSource = new CancellationTokenSource();
-        cancellationTokenSource.Cancel();
-
-        // Act
-        Func<Task> func = async () => await pg.PostHtmlAsync(html, document, plugin, site, cancellationTokenSource.Token);
-
-        // Assert
-        func.ShouldThrowAsync(exception);
-    }
-
-    [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>")]
-    public async Task Given_NullPluginOptions_When_PostHtmlAsync_Invoked_Then_It_Should_Render_GoogleTag_With_EmptyMeasurementId(string html)
-    {
-        // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var plugin = new PluginManifest { Id = "google-analytics", Options = null };
-        var site = CreateSiteManifest();
-
-        // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
-        result.ShouldContain("<!-- Google tag (gtag.js) -->");
-        result.ShouldContain("gtag/js?id=");
-        result.ShouldContain("gtag('config', '');");
-    }
-
-    [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>")]
-    public async Task Given_InvalidOption_When_PostHtmlAsync_Invoked_Then_It_Should_Render_GoogleTag_With_EmptyMeasurementId(string html)
-    {
-        // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = new ContentDocument();
-        var plugin = new PluginManifest
+        var plugin = new GoogleAnalyticsPlugin();
+        var manifest = new PluginManifest
         {
             Id = "google-analytics",
-            Options = new Dictionary<string, object?>
-            {
-                { "SomeOtherKey", "SomeValue" }
-            }
+            Options = GoogleAnalyticsTestData.CreateInvalidOptions(scenario),
         };
-        var site = CreateSiteManifest();
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => plugin.PostHtmlAsync(
+            GoogleAnalyticsTestData.Marker, new ContentDocument(), manifest, new SiteManifest(),
+            Xunit.TestContext.Current.CancellationToken));
 
         // Assert
-        result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
+        exception.Message.ShouldBe(GoogleAnalyticsTestData.ConfigurationError);
+        exception.InnerException.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("<html><head></head><body>Unmarked</body></html>")]
+    [InlineData("<plugin:google-analytics />")]
+    public async Task Given_InvalidConfigurationWithoutPairedMarkers_When_PostHtmlAsync_Then_It_Should_Still_Fail(string html)
+    {
+        // Arrange
+        var plugin = new GoogleAnalyticsPlugin();
+        var manifest = new PluginManifest { Id = "google-analytics", Options = null };
+
+        // Act
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => plugin.PostHtmlAsync(
+            html, new ContentDocument(), manifest, new SiteManifest(), Xunit.TestContext.Current.CancellationToken));
+
+        // Assert
+        exception.Message.ShouldBe(GoogleAnalyticsTestData.ConfigurationError);
+    }
+
+    [Theory]
+    [InlineData("G-EXAMPLE")]
+    [InlineData("G-A")]
+    [InlineData("G-0")]
+    [InlineData("G-A1B2C3")]
+    [InlineData("G-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")]
+    public async Task Given_ValidSyntheticMeasurementId_When_PostHtmlAsync_Then_It_Should_Emit_Intact_Safe_Tag(string measurementId)
+    {
+        // Arrange
+        var plugin = new GoogleAnalyticsPlugin();
+        var manifest = GoogleAnalyticsTestData.CreateManifest(measurementId);
+
+        // Act
+        var result = await plugin.PostHtmlAsync(
+            $"<html><head>{GoogleAnalyticsTestData.Marker}</head><body>Preserved</body></html>",
+            new ContentDocument(), manifest, new SiteManifest(), Xunit.TestContext.Current.CancellationToken);
+        var document = new HtmlParser().ParseDocument(result);
+
+        // Assert
+        GoogleAnalyticsTestData.AssertTag(document.QuerySelectorAll("script"), measurementId);
         result.ShouldContain("<!-- Google tag (gtag.js) -->");
-        result.ShouldContain("gtag/js?id=");
-        result.ShouldContain("gtag('config', '');");
+        result.ShouldContain("<body>Preserved</body>");
+        result.ShouldNotContain("<plugin:");
+        result.ShouldNotContain("{{");
     }
 
     [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>")]
-    public async Task Given_NoMeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Render_GoogleTag_With_EmptyMeasurementId(string html)
+    [InlineData("")]
+    [InlineData("<html><head></head><body>Unmarked</body></html>")]
+    [InlineData("<plugin:google-analytics />")]
+    [InlineData("<plugin:google-analytics/>")]
+    [InlineData("<plugin:google-analytics>content</plugin:google-analytics>")]
+    [InlineData("<plugin:google-analytics> </plugin:google-analytics>")]
+    [InlineData("<plugin:google-analytics>")]
+    [InlineData("</plugin:google-analytics>")]
+    public async Task Given_NoExactPairedMarker_When_PostHtmlAsync_Then_It_Should_Preserve_Original_Html(string html)
     {
         // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = CreatePluginManifest(measurementId: null);
-        var site = CreateSiteManifest();
+        var plugin = new GoogleAnalyticsPlugin();
+        var manifest = GoogleAnalyticsTestData.CreateManifest("G-EXAMPLE");
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
-        result.ShouldContain("<!-- Google tag (gtag.js) -->");
-        result.ShouldContain("gtag/js?id=");
-        result.ShouldContain("gtag('config', '');");
-    }
-
-    [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>", "G-XXXXXXXXXX")]
-    public async Task Given_MeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Replace_Placeholder(string html, string measurementId)
-    {
-        // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = CreatePluginManifest(measurementId: measurementId);
-        var site = CreateSiteManifest();
-
-        // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldContain($"https://www.googletagmanager.com/gtag/js?id={measurementId}");
-        result.ShouldContain($"gtag('config', '{measurementId}');");
-        result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
-        result.ShouldNotContain("{{MEASUREMENT_ID}}");
-    }
-
-    [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>")]
-    public async Task Given_SourceOptionsMutatedAfterManifestCreation_When_PostHtmlAsync_Invoked_Then_It_Should_Use_DefensiveCopy(string html)
-    {
-        // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var options = new Dictionary<string, object?>
-        {
-            { "MeasurementId", "G-ORIGINAL" },
-        };
-        var plugin = new PluginManifest { Id = "google-analytics", Options = options };
-        var site = CreateSiteManifest();
-        options["MeasurementId"] = "G-MUTATED";
-
-        // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldContain("gtag/js?id=G-ORIGINAL");
-        result.ShouldContain("gtag('config', 'G-ORIGINAL');");
-        result.ShouldNotContain("G-MUTATED");
-    }
-
-    [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>", "G-XXXXXXXXXX")]
-    public async Task Given_MeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Insert_GoogleTagScript(string html, string measurementId)
-    {
-        // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = CreatePluginManifest(measurementId: measurementId);
-        var site = CreateSiteManifest();
-
-        // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
-
-        // Assert
-        result.ShouldContain("<!-- Google tag (gtag.js) -->");
-        result.ShouldContain("<script async src=");
-        result.ShouldContain("window.dataLayer = window.dataLayer || [];");
-        result.ShouldContain("function gtag(){dataLayer.push(arguments);}");
-        result.ShouldContain("gtag('js', new Date());");
-    }
-
-    [Theory]
-    [InlineData("<html><head></head><body>Test</body></html>", "G-XXXXXXXXXX")]
-    public async Task Given_HTML_When_PostHtmlAsync_Invoked_Then_It_Should_Return_OriginalHtml(string html, string measurementId)
-    {
-        // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = CreatePluginManifest(measurementId: measurementId);
-        var site = CreateSiteManifest();
-
-        // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
+        var result = await plugin.PostHtmlAsync(
+            html, new ContentDocument(), manifest, new SiteManifest(), Xunit.TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldBe(html);
     }
 
     [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body><plugin:google-analytics></plugin:google-analytics></body></html>", "G-XXXXXXXXXX", 2)]
-    public async Task Given_Multiple_Placeholders_When_PostHtmlAsync_Invoked_Then_It_Should_Replace_AllOccurrences(string html, string measurementId, int expected)
+    [InlineData("<plugin:google-analytics></plugin:google-analytics>")]
+    [InlineData("<PLUGIN:GOOGLE-ANALYTICS></PLUGIN:GOOGLE-ANALYTICS>")]
+    [InlineData("<Plugin:Google-Analytics></pLuGiN:gOoGlE-aNaLyTiCs>")]
+    public async Task Given_RepeatedCaseInsensitiveMarkers_When_PostHtmlAsync_Then_It_Should_Replace_Every_Pair_Without_Deduplication(string marker)
     {
         // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = CreatePluginManifest(measurementId: measurementId);
-        var site = CreateSiteManifest();
+        var plugin = new GoogleAnalyticsPlugin();
+        var manifest = GoogleAnalyticsTestData.CreateManifest("G-EXAMPLE");
+        const string existing = "<script>gtag('config', 'G-EXAMPLE');</script>";
+        var html = $"<html><head>{existing}{marker}{marker}</head><body>Preserved</body></html>";
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
-        var count = GoogleTagRegex.Count(result);
+        var result = await plugin.PostHtmlAsync(
+            html, new ContentDocument(), manifest, new SiteManifest(), Xunit.TestContext.Current.CancellationToken);
+        var scripts = new HtmlParser().ParseDocument(result).QuerySelectorAll("script");
 
         // Assert
-        result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
-        count.ShouldBe(expected);
+        scripts.Length.ShouldBe(5);
+        scripts.Count(script => script.HasAttribute("src")).ShouldBe(2);
+        result.ShouldContain(existing);
+        result.ShouldContain("<body>Preserved</body>");
+        result.ShouldNotContain(marker);
     }
 
     [Theory]
-    [InlineData("G-XXXXXXXXXX")]
-    public async Task Given_EmptyHTML_When_PostHtmlAsync_Invoked_Then_It_Should_Return_EmptyString(string measurementId)
+    [InlineData(false, "")]
+    [InlineData(true, "")]
+    [InlineData(false, "/blog")]
+    [InlineData(true, "/blog")]
+    public async Task Given_PublicationContext_When_PostHtmlAsync_Then_It_Should_Keep_Configured_External_Tag(bool isPreview, string baseUrl)
     {
         // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var html = string.Empty;
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = CreatePluginManifest(measurementId: measurementId);
-        var site = CreateSiteManifest();
+        var plugin = new GoogleAnalyticsPlugin();
+        var manifest = GoogleAnalyticsTestData.CreateManifest("G-EXAMPLE");
+        var site = new SiteManifest { IsPreview = isPreview, BaseUrl = baseUrl, SiteUrl = "https://example.test", Locale = "ko-KR" };
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
+        var result = await plugin.PostHtmlAsync(
+            GoogleAnalyticsTestData.Marker, new ContentDocument(), manifest, site, Xunit.TestContext.Current.CancellationToken);
+        var document = new HtmlParser().ParseDocument(result);
 
         // Assert
-        result.ShouldBe(string.Empty);
+        GoogleAnalyticsTestData.AssertTag(document.QuerySelectorAll("script"), "G-EXAMPLE");
+        result.ShouldNotContain("example.test");
+        result.ShouldNotContain("/blog");
     }
 
     [Theory]
-    [InlineData("<html><head><plugin:google-analytics></plugin:google-analytics></head><body>Test</body></html>", 12345)]
-    public async Task Given_NonStringMeasurementId_When_PostHtmlAsync_Invoked_Then_It_Should_Render_GoogleTag_With_EmptyMeasurementId(string html, object measurementId)
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Given_CancelledToken_When_PostHtmlAsync_Then_It_Should_Cancel_At_Entry_Before_Configuration_Access(bool nullArguments)
     {
         // Arrange
-        var pg = new GoogleAnalyticsPlugin();
-        var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
-        var plugin = new PluginManifest
-        {
-            Id = "google-analytics",
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId }
-            }
-        };
-        var site = CreateSiteManifest();
+        var plugin = new GoogleAnalyticsPlugin();
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        var manifest = nullArguments ? null : new PluginManifest { Id = "google-analytics", Options = null };
 
         // Act
-        var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
+        var exception = await Should.ThrowAsync<OperationCanceledException>(() => plugin.PostHtmlAsync(
+            nullArguments ? null! : GoogleAnalyticsTestData.Marker, null!, manifest!, null!, cancellation.Token));
 
         // Assert
-        result.ShouldNotContain("<plugin:google-analytics></plugin:google-analytics>");
-        result.ShouldContain("<!-- Google tag (gtag.js) -->");
-        result.ShouldContain("gtag/js?id=");
-        result.ShouldContain("gtag('config', '');");
+        exception.CancellationToken.ShouldBe(cancellation.Token);
     }
 
-    private static ContentDocument CreateDocument(
-        ContentKind kind,
-        string title,
-        string slug,
-        string? description = "Document description",
-        string? heroImage = "/images/doc-hero.png",
-        string? twitterHandle = null)
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Given_ReadOnlyOptionsWithNestedValues_When_PostHtmlAsync_Then_It_Should_Preserve_Caller_Ownership(bool invalid)
     {
-        return new ContentDocument
+        // Arrange
+        var plugin = new GoogleAnalyticsPlugin();
+        var snapshot = new GoogleAnalyticsTestData.OptionsSnapshot(invalid);
+
+        // Act
+        if (invalid)
         {
-            Kind = kind,
-            Metadata = new ContentMetadata
-            {
-                Title = title,
-                Slug = slug,
-                Description = description,
-                HeroImage = heroImage,
-                TwitterHandle = twitterHandle,
-            }
-        };
+            await Should.ThrowAsync<InvalidOperationException>(() => plugin.PostHtmlAsync(
+                GoogleAnalyticsTestData.Marker, new ContentDocument(), snapshot.Manifest, new SiteManifest(),
+                Xunit.TestContext.Current.CancellationToken));
+        }
+        else
+        {
+            await plugin.PostHtmlAsync(
+                GoogleAnalyticsTestData.Marker, new ContentDocument(), snapshot.Manifest, new SiteManifest(),
+                Xunit.TestContext.Current.CancellationToken);
+        }
+
+        // Assert
+        snapshot.AssertUnchanged();
     }
 
-    private static PluginManifest CreatePluginManifest(string? measurementId = null)
+    [Fact]
+    public async Task Given_SourceOptionsChangedAfterManifestCreation_When_PostHtmlAsync_Then_It_Should_Use_Upstream_Snapshot()
     {
-        return new PluginManifest
-        {
-            Id = "google-analytics",
-            Options = new Dictionary<string, object?>
-            {
-                { "MeasurementId", measurementId },
-            }
-        };
-    }
+        // Arrange
+        var source = new Dictionary<string, object?> { ["MeasurementId"] = "G-ORIGINAL" };
+        var manifest = new PluginManifest { Id = "google-analytics", Options = source };
+        source["MeasurementId"] = "G-MUTATED";
+        var plugin = new GoogleAnalyticsPlugin();
 
-    private static SiteManifest CreateSiteManifest(
-        string siteUrl = "https://example.com",
-        string baseUrl = "",
-        string title = "Site title",
-        string description = "Site description",
-        string locale = "en-US",
-        string heroImage = "/images/site-hero.png")
-    {
-        return new SiteManifest
-        {
-            SiteUrl = siteUrl,
-            BaseUrl = baseUrl,
-            Title = title,
-            Description = description,
-            Locale = locale,
-            HeroImage = heroImage,
-        };
+        // Act
+        var result = await plugin.PostHtmlAsync(
+            GoogleAnalyticsTestData.Marker, new ContentDocument(), manifest, new SiteManifest(),
+            Xunit.TestContext.Current.CancellationToken);
+
+        // Assert
+        result.ShouldContain("gtag('config', 'G-ORIGINAL');");
+        result.ShouldNotContain("G-MUTATED");
+        source["MeasurementId"].ShouldBe("G-MUTATED");
     }
 }

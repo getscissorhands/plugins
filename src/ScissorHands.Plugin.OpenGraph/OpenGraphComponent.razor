@@ -7,7 +7,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="@ContentLocale" />
     <meta property="og:url" content="@ContentUrl" />
-    <meta property="og:image" content="@HeroImageUrl" />
+    @if (!string.IsNullOrEmpty(HeroImageUrl))
+    {
+        <meta property="og:image" content="@HeroImageUrl" />
+    }
     <meta property="og:site_name" content="@SiteName" />
 
     <meta name="twitter:card" content="summary_large_image">
@@ -21,5 +24,8 @@
     }
     <meta name="twitter:title" content="@ContentTitle">
     <meta name="twitter:description" content="@ContentDescription">
-    <meta name="twitter:image" content="@HeroImageUrl">
+    @if (!string.IsNullOrEmpty(HeroImageUrl))
+    {
+        <meta name="twitter:image" content="@HeroImageUrl">
+    }
 }

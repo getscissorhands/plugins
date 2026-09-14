@@ -31,6 +31,12 @@ dotnet run -- --preview --use-placeholders
 
 No configuration edit or separate launch profile is needed. Omit the switch for components. Each render uses one path, and only configured plugins produce output. Hook mode uses paired placeholders, not self-closing markers.
 
+If rendering reports a configuration error, correct the measurement identifier or site publication URL in `appsettings.json`; enabled plugins no longer emit empty tracking identifiers or default metadata for missing required site context. See the [Google Analytics](../src/ScissorHands.Plugin.GoogleAnalytics/README.md) and [Open Graph](../src/ScissorHands.Plugin.OpenGraph/README.md) guides. Images remain optional: without a content or site image, image metadata is omitted.
+
+The engine supplies a default site image when its setting is omitted. Set `Site.HeroImage` to `""` and leave content images empty to inspect image-tag omission.
+
+**Tag-page limitation:** this engine release supplies resolved tag routes to hooks but not to the component's document cascade. Component mode therefore emits the site-root `og:url` for tag pages; use `--use-placeholders` when their exact canonical URLs are required. The plugin does not infer engine routes from tag names. See [OG-Q-005](../src/ScissorHands.Plugin.OpenGraph/TRD.md#gaps-and-readiness).
+
 Inspect page source, not just the visible body:
 
 | Page | What to inspect |

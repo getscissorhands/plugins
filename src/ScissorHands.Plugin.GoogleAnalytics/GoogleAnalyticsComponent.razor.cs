@@ -10,20 +10,26 @@ public partial class GoogleAnalyticsComponent : PluginComponentBase
     /// </summary>
     protected string? MeasurementId { get; set; }
 
+    private string? LoaderUrl { get; set; }
+
+    private string? JavaScriptMeasurementId { get; set; }
+
     /// <inheritdoc />
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
 
         MeasurementId = default;
+        LoaderUrl = default;
+        JavaScriptMeasurementId = default;
 
-        if (Plugin?.Options is null)
+        if (Plugin is null)
         {
             return;
         }
 
-        MeasurementId = Plugin.Options.TryGetValue("MeasurementId", out var measurementIdValue) && measurementIdValue is string measurementIdString
-                            ? measurementIdString
-                            : default;
+        MeasurementId = GoogleAnalyticsConfiguration.GetMeasurementId(Plugin.Options);
+        LoaderUrl = GoogleAnalyticsConfiguration.GetLoaderUrl(MeasurementId);
+        JavaScriptMeasurementId = GoogleAnalyticsConfiguration.GetJavaScriptMeasurementId(MeasurementId);
     }
 }

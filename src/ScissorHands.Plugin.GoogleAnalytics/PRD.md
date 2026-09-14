@@ -9,7 +9,7 @@
 | Version / status | 0.7 / Implementation-ready |
 | Last updated | 2026-09-15 |
 | Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
-| Delivery state | Accepted changes remain pending; implementation baseline and evidence are owned by the [TRD](TRD.md#baseline-and-inheritance) |
+| Delivery state | Implementation follow-up 2026-09-15: behavior implemented; targeted regressions and shared solution/sample/package checks passed. [Technical evidence](TRD.md#targeted-evidence-2026-09-15) retains external verification and release-authorization limits |
 | Plugin ID | `google-analytics` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -23,7 +23,7 @@ In scope: measurement-ID configuration, layout-component and paired-placeholder 
 
 ## User journey and outcomes
 
-The author installs the plugin in a compatible host, enables it with a supported measurement identifier, and chooses one integration path per intended insertion. Removing the plugin's configuration entry disables output; leaving an enabled entry without the required identifier is invalid. Under the accepted target policy, invalid configuration produces a clear error rather than silently disabling analytics or emitting an empty identifier.
+The author installs the plugin in a compatible host, enables it with a supported measurement identifier, and chooses one integration path per intended insertion. Removing the plugin's configuration entry disables output; leaving an enabled entry without the required identifier is invalid. Invalid configuration produces a clear error rather than silently disabling analytics or emitting an empty identifier.
 
 Success is reusable analytics-markup integration without engine changes. An integration demonstration could measure this outcome; adoption, time savings, evaluation windows and quantitative targets are not established. Rendering a script is acceptance of markup behavior, not proof of analytics collection.
 
@@ -31,7 +31,7 @@ Authors may use a layout component or paired placeholders; self-closing placehol
 
 ## Requirements
 
-The following records define the **accepted target policy** following the user's 2026-09-14 decision to adopt the review recommendations. Existing behavior is distinguished from pending changes below; agreement is not implementation or release evidence. Preserve `P-FR-002` and `P-NFR-004` from catalog v0.1. New local IDs use `GA-*`.
+The following records define the **accepted policy** following the user's 2026-09-14 decision to adopt the review recommendations and 2026-09-15 requirements sign-off. The implementation follow-up delivers these scoped behaviors; targeted evidence and its limits are recorded separately in the TRD. Preserve `P-FR-002` and `P-NFR-004` from catalog v0.1. New local IDs use `GA-*`.
 
 | ID | Need / required behavior | Observable acceptance and limits |
 | --- | --- | --- |
@@ -49,14 +49,14 @@ Retain the original question IDs as decision/routing records. The user confirmed
 | --- | --- | --- |
 | GA-Q-001 / Q-001 | Support paired placeholders, not self-closing ones | Settled; integration contract and evidence in [GA-TR-002](TRD.md#ga-tr-002-hook-and-component-integration) |
 | GA-Q-002 / Q-002 | Reject invalid identifiers and preserve valid analytics output | Settled; accepted format and output assurance in [GA-TR-001](TRD.md#ga-tr-001-measurement-configuration) |
-| GA-Q-003 / Q-003 | Technical verification record, not a product choice | Relocated to [GA-TR-002](TRD.md#ga-tr-002-hook-and-component-integration); evidence remains pending |
+| GA-Q-003 / Q-003 | Technical verification record, not a product choice | Local regression evidence recorded under [GA-TR-002](TRD.md#ga-tr-002-hook-and-component-integration) |
 | GA-Q-004 / Q-004 | Keep configured preview output and host-owned consent; fail on invalid required configuration | Settled; delivery limits in [GA-TR-001](TRD.md#ga-tr-001-measurement-configuration) and [GA-TR-003](TRD.md#ga-tr-003-preview-and-privacy) |
 
-Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview releases, support, recovery and optional-only deferrals. A release claiming the target behavior requires evidence for that behavior and scoped consumer integration. @justinyoo selects and authorizes the release. Agreed behavior and evidence remain pending, not deferred; real provider delivery is not claimed.
+Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview releases, support, recovery and optional-only deferrals. Scoped consumer integration and package checks are complete in the [shared implementation evidence](../../TRD.md#implementation-evidence-2026-09-15). External publishing verification and release authorization remain separate; @justinyoo selects and authorizes the release. Real provider delivery is not claimed.
 
-**Release impact:** stricter validation will break configurations that rely on permissive identifier handling. Affected users must supply a supported identifier or disable the plugin before adopting that implementation. Current-code differences and technical migration details are in [the TRD](TRD.md#gaps-and-readiness).
+**Release impact:** stricter validation breaks configurations that rely on permissive identifier handling. Affected users must supply a supported identifier or disable the plugin by removing its manifest before adopting this implementation. Technical migration details are in [the TRD](TRD.md#gaps-and-readiness) and [README](README.md#configuration-and-breaking-migration).
 
-**Readiness:** Implementation-ready: scope, validation/output semantics and regression expectations are explicitly confirmed, with no unresolved policy decision blocking implementation. Runtime changes and evidence remain pending, not deferred. Provider acceptance is outside the claimed scope; publishing verification remains a release gate under shared Q-005. Document readiness is not completed implementation, a completed audit or release approval. Source provenance remains in the [catalog](../../PRD.md#sources-and-review-status).
+**Implementation follow-up (2026-09-15, UTC+09:00):** strict, non-leaking configuration failures and preserved insertion, update, disabled and preview behavior are implemented and regression-tested, with shared consumer/package checks completed. The original v0.7 sign-off remains requirements approval, not runtime or release approval. External publication, provider acceptance and a comprehensive audit remain unverified; see [technical evidence and limits](TRD.md#gaps-and-readiness). Release authorization remains under shared Q-005. Source provenance remains in the [catalog](../../PRD.md#sources-and-review-status).
 
 **v0.3 clarification:** recorded @justinyoo's ownership and engine-independent preview releases; it did not approve a recovery policy or a specific deferral.
 

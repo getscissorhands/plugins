@@ -1,5 +1,3 @@
-﻿using ScissorHands.Core.Models;
-
 namespace ScissorHands.Plugin.OpenGraph;
 
 /// <summary>
@@ -61,33 +59,19 @@ public partial class OpenGraphComponent : PluginComponentBase
         TwitterSiteId = default;
         TwitterCreatorId = default;
 
-        if (Plugin is null || Site is null)
+        if (Plugin is null)
         {
             return;
         }
 
-        if (Plugin.Options is not null)
-        {
-            TwitterSiteId = OpenGraphPluginHelper.GetOptionValue<string>(Plugin, "TwitterSiteId");
-            TwitterCreatorId = OpenGraphPluginHelper.GetOptionValue<string>(Plugin, "TwitterCreatorId");
-        }
-
-        TwitterCreatorId = string.IsNullOrWhiteSpace(Document?.Metadata.TwitterHandle)
-            ? TwitterCreatorId
-            : Document.Metadata.TwitterHandle;
-
-        var useContentMetadata = OpenGraphPluginHelper.UseContentMetadata(Documents, Document);
-        if (useContentMetadata == false || Document?.Kind == ContentKind.Page)
-        {
-            TwitterCreatorId = default;
-        }
-
-        ContentTitle = useContentMetadata ? $"{Document?.Metadata.Title} | {Site.Title}" : Site.Title;
-        ContentDescription = useContentMetadata ? Document?.Metadata.Description ?? Site.Description : Site.Description;
-        ContentLocale = Site.Locale;
-
-        ContentUrl = OpenGraphPluginHelper.GetContentUrl(Document, Site);
-        HeroImageUrl = OpenGraphPluginHelper.GetHeroImageUrl(Document, Site);
-        SiteName = Site.Title;
+        var metadata = OpenGraphMetadata.Create(Plugin, Site, Document, Documents);
+        ContentTitle = metadata.Title;
+        ContentDescription = metadata.Description;
+        ContentLocale = metadata.Locale;
+        ContentUrl = metadata.Url;
+        HeroImageUrl = metadata.ImageUrl;
+        SiteName = metadata.SiteName;
+        TwitterSiteId = metadata.TwitterSiteId;
+        TwitterCreatorId = metadata.TwitterCreatorId;
     }
 }
