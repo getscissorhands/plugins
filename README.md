@@ -14,7 +14,7 @@ Official plugins for ScissorHands.NET. Packages are currently preview releases, 
 Use the SDK selected by [global.json](global.json). From the repository root:
 
 ```powershell
-dotnet build .\ScissorHandsPlugins.sln -c Release
+dotnet build ./ScissorHandsPlugins.sln -c Release
 Set-Location sample
 dotnet run -c Release --no-build -- --preview
 ```

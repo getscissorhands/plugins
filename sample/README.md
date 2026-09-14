@@ -9,8 +9,8 @@ Preview locally built plugins using the NuGet.org engine and its built-in theme.
 From the repository root, using the SDK selected by [global.json](../global.json):
 
 ```powershell
-dotnet restore .\ScissorHandsPlugins.sln
-dotnet build .\ScissorHandsPlugins.sln -c Release --no-restore
+dotnet restore ./ScissorHandsPlugins.sln
+dotnet build ./ScissorHandsPlugins.sln -c Release --no-restore
 Set-Location sample
 dotnet run -c Release --no-build -- --preview
 ```
@@ -57,7 +57,7 @@ dotnet run -c Release --no-build --no-launch-profile -- --build
 dotnet run -c Release --no-build --no-launch-profile -- --build --use-placeholders
 ```
 
-Preview and build output goes to `sample\preview` and `sample\dist`, respectively. These directories are Git-ignored and replaced on fresh runs; do not keep authored files there or commit generated output.
+Preview and build output goes to `sample/preview` and `sample/dist`, respectively. These directories are Git-ignored and replaced on fresh runs; do not keep authored files there or commit generated output.
 
 For a metadata-only subpath check, use `--Site:BaseUrl=/blog/ --build` after `--` and inspect the generated URLs. Preview defaults to `/`: changing `BaseUrl` alone does not mount the server at that prefix.
 
@@ -65,6 +65,6 @@ For a metadata-only subpath check, use `--Site:BaseUrl=/blog/ --build` after `--
 
 The sample uses the packaged default theme's CSS, JavaScript, favicon and third-party notices. Its small `SampleLayout.razor` supplies plugin insertion and sample navigation; it does not reproduce the full built-in layout. The color toggle stores its preference in browser `localStorage` and works independently of analytics.
 
-If styling is missing, rebuild and restart preview, then refresh. Confirm the stylesheet/script requests return HTTP 200. Avoid a partial `sample\themes\default` directory: a local theme directory shadows the bundled theme, even without a manifest.
+If styling is missing, rebuild and restart preview, then refresh. Confirm the stylesheet/script requests return HTTP 200. Avoid a partial `sample/themes/default` directory: a local theme directory shadows the bundled theme, even without a manifest.
 
 Asset-copy and layout implementation details belong in [T-010](../TRD.md#t-010-local-preview-integration); [sample tests](../test/ScissorHands.Plugins.Sample.Tests) cover both rendering paths and bundled assets.

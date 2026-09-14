@@ -41,26 +41,26 @@ Source/test props must import root props because MSBuild discovers only the near
 Use the SDK selected by [global.json](global.json), targeting .NET 10 with Microsoft.Testing.Platform. Run these from the repository root (PowerShell examples):
 
 ```powershell
-dotnet restore .\ScissorHandsPlugins.sln
-dotnet build .\ScissorHandsPlugins.sln -c Release --no-restore -warnaserror
+dotnet restore ./ScissorHandsPlugins.sln
+dotnet build ./ScissorHandsPlugins.sln -c Release --no-restore -warnaserror
 dotnet test -c Release --no-build --verbosity normal
 ```
 
 For one test project:
 
 ```powershell
-dotnet test --project .\test\ScissorHands.Plugin.OpenGraph.Tests\ScissorHands.Plugin.OpenGraph.Tests.csproj -c Release --no-build
+dotnet test --project ./test/ScissorHands.Plugin.OpenGraph.Tests/ScissorHands.Plugin.OpenGraph.Tests.csproj -c Release --no-build
 ```
 
 Use MTP's `--project`/`--solution` selectors when supplying an explicit target, not VSTest's positional project/solution syntax or VSTest filter/logger assumptions. The root-discovery full-suite command above matches this repository's CI. Keep build/test configurations aligned and inspect the test count; a successful build or a zero-test run is not test evidence.
 
-During dependency upgrades, use `dotnet restore .\ScissorHandsPlugins.sln --force-evaluate --no-cache` and inspect the resolved graph, not just the floating ranges. Do not clear shared NuGet caches or re-pin major floats as an incidental cleanup.
+During dependency upgrades, use `dotnet restore ./ScissorHandsPlugins.sln --force-evaluate --no-cache` and inspect the resolved graph, not just the floating ranges. Do not clear shared NuGet caches or re-pin major floats as an incidental cleanup.
 
 Normal builds do not pack. For local prerelease package inspection:
 
 ```powershell
-dotnet pack .\src\ScissorHands.Plugin.GoogleAnalytics\ScissorHands.Plugin.GoogleAnalytics.csproj -c Release --no-restore -p:Version=1.0.0-preview.local -o "$env:TEMP\ScissorHandsPlugins-pack"
-dotnet pack .\src\ScissorHands.Plugin.OpenGraph\ScissorHands.Plugin.OpenGraph.csproj -c Release --no-restore -p:Version=1.0.0-preview.local -o "$env:TEMP\ScissorHandsPlugins-pack"
+dotnet pack ./src/ScissorHands.Plugin.GoogleAnalytics/ScissorHands.Plugin.GoogleAnalytics.csproj -c Release --no-restore -p:Version=1.0.0-preview.local -o "$env:TEMP/ScissorHandsPlugins-pack"
+dotnet pack ./src/ScissorHands.Plugin.OpenGraph/ScissorHands.Plugin.OpenGraph.csproj -c Release --no-restore -p:Version=1.0.0-preview.local -o "$env:TEMP/ScissorHandsPlugins-pack"
 ```
 
 Inspect the assembly, dependency metadata, project README (root fallback), license, icon and symbols. Use a scoped output directory and clean up only artifacts you created. Stable `1.0.0` packaging against a prerelease dependency raises NU5104; choose an appropriate explicit prerelease for validation, not a suppression or an unrequested version-policy change.
