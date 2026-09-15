@@ -1,5 +1,6 @@
 using ScissorHands.Core.Manifests;
 using ScissorHands.Core.Models;
+using ScissorHands.Core.Urls;
 
 namespace ScissorHands.Plugin.OpenGraph;
 
@@ -13,13 +14,43 @@ public static class OpenGraphPluginHelper
     /// </summary>
     /// <param name="document"><see cref="ContentDocument"/> instance.</param>
     /// <param name="site"><see cref="SiteManifest"/> instance.</param>
-    /// <returns>Returns the content URL.</returns>
+    /// <returns>The absolute publication URL, or the site root for an absent/root slug.</returns>
+    /// <exception cref="ArgumentException">The site publication context or content slug is invalid.</exception>
     public static string GetContentUrl(ContentDocument? document, SiteManifest? site)
     {
         var siteUrl = GetSiteUrl(site);
-        var contentUrl = document?.Metadata.Slug.TrimStart('/');
+        if (string.IsNullOrWhiteSpace(document?.Metadata.Slug))
+        {
+            return siteUrl;
+        }
 
-        return $"{siteUrl}/{contentUrl}".TrimEnd('/');
+        var isGeneratedPage = document.Kind == ContentKind.Page && string.IsNullOrWhiteSpace(document.SourcePath);
+        if (isGeneratedPage && !HasValidPercentEncoding(document.Metadata.Slug))
+        {
+            throw new ArgumentException("Open Graph: Document.Metadata.Slug must contain valid percent escapes for a generated page route.", nameof(document));
+        }
+
+        string contentUrl;
+        try
+        {
+            contentUrl = ContentUrlHelper.GetContentUrl(document.Metadata.Slug);
+        }
+        catch (ArgumentException)
+        {
+            // The dependency's diagnostic may include the supplied slug. Keep context, not payload.
+            throw new ArgumentException("Open Graph: Document.Metadata.Slug must not contain literal dot traversal segments.", nameof(document));
+        }
+
+        if (isGeneratedPage)
+        {
+            // Engine-generated page routes are already escaped. Retain those escapes without decoding
+            // encoded separators into path boundaries, while keeping Core's normalization/validation.
+            contentUrl = contentUrl.Replace("%25", "%", StringComparison.Ordinal);
+        }
+
+        return contentUrl == "."
+            ? siteUrl
+            : $"{siteUrl}/{contentUrl}";
     }
 
     /// <summary>
@@ -27,16 +58,53 @@ public static class OpenGraphPluginHelper
     /// </summary>
     /// <param name="document"><see cref="ContentDocument"/> instance.</param>
     /// <param name="site"><see cref="SiteManifest"/> instance.</param>
-    /// <returns>Returns the hero image URL.</returns>
+    /// <returns>The selected image URL, or an empty string when neither image is available.</returns>
+    /// <exception cref="ArgumentException">The site publication context or selected image reference is invalid.</exception>
     public static string GetHeroImageUrl(ContentDocument? document, SiteManifest? site)
     {
         var siteUrl = GetSiteUrl(site);
-        var siteHeroImage = site?.HeroImage?.TrimStart('/');
-        var contentImage = document?.Metadata.HeroImage?.TrimStart('/');
+        var useSiteImage = string.IsNullOrWhiteSpace(document?.Metadata.HeroImage);
+        var imageUrl = useSiteImage
+            ? site!.HeroImage
+            : document!.Metadata.HeroImage;
 
-        return contentImage is null
-               ? $"{siteUrl}/{siteHeroImage}"
-               : $"{siteUrl}/{contentImage}";
+        if (string.IsNullOrWhiteSpace(imageUrl))
+        {
+            return string.Empty;
+        }
+
+        var context = useSiteImage ? "Site.HeroImage" : "Document.Metadata.HeroImage";
+        if (imageUrl.Any(char.IsControl) || !HasValidPercentEncoding(imageUrl))
+        {
+            throw InvalidImage(context);
+        }
+
+        imageUrl = imageUrl.Trim();
+        var suffixStart = imageUrl.IndexOfAny(['?', '#']);
+        var path = suffixStart < 0 ? imageUrl : imageUrl[..suffixStart];
+        var suffix = suffixStart < 0 ? string.Empty : imageUrl[suffixStart..];
+        var normalizedPath = path.Replace('\\', '/');
+
+        // Classify BEFORE Core's leading-slash removal, including disguised network paths.
+        if (normalizedPath.StartsWith("//", StringComparison.Ordinal))
+        {
+            throw InvalidImage(context);
+        }
+
+        var firstSlash = normalizedPath.IndexOf('/');
+        var firstSegment = firstSlash < 0 ? normalizedPath : normalizedPath[..firstSlash];
+        if (firstSegment.Contains(':'))
+        {
+            if (!IsAbsoluteWebUrl(imageUrl, out _))
+            {
+                throw InvalidImage(context);
+            }
+
+            // Core does not escape images. Keep original encoding, origin, suffix and trailing slash.
+            return ContentUrlHelper.GetImageUrl(imageUrl);
+        }
+
+        return $"{siteUrl}/{ContentUrlHelper.GetImageUrl(normalizedPath)}{suffix}";
     }
 
     /// <summary>
@@ -94,9 +162,73 @@ public static class OpenGraphPluginHelper
 
     private static string GetSiteUrl(SiteManifest? site)
     {
-        var siteUrl = site?.SiteUrl.TrimEnd('/');
-        var baseUrl = site?.BaseUrl.Trim('/');
+        if (site is null)
+        {
+            throw new ArgumentException("Open Graph: Site context is required to emit metadata.", nameof(site));
+        }
 
-        return $"{siteUrl}/{baseUrl}".TrimEnd('/');
+        if (!IsAbsoluteWebUrl(site.SiteUrl, out var origin)
+            || !string.IsNullOrEmpty(origin.Query) || !string.IsNullOrEmpty(origin.Fragment))
+        {
+            throw new ArgumentException("Open Graph: Site.SiteUrl must be an absolute HTTP(S) publication URL with a host and without a query or fragment.", nameof(site));
+        }
+
+        var siteUrl = site.SiteUrl.TrimEnd('/');
+        var baseUrl = site.BaseUrl ?? string.Empty;
+        if (baseUrl.Any(char.IsControl))
+        {
+            throw InvalidBaseUrl();
+        }
+
+        baseUrl = baseUrl.Trim().Replace('\\', '/');
+        if (baseUrl.StartsWith("//", StringComparison.Ordinal) || baseUrl.Contains(':')
+            || baseUrl.IndexOfAny(['?', '#']) >= 0
+            || !HasValidPercentEncoding(baseUrl))
+        {
+            throw InvalidBaseUrl();
+        }
+
+        baseUrl = baseUrl.Trim('/');
+        return string.IsNullOrEmpty(baseUrl) ? siteUrl : $"{siteUrl}/{baseUrl}";
     }
+
+    private static bool IsAbsoluteWebUrl(string? value, out Uri uri)
+    {
+        uri = null!;
+        return !string.IsNullOrWhiteSpace(value)
+            && !value.Any(character => char.IsWhiteSpace(character) || char.IsControl(character))
+            && !value.Contains('\\')
+            && HasValidPercentEncoding(value)
+            && (value.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                || value.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            && Uri.TryCreate(value, UriKind.Absolute, out uri!)
+            && !string.IsNullOrEmpty(uri.Host)
+            && uri.IsWellFormedOriginalString();
+    }
+
+    private static bool HasValidPercentEncoding(string value)
+    {
+        for (var index = 0; index < value.Length; index++)
+        {
+            if (value[index] != '%')
+            {
+                continue;
+            }
+
+            if (index + 2 >= value.Length || !Uri.IsHexDigit(value[index + 1]) || !Uri.IsHexDigit(value[index + 2]))
+            {
+                return false;
+            }
+
+            index += 2;
+        }
+
+        return true;
+    }
+
+    private static ArgumentException InvalidImage(string context)
+        => new($"Open Graph: {context} must be a site-local path or an absolute HTTP(S) image URL with a host; network paths, unsupported schemes and malformed references are not supported.");
+
+    private static ArgumentException InvalidBaseUrl()
+        => new("Open Graph: Site.BaseUrl must be a site-local publication subpath without a query or fragment.", "site");
 }

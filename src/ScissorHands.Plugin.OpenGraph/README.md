@@ -1,77 +1,88 @@
 # ScissorHands.NET: Open Graph Plugin
 
-This plugin renders the [Open Graph](https://ogp.me/) tags.
-
-## GitHub Nuget Package Registry
-
-1. Set environment variables for GitHub NuGet Package Registry.
-
-    ```bash
-    # zsh/bash
-    export GH_PACKAGE_USERNAME="<GITHUB_USERNAME>"
-    export GH_PACKAGE_TOKEN="<GITHUB_TOKEN>"
-    ```
-
-    ```powershell
-    # PowerShell
-    $env:GH_PACKAGE_USERNAME = "<GITHUB_USERNAME>"
-    $env:GH_PACKAGE_TOKEN = "<GITHUB_TOKEN>"
-    ```
+Adds [Open Graph](https://ogp.me/) and Twitter-card metadata to a compatible ScissorHands.NET site.
 
 ## Getting Started
 
-1. Assuming that you've got a running [ScissorHands.NET](https://github.com/getscissorhands/Scissorhands.NET) app.
-1. Update the plugin section of `appsettings.json` to add options. `TwitterSiteId` is the Twitter handle for the website, and `TwitterCreatorId` is the default Twitter handle for the content authors.
+Install the preview package in your ScissorHands.NET host:
 
-    ```jsonc
+```bash
+dotnet add package ScissorHands.Plugin.OpenGraph --prerelease
+```
+
+Configure the site and plugin in `appsettings.json`:
+
+```json
+{
+  "Site": {
+    "SiteUrl": "https://example.com",
+    "BaseUrl": "/blog/",
+    "Title": "My site",
+    "Description": "About this site",
+    "Locale": "en-US",
+    "HeroImage": "/images/site.png"
+  },
+  "Plugins": [
     {
-      ...
-      "Plugins": [
-        {
-          "Name": "Open Graph",
-          "Options": {
-            "TwitterSiteId": "@your_twitter_handle_site",
-            "TwitterCreatorId": "@your_twitter_handle_creator"
-          }
-        }
-      ]
+      "Id": "open-graph",
+      "Options": {
+        "TwitterSiteId": "@example",
+        "TwitterCreatorId": "@author"
+      }
     }
-    ```
+  ]
+}
+```
 
-   > **NOTE**: If you don't have any of both, you can omit the property. For example, you can omit both properties like `"Options": {}`.
+`TwitterSiteId` identifies the website's account; `TwitterCreatorId` is the default post-author handle. Both are optional: omit either or use `"Options": {}`. Null, non-string and whitespace-only values omit their optional tags.
 
-1. Add a NuGet package.
+In a layout supplied with the engine's cascading context, place the component inside `<head>`:
 
-    ```bash
-    dotnet add package ScissorHands.Plugin.OpenGraph --prerelease
-    ```
+```razor
+<OpenGraphComponent Id="open-graph" />
+```
 
-1. Add a UI component, `<OpenGraphComponent />` with parameters, to `MainLayout.razor`.
+Alternatively, use the paired placeholder for the post-HTML hook:
 
-    ```razor
-    <OpenGraphComponent Documents="@Documents" Document="@Document" Plugin="@OpenGraphPlugin" Theme="@Theme" Site="@Site" />
+```html
+<plugin:open-graph></plugin:open-graph>
+```
 
-    @code {
-        protected PluginManifest? OpenGraphPlugin { get; set; }
+Choose one path per insertion to avoid duplicates. Hook placeholders must be paired, not self-closing; every matching pair is replaced. The `Id` is exact and case-sensitive; an optional manifest `Name` is only a display label. Remove the entry from `Plugins` to disable output.
 
-        protected override async Task OnInitializedAsync()
-        {
-            await base.OnInitializedAsync();
-    
-            OpenGraphPlugin = Plugins?.SingleOrDefault(p => p.Name!.Equals("Open Graph", StringComparison.OrdinalIgnoreCase));
-        }
-    }    
-    ```
+## Metadata and publication URLs
 
-   > **NOTE**: Those `@Documents`, `@Document`, `@Theme` and `@Site` values are inherited, and the `@OpenGraphPlugin` value is calculated from the `OnInitializedAsync()` method.
+Given equivalent host context, both integrations produce equivalent metadata:
 
-1. Alternatively, use the placeholder, `<plugin:open-graph />` instead of the `<OpenGraphComponent />` component.
+- Individual source-backed documents use `Document title | Site title` and the document description, falling back to the site description only when null. Collections, source-less documents and missing documents use site title/description.
+- `twitter:creator` appears only for an individual source-backed **post**, not pages, collections or source-less posts. A nonblank document `TwitterHandle` overrides `TwitterCreatorId`.
+- A nonblank document hero image wins over the site image. When neither exists, both image tags are omitted; the card remains `summary_large_image`.
 
-    ```html
-    <html>
-    <head>
-        ...
-        <plugin:open-graph />
-        ...
-    </head>
-    ```
+**Suppressing the inherited image:** the released `SiteManifest` supplies an external `hero.jpg` by default. Omitting `Site.HeroImage` therefore does not necessarily remove image metadata. Set `"HeroImage": ""` inside `Site` and leave the document image absent to omit both image tags.
+
+Configured output requires site context and an absolute HTTP(S) `SiteUrl` with a host and no query/fragment. A path on `SiteUrl` is preserved. `BaseUrl` is an optional local path prefix, not an absolute/network URL or a query/fragment; use `""` or `"/"` for root deployment. Blank/root content slugs map to this publication root. In the example above, `/post` becomes `https://example.com/blog/post`, and `/images/site.png` becomes `https://example.com/blog/images/site.png`.
+
+**Generated tag pages:** verified with engine `1.0.0-preview.20260915.1`, both modes receive the resolved route and emit the same canonical URL, including escaped tag names. Custom layouts must forward `Document` through `CascadingMainLayoutBase`. Generated routes are consumed as supplied, not reconstructed from tag labels or escaped twice. The earlier component limitation is resolved as [OG-Q-005](https://github.com/getscissorhands/plugins/blob/main/src/ScissorHands.Plugin.OpenGraph/TRD.md#og-q-005-generated-tag-pages-receive-unequal-host-context).
+
+When upgrading from an older cached engine, refresh floating dependencies with `dotnet restore --force-evaluate --no-cache`, then rebuild. Hosts on `1.0.0-preview.20260914.1` still need hook mode for tag-page canonical URLs; a plugin update alone cannot supply their missing component context.
+
+Images accept local paths, including a single leading `/` or local backslash separators, and absolute HTTP(S) URLs with a host. External origins, supported queries/fragments, existing percent encoding and meaningful trailing slashes are preserved. Unsupported schemes (`data:`, `javascript:`, `file:`, `ftp:`, etc.), malformed references/percent escapes, control characters and network paths such as `//host/image.png` or `\\host\image.png` are rejected. Use explicit HTTP(S) URLs for external images and prefer percent-encoded spaces.
+
+The plugin does not mount the host at `BaseUrl`. See the [technical requirements](https://github.com/getscissorhands/plugins/blob/main/src/ScissorHands.Plugin.OpenGraph/TRD.md) for complete metadata, URL, lifecycle and verification contracts.
+
+## Breaking migration from the earlier permissive behavior
+
+1. Supply valid publication context wherever enabled. Invalid origins now fail with a field-specific error instead of relative URLs/default tags; an absent hook marker does not hide invalid configuration.
+2. Correct unsupported image references. Errors identify `Site.HeroImage` or `Document.Metadata.HeroImage` without echoing arbitrary input.
+3. Account for omitted image/creator tags. Clear the inherited site image explicitly if no image is wanted.
+4. Supply original metadata text, not HTML or pre-encoded entities. Both integrations treat metadata as data.
+
+An absent manifest remains silent without validating unused site/image context. Components refresh as context changes; provide site context before enabling and disable before removing it.
+
+## Preview and privacy
+
+Configured preview and production use the same rules. Generation does not fetch images or contact social providers, but a later browser/crawler may request emitted external images. Metadata generation does not guarantee crawler acceptance or rich-preview appearance.
+
+## Support
+
+See the shared [support and recovery policy](https://github.com/getscissorhands/plugins#support-and-recovery) for best-effort issue support and preview-release recovery.

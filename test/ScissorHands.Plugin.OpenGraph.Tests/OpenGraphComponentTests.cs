@@ -6,17 +6,36 @@ namespace ScissorHands.Plugin.OpenGraph.Tests;
 public class OpenGraphComponentTests
 {
 	[Fact]
+	public void Given_PluginIsNotConfigured_When_Rendered_Then_It_Should_Not_Render_Metadata()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+
+		// Act
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Id, "open-graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document));
+
+		// Assert
+		cut.Markup.ShouldBeEmpty();
+	}
+
+	[Fact]
 	public void Given_ValidPostWithPluginOptions_When_Rendered_Then_It_Should_Render_OpenGraph_And_TwitterTags()
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "", title: "My Blog", description: "Site description", locale: "en-US", heroImage: "/images/site-hero.png");
+		var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "/blog/", title: "My Blog", description: "Site description", locale: "en-US", heroImage: "/images/site-hero.png");
 		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", heroImage: "/images/hero.png");
 		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
+			.Add(p => p.Name, "Different display name")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -26,8 +45,8 @@ public class OpenGraphComponentTests
 		cut.Markup.ShouldContain("property=\"og:title\" content=\"Hello | My Blog\"");
 		cut.Markup.ShouldContain("property=\"og:description\" content=\"Post description\"");
 		cut.Markup.ShouldContain("property=\"og:locale\" content=\"en-US\"");
-		cut.Markup.ShouldContain("property=\"og:url\" content=\"https://example.com/hello-world\"");
-		cut.Markup.ShouldContain("property=\"og:image\" content=\"https://example.com/images/hero.png\"");
+		cut.Markup.ShouldContain("property=\"og:url\" content=\"https://example.com/blog/hello-world\"");
+		cut.Markup.ShouldContain("property=\"og:image\" content=\"https://example.com/blog/images/hero.png\"");
 		cut.Markup.ShouldContain("property=\"og:site_name\" content=\"My Blog\"");
 
 		cut.Markup.ShouldContain("name=\"twitter:card\"");
@@ -35,7 +54,34 @@ public class OpenGraphComponentTests
 		cut.Markup.ShouldContain("name=\"twitter:creator\" content=\"@creator\"");
 		cut.Markup.ShouldContain("name=\"twitter:title\" content=\"Hello | My Blog\"");
 		cut.Markup.ShouldContain("name=\"twitter:description\" content=\"Post description\"");
-		cut.Markup.ShouldContain("name=\"twitter:image\" content=\"https://example.com/images/hero.png\"");
+		cut.Markup.ShouldContain("name=\"twitter:image\" content=\"https://example.com/blog/images/hero.png\"");
+	}
+
+	[Fact]
+	public void Given_PluginOptionsChange_When_Rerendered_Then_It_Should_Render_UpdatedTwitterIds()
+	{
+		// Arrange
+		using var ctx = new BunitContext();
+		var site = CreateSiteManifest();
+		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world");
+		var initialPlugin = CreatePluginManifest(id: "open-graph", twitterSiteId: "@initial-site", twitterCreatorId: "@initial-creator");
+		var updatedPlugin = CreatePluginManifest(id: "updated-open-graph", twitterSiteId: "@updated-site", twitterCreatorId: "@updated-creator");
+
+		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
+			.Add(p => p.Id, "open-graph")
+			.AddCascadingValue(site)
+			.AddCascadingValue(document)
+			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { initialPlugin, updatedPlugin }));
+
+		// Act
+		cut.Render(parameters => parameters
+			.Add(p => p.Id, "updated-open-graph"));
+
+		// Assert
+		cut.Markup.ShouldContain("name=\"twitter:site\" content=\"@updated-site\"");
+		cut.Markup.ShouldContain("name=\"twitter:creator\" content=\"@updated-creator\"");
+		cut.Markup.ShouldNotContain("@initial-site");
+		cut.Markup.ShouldNotContain("@initial-creator");
 	}
 
 	[Fact]
@@ -49,7 +95,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -70,7 +116,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -91,7 +137,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue<IEnumerable<PluginManifest>>(new[] { plugin }));
@@ -113,7 +159,7 @@ public class OpenGraphComponentTests
 
 		// Act
 		var cut = ctx.Render<OpenGraphComponent>(parameters => parameters
-			.Add(p => p.Name, "Open Graph")
+			.Add(p => p.Id, "open-graph")
 			.AddCascadingValue(site)
 			.AddCascadingValue(document)
 			.AddCascadingValue(documents)
@@ -149,11 +195,15 @@ public class OpenGraphComponentTests
 		};
 	}
 
-	private static PluginManifest CreatePluginManifest(string? twitterSiteId = null, string? twitterCreatorId = null)
+	private static PluginManifest CreatePluginManifest(
+		string id = "open-graph",
+		string? twitterSiteId = null,
+		string? twitterCreatorId = null)
 	{
 		return new PluginManifest
 		{
-			Name = "Open Graph",
+			Id = id,
+			Name = "Shared display name",
 			Options = new Dictionary<string, object?>
 			{
 				{ "TwitterSiteId", twitterSiteId },
@@ -181,4 +231,3 @@ public class OpenGraphComponentTests
 		};
 	}
 }
-

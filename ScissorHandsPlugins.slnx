@@ -1,0 +1,19 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/sample/">
+    <Project Path="sample/sample.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ScissorHands.Plugin.GoogleAnalytics/ScissorHands.Plugin.GoogleAnalytics.csproj" />
+    <Project Path="src/ScissorHands.Plugin.OpenGraph/ScissorHands.Plugin.OpenGraph.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ScissorHands.Plugin.GoogleAnalytics.Tests/ScissorHands.Plugin.GoogleAnalytics.Tests.csproj" />
+    <Project Path="test/ScissorHands.Plugin.OpenGraph.Tests/ScissorHands.Plugin.OpenGraph.Tests.csproj" />
+    <Project Path="test/ScissorHands.Plugins.Sample.Tests/ScissorHands.Plugins.Sample.Tests.csproj" />
+  </Folder>
+</Solution>

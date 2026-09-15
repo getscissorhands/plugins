@@ -70,6 +70,7 @@ public class OpenGraphPluginHelperTests
 	[InlineData("https://example.com/", "", "/hello-world", "https://example.com/hello-world")]
 	[InlineData("https://example.com", "/blog/", "/hello-world", "https://example.com/blog/hello-world")]
 	[InlineData("https://example.com/", "blog", "hello-world", "https://example.com/blog/hello-world")]
+	[InlineData("https://example.com", "/blog/", @" guides\about & team/ ", "https://example.com/blog/guides/about%20%26%20team")]
 	public void Given_DocumentAndSite_When_GetContentUrl_Invoked_Then_It_Should_Compose_Url(
 		string siteUrl,
 		string baseUrl,
@@ -112,6 +113,7 @@ public class OpenGraphPluginHelperTests
 	[InlineData("https://example.com", "/blog/", "/images/site.png", null, "https://example.com/blog/images/site.png")]
 	[InlineData("https://example.com", "/blog/", "/images/site.png", "/images/post.png", "https://example.com/blog/images/post.png")]
 	[InlineData("https://example.com/", "blog", "/images/site.png", "images/post.png", "https://example.com/blog/images/post.png")]
+	[InlineData("https://example.com/", "blog", "/images/site.png", "https://cdn.example.com/images/post.png", "https://cdn.example.com/images/post.png")]
 	public void Given_DocumentAndSite_When_GetHeroImageUrl_Invoked_Then_It_Should_Return_Expected(
 		string siteUrl,
 		string baseUrl,
@@ -131,31 +133,31 @@ public class OpenGraphPluginHelperTests
 	}
 
 	[Fact]
-	public void Given_NullArguments_When_GetContentUrl_Invoked_Then_It_Should_Return_EmptyString()
+	public void Given_NullArguments_When_GetContentUrl_Invoked_Then_It_Should_Reject_MissingSite()
 	{
 		// Arrange
 		ContentDocument? document = null;
 		SiteManifest? site = null;
 
 		// Act
-		var result = OpenGraphPluginHelper.GetContentUrl(document, site);
+		Func<string> act = () => OpenGraphPluginHelper.GetContentUrl(document, site);
 
 		// Assert
-		result.ShouldBe(string.Empty);
+		act.ShouldThrow<ArgumentException>().Message.ShouldContain("Site");
 	}
 
 	[Fact]
-	public void Given_NullArguments_When_GetHeroImageUrl_Invoked_Then_It_Should_Return_Slash()
+	public void Given_NullArguments_When_GetHeroImageUrl_Invoked_Then_It_Should_Reject_MissingSite()
 	{
 		// Arrange
 		ContentDocument? document = null;
 		SiteManifest? site = null;
 
 		// Act
-		var result = OpenGraphPluginHelper.GetHeroImageUrl(document, site);
+		Func<string> act = () => OpenGraphPluginHelper.GetHeroImageUrl(document, site);
 
 		// Assert
-		result.ShouldBe("/");
+		act.ShouldThrow<ArgumentException>().Message.ShouldContain("Site");
 	}
 
 	[Fact]
@@ -175,7 +177,7 @@ public class OpenGraphPluginHelperTests
 	public void Given_NullPluginOptions_When_GetOptionValue_Invoked_Then_It_Should_Return_Default()
 	{
 		// Arrange
-		var plugin = new PluginManifest { Options = null };
+		var plugin = new PluginManifest { Id = "open-graph", Options = null };
 
 		// Act
 		var result = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterSiteId");
@@ -190,6 +192,7 @@ public class OpenGraphPluginHelperTests
 		// Arrange
 		var plugin = new PluginManifest
 		{
+			Id = "open-graph",
 			Options = new Dictionary<string, object?>
 			{
 				{ "SomeOtherKey", "SomeValue" },
@@ -209,6 +212,7 @@ public class OpenGraphPluginHelperTests
 		// Arrange
 		var plugin = new PluginManifest
 		{
+			Id = "open-graph",
 			Options = new Dictionary<string, object?>
 			{
 				{ "TwitterSiteId", 12345 },
@@ -228,6 +232,7 @@ public class OpenGraphPluginHelperTests
 		// Arrange
 		var plugin = new PluginManifest
 		{
+			Id = "open-graph",
 			Options = new Dictionary<string, object?>
 			{
 				{ "TwitterSiteId", "@site" },
@@ -244,7 +249,7 @@ public class OpenGraphPluginHelperTests
 	[Theory]
 	[InlineData("https://example.com", "")]
 	[InlineData("https://example.com/", "blog")]
-	public void Given_NullSlug_When_GetContentUrl_Invoked_Then_It_Should_Throw_NullReferenceException(
+	public void Given_NullSlug_When_GetContentUrl_Invoked_Then_It_Should_Return_SiteRoot(
 		string siteUrl,
 		string baseUrl)
 	{
@@ -263,10 +268,27 @@ public class OpenGraphPluginHelperTests
 		var site = CreateSite(siteUrl, baseUrl);
 
 		// Act
+		var result = OpenGraphPluginHelper.GetContentUrl(document, site);
+
+		// Assert
+		result.ShouldBe(baseUrl.Length == 0 ? "https://example.com" : "https://example.com/blog");
+	}
+
+	[Theory]
+	[InlineData(".")]
+	[InlineData("..")]
+	[InlineData("guides/../admin")]
+	public void Given_UnsafeSlug_When_GetContentUrl_Invoked_Then_It_Should_Throw_ArgumentException(string slug)
+	{
+		// Arrange
+		var document = CreateDocument(slug);
+		var site = CreateSite("https://example.com", "/blog/");
+
+		// Act
 		Func<string> func = () => OpenGraphPluginHelper.GetContentUrl(document, site);
 
 		// Assert
-		func.ShouldThrow<NullReferenceException>();
+		func.ShouldThrow<ArgumentException>();
 	}
 
 	private static ContentDocument CreateDocument(string slug, string? heroImage = null, string? sourcePath = "/posts/hello-world.md")

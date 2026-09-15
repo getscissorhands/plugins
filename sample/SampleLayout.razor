@@ -1,0 +1,84 @@
+@inherits MainLayoutBase
+@inject IConfiguration Configuration
+
+<CascadingMainLayoutBase Documents="@Documents" TaggedDocuments="@TaggedDocuments" Tag="@Tag"
+                         TaggedPosts="@TaggedPosts" TaggedPages="@TaggedPages" Document="@Document"
+                         PageNavigation="@PageNavigation" Plugins="@Plugins" Theme="@Theme" Site="@Site">
+    <!DOCTYPE html>
+    <html lang="@PageLocale">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <base href="@Site?.BaseUrl" />
+        <title>@PageTitle</title>
+        <meta name="description" content="@PageDescription" />
+        <meta name="theme-color" content="#fffcf5" />
+        @if (Theme is not null)
+        {
+            <script>
+                (() => {
+                    const stored = localStorage.getItem("theme");
+                    const preferred = stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+                    document.documentElement.dataset.theme = preferred;
+                })();
+            </script>
+            <link rel="icon" type="image/x-icon" href="@GetThemeUrl("favicon.ico")" />
+            @foreach (var stylesheet in Theme.Stylesheets)
+            {
+                <link rel="stylesheet" href="@GetThemeUrl(stylesheet)" />
+            }
+        }
+        @if (Configuration.GetValue<bool>("Sample:UsePlaceholders"))
+        {
+            @if (Plugins?.Any(plugin => plugin.Id == "open-graph") == true)
+            {
+                <plugin:open-graph></plugin:open-graph>
+            }
+            @if (Plugins?.Any(plugin => plugin.Id == "google-analytics") == true)
+            {
+                <plugin:google-analytics></plugin:google-analytics>
+            }
+        }
+        else
+        {
+            <OpenGraphComponent Id="open-graph" />
+            <GoogleAnalyticsComponent Id="google-analytics" />
+        }
+    </head>
+    <body>
+        <header class="site-header">
+            <a class="site-title" href=".">@Site?.Title</a>
+            <nav aria-label="Sample navigation">
+                <ul class="navigation-list">
+                    <li><a href=".">Home</a></li>
+                    <li><a href="about">About</a></li>
+                    <li><a href="tags">Tags</a></li>
+                </ul>
+                <button id="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">
+                    <svg class="theme-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                    <svg class="theme-icon sun-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                    </svg>
+                </button>
+            </nav>
+            <p>Rendering with @(Configuration.GetValue<bool>("Sample:UsePlaceholders") ? "post-HTML hooks" : "Razor components").
+                Inspect page source for plugin output in the head.</p>
+        </header>
+        <main>@Body</main>
+        <footer class="site-footer">
+            <small>Local plugin preview. Analytics-enabled pages may contact Google, even with a fake measurement ID.</small>
+            <small>ScissorHands.NET theme assets adapted from <a href="https://github.com/ChurchTao/PlainPage">PlainPage</a>.</small>
+        </footer>
+        @if (Theme is not null)
+        {
+            @foreach (var script in Theme.Scripts)
+            {
+                <script src="@GetThemeUrl(script)"></script>
+            }
+        }
+    </body>
+    </html>
+</CascadingMainLayoutBase>

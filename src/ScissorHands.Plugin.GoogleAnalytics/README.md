@@ -1,72 +1,58 @@
 # ScissorHands.NET: Google Analytics Plugin
 
-This plugin renders [Google Analytics](https://analytics.google.com) script.
-
-## GitHub Nuget Package Registry
-
-1. Set environment variables for GitHub NuGet Package Registry.
-
-    ```bash
-    # zsh/bash
-    export GH_PACKAGE_USERNAME="<GITHUB_USERNAME>"
-    export GH_PACKAGE_TOKEN="<GITHUB_TOKEN>"
-    ```
-
-    ```powershell
-    # PowerShell
-    $env:GH_PACKAGE_USERNAME = "<GITHUB_USERNAME>"
-    $env:GH_PACKAGE_TOKEN = "<GITHUB_TOKEN>"
-    ```
+Adds [Google Analytics](https://analytics.google.com) tag markup to a compatible ScissorHands.NET site.
 
 ## Getting Started
 
-1. Assuming that you've got a running [ScissorHands.NET](https://github.com/getscissorhands/Scissorhands.NET) app.
-1. Update the plugin section of `appsettings.json` to add options. `MeasurementId` can be obtained from [Google Analytics](https://analytics.google.com) website.
+Install the preview package in your ScissorHands.NET host:
 
-    ```jsonc
+```bash
+dotnet add package ScissorHands.Plugin.GoogleAnalytics --prerelease
+```
+
+Add this entry to the `Plugins` array in `appsettings.json`. Replace `G-EXAMPLE` with your Google Analytics measurement ID for real tracking:
+
+```json
+{
+  "Plugins": [
     {
-      ...
-      "Plugins": [
-        {
-          "Name": "Google Analytics",
-          "Options": {
-            "MeasurementId": "G-XXXXXXXX"
-          }
-        }
-      ]
+      "Id": "google-analytics",
+      "Options": { "MeasurementId": "G-EXAMPLE" }
     }
-    ```
+  ]
+}
+```
 
-1. Add a NuGet package.
+In a layout supplied with the engine's cascading context, place the component just after the opening `<head>` tag:
 
-    ```bash
-    dotnet add package ScissorHands.Plugin.GoogleAnalytics --prerelease
-    ```
+```razor
+<GoogleAnalyticsComponent Id="google-analytics" />
+```
 
-1. Add a UI component, `<GoogleAnalyticsComponent />` with parameters, to `MainLayout.razor`. **It's strongly advised to place right after the opening `<head>` tag.**
+Alternatively, use the paired placeholder for the post-HTML hook:
 
-    ```razor
-    <GoogleAnalyticsComponent Documents="@Documents" Document="@Document" Plugin="@GoogleAnalyticsPlugin" Theme="@Theme" Site="@Site" />
+```html
+<plugin:google-analytics></plugin:google-analytics>
+```
 
-    @code {
-        protected PluginManifest? GoogleAnalyticsPlugin { get; set; }
+Choose one path per insertion to avoid duplicates. Hook placeholders must be paired, not self-closing. The `Id` is exact and case-sensitive; an optional manifest `Name` is only a display label.
 
-        protected override async Task OnInitializedAsync()
-        {
-            await base.OnInitializedAsync();
-    
-            GoogleAnalyticsPlugin = Plugins?.SingleOrDefault(p => p.Name!.Equals("Google Analytics", StringComparison.OrdinalIgnoreCase));
-        }
-    }    
-    ```
+The hook replaces every paired marker case-insensitively and leaves unmarked HTML unchanged when configuration is valid. It does not deduplicate existing tags. The component refreshes its configuration when cascading context or selection changes and renders nothing when its selected manifest is absent.
 
-   > **NOTE**: Those `@Documents`, `@Document`, `@Theme` and `@Site` values are inherited, and the `@GoogleAnalyticsPlugin` value is calculated from the `OnInitializedAsync()` method.
+## Configuration and breaking migration
 
-1. Alternatively, use the placeholder, `<plugin:google-analytics />` instead of the `<GoogleAnalyticsComponent />` component. **It's strongly advised to place right after the opening `<head>` tag**.
+An enabled manifest requires a string `MeasurementId`: `G-` followed by one or more uppercase ASCII letters or digits, without whitespace. `G-EXAMPLE` is a supported synthetic value; syntax validation does not verify a Google property.
 
-    ```html
-    <html>
-    <head>
-        <plugin:google-analytics />
-        ...
-    ```
+Both paths throw `InvalidOperationException` for missing or invalid identifiers, including null/non-string values and whitespace-padded input. The error identifies the plugin and option without exposing the supplied value. The hook validates even when no paired marker is present.
+
+**Breaking change:** earlier versions accepted arbitrary strings and emitted an empty ID for missing or non-string values. Before upgrading, supply a supported identifier or remove the `google-analytics` manifest. Clearing the value or setting an unrelated `Enabled` option does not disable this plugin.
+
+## Preview and privacy
+
+Configured output is retained in preview and production. Generation performs no provider request, but browsing generated pages can contact Google even with the fake ID. The plugin does not manage consent, suppress preview tracking, or provide provider retention/deletion controls. Remove its entry from `Plugins` to disable output.
+
+See the [technical requirements and evidence](https://github.com/getscissorhands/plugins/blob/main/src/ScissorHands.Plugin.GoogleAnalytics/TRD.md) for validation, output handling and verification details.
+
+## Support
+
+See the shared [support and recovery policy](https://github.com/getscissorhands/plugins#support-and-recovery) for best-effort issue support and preview-release recovery.

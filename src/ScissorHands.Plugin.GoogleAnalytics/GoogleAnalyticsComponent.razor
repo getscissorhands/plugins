@@ -1,10 +1,14 @@
 ﻿@inherits ScissorHands.Plugin.PluginComponentBase
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=@MeasurementId"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '@MeasurementId');
-</script>
+@if (Plugin is not null)
+{
+    <!-- Google tag (gtag.js) -->
+    <script async src="@LoaderUrl"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    @* Already encoded for JavaScript string content; HTML encoding would change its meaning. *@
+    gtag('config', '@((Microsoft.AspNetCore.Components.MarkupString)JavaScriptMeasurementId!)');
+    </script>
+}
