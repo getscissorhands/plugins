@@ -1,0 +1,99 @@
+name: Bug Report
+description: Report a reproducible plugin, sample, or build problem.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use synthetic examples and redact credentials, analytics identifiers, and private site content.
+        For vulnerabilities, do not submit this public form: email ask@getscissorhands.app and follow
+        [SECURITY.md](https://github.com/getscissorhands/plugins/blob/main/SECURITY.md).
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - google-analytics
+        - open-graph
+        - Sample preview host
+        - Shared build or packaging
+        - Unsure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: integration
+    attributes:
+      label: Integration mode
+      options:
+        - Razor component
+        - Post-HTML hook (paired markers)
+        - Both integrations
+        - Not applicable or unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions and environment
+      description: Give exact resolved package versions, not just floating ranges. Use N/A where not applicable.
+      placeholder: |
+        Plugin package/version or source commit:
+        ScissorHands engine package/version:
+        .NET SDK:
+        Operating system:
+        Preview or static build:
+        Browser (only for browser-specific behavior):
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: Describe the actual behavior and any error message, with sensitive values removed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include minimal configuration, input content, and commands using synthetic data.
+      placeholder: |
+        1. Configure the plugin manifest and component or paired markers.
+        2. Supply the minimal document and site settings.
+        3. Run the preview or static build command.
+        4. Inspect the error or generated markup.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/getscissorhands/plugins/blob/main/CODE_OF_CONDUCT.md).
+          required: true

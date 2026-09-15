@@ -1,0 +1,62 @@
+name: Feature Request
+description: Propose a plugin improvement or a new catalog entry.
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the user need and observable outcome rather than assuming a design or release commitment.
+        New plugins need their own PRD/TRD; see
+        [CONTRIBUTING.md](https://github.com/getscissorhands/plugins/blob/main/CONTRIBUTING.md).
+        Do not include credentials or private site content. Report vulnerabilities privately to
+        ask@getscissorhands.app, following [SECURITY.md](https://github.com/getscissorhands/plugins/blob/main/SECURITY.md).
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - google-analytics
+        - open-graph
+        - New plugin proposal
+        - Sample preview host
+        - Shared authoring or tooling
+        - Unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: Explain who is affected and what they cannot accomplish today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: Describe the desired behavior and how a user could tell it works.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: Any alternative solutions or features you've considered.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Include related issues, relevant versions, compatibility or migration concerns, and synthetic examples.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/getscissorhands/plugins/blob/main/CODE_OF_CONDUCT.md).
+          required: true

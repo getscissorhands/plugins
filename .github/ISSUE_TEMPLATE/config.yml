@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Support and documentation
+    url: https://github.com/getscissorhands/plugins/blob/main/SUPPORT.md
+    about: Find plugin guides, contribution instructions, and support boundaries.
+  - name: Report a vulnerability privately
+    url: https://github.com/getscissorhands/plugins/blob/main/SECURITY.md
+    about: Report vulnerabilities to ask@getscissorhands.app, not in public issues.

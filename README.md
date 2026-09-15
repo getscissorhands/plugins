@@ -26,6 +26,15 @@ The sample uses locally built plugins and the engine's built-in theme. Open `htt
 
 Start with [AGENTS.md](AGENTS.md) for repository conventions and build/test commands. The [catalog PRD](PRD.md) defines product scope; the [catalog TRD](TRD.md) links API contracts and each plugin's technical requirements. Use the existing plugins as examples rather than duplicating engine services.
 
+## Contributing and community
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, and pull requests, and
+[SUPPORT.md](SUPPORT.md) for help. Community participation follows the
+[Code of Conduct](CODE_OF_CONDUCT.md).
+
+Report vulnerabilities privately through [SECURITY.md](SECURITY.md), not public
+issues. Conduct reports use the separate contact in the Code of Conduct.
+
 ## Publishing packages
 
 Only push a release tag with @justinyoo's explicit approval and after meeting the [release gates](PRD.md#3-release-expectations-and-question-routing). The [workflow](.github/workflows/main.yaml) uses a `v*` tag's version to publish to NuGet.org and GitHub Packages, then creates a GitHub release after successful publication. Branch and pull-request builds do not publish. Use a preview tag/version while the packages remain preview; prerelease dependencies also require a prerelease package version.
