@@ -9,8 +9,9 @@
 | Product baseline | [Catalog PRD](PRD.md) v0.8, Implementation-ready with confirmed product scope, acceptance and release policy; shared requirements and delegated plugin baselines |
 | Scope | Shared authoring/compatibility obligations and an index of per-plugin technical requirements |
 | Sources | Local PRD decisions, historical source baseline `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`, implementation follow-up 2026-09-15, current configuration and relevant engine API references |
-| Delivery state | Both plugin implementations, full-solution regressions, local sample generation/preview and package inspection completed; [evidence and remaining limits](#implementation-evidence-2026-09-15) below |
+| Delivery state | Both plugin implementations verified on the new engine release, including OG-Q-005 closure; [current evidence and remaining limits](#engine-upgrade-evidence-2026-09-15) below |
 | Historical dependency baseline | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; preserve this evidence and record the actual resolved graph again for each upgrade/release |
+| Current dependency baseline | Core/Plugin/Theme/Web `1.0.0-preview.20260915.1`, NuGet repository commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`; central major-version floats retained |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
 
@@ -35,7 +36,9 @@ Configuration sources are [root props](Directory.Build.props), [source props](sr
 
 **External API references:** retain the [plugin-authoring API guide][upstream-plugin] for identity, hooks and component integration, and [Core URL-helper documentation][upstream-urls] for formatting semantics. The pinned documentation snapshot was consulted on 2026-09-14 and is a historical compatibility reference, not proof of support for every package release. Before adopting or changing an API, check documentation or source matching the resolved NuGet release and record that reference with the compatibility evidence. A moving branch or newer API description must not silently redefine the local baseline. Migration-guide discovery links are in [AGENTS.md](AGENTS.md#scope-and-sources).
 
-**Release-matched API verification (2026-09-15):** the installed Core, Plugin, Theme and Web packages resolve to `1.0.0-preview.20260914.1`; their NuGet repository metadata identifies commit `7b5db6e1f27327cd8be50c08e4163e72e0a28425`. The implementation follow-up consulted [PluginManifest][manifest-source], [PluginComponentBase][component-source] and [ContentUrlHelper][url-source] at that exact commit. This confirms the shallow read-only option snapshot, parameter-time ID selection and distinct content/image formatting semantics used here; it does not extend compatibility claims to other versions.
+**Historical API verification (initial implementation, 2026-09-15):** Core/Plugin/Theme/Web then resolved to `1.0.0-preview.20260914.1`, with NuGet repository commit `7b5db6e1f27327cd8be50c08e4163e72e0a28425`. That implementation consulted [PluginManifest][manifest-source], [PluginComponentBase][component-source] and [ContentUrlHelper][url-source] at the matching commit. The old evidence remains historical, not the current dependency graph.
+
+**Current API verification (engine update, 2026-09-15):** all six projects now resolve `1.0.0-preview.20260915.1`; installed package metadata identifies commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`. The [released tag-context documentation][tag-context-reference] and [updated generator][updated-generator] show route-only page documents supplied before Razor rendering. The existing component/cascade API remains source-compatible and the sample already forwards `Document`; Open Graph now preserves generated-route escapes while retaining raw-slug behavior for source-backed content. No navigation reconstruction, new public API or change to analytics behavior is needed. Exact upgrade evidence is recorded below.
 
 ## 2. Shared technical requirements
 
@@ -149,11 +152,11 @@ Run from the sample directory so upstream working-directory roots resolve correc
 
 **Verification:** Build the sample with the solution; exercise switch translation before/after preview/build flags, absent/repeated switches and preservation of other arguments. Exercise its layout with the real plugin runner in both modes, with and without analytics/manifests. Inspect generated root/post/page/tag/404 metadata, copied default-theme files, stylesheet/script/favicon HTTP responses, and browser styling/color-toggle behavior. Generation-only analytics checks use synthetic values without fetching provider resources.
 
-**Known engine integration limit (OG-Q-005):** in the resolved Web release, [StaticSiteGenerator][generator-source] renders tag-list/tag layouts without a `Document`, then creates a synthetic document with the resolved tag slug only for post-HTML hooks. The component therefore emits the site-root `og:url`, while hooks emit the actual tag route; the input contexts are not equivalent. The remaining tag metadata agrees, and equivalent-document parity is covered by regressions. The sample does not invent routes or replace engine rendering; use `--use-placeholders` for correct tag-page canonical URLs until the engine supplies resolved route context to components. Preview also substitutes its listening origin for production `SiteUrl`; comparisons must use that actual context.
+**Resolved engine integration limit (OG-Q-005):** the old [generator][generator-source] supplied resolved tag documents only to hooks. Release `1.0.0-preview.20260915.1` supplies their route-only counterparts before rendering, so the existing sample cascade now exposes the slug in both modes. Open Graph preserves the engine's already-escaped synthetic page routes; the sample does not infer routes or replace engine rendering. Exact tag URLs and unchanged metadata are verified below. Older hosts retain the documented hook-mode workaround. Preview substitutes its listening origin for production `SiteUrl`; comparisons use that actual context.
 
 ### Implementation evidence (2026-09-15)
 
-The signed-off behavior was implemented against the existing .NET SDK `10.0.401` and Core/Plugin/Theme/Web `1.0.0-preview.20260914.1` graph. No dependency, workflow or engine changes were needed. Requirements versions and the historical sign-off remain unchanged.
+This initial, historical validation used .NET SDK `10.0.401` and Core/Plugin/Theme/Web `1.0.0-preview.20260914.1`. No dependency, workflow or engine changes were needed at that stage. The later engine-upgrade evidence below supersedes the tag-context limitation, not these historical results.
 
 ```powershell
 dotnet build ./ScissorHandsPlugins.slnx -c Release --no-restore -warnaserror
@@ -166,7 +169,27 @@ Isolated sample runs generated eight pages per build across both rendering modes
 
 Both plugin projects were packed locally with `dotnet pack -c Release --no-restore -p:Version=1.0.0-preview.implementation` and a scoped temporary output directory. Inspection verified the assembly, current project README, MIT license, icon, resolved Plugin dependency and adjacent symbol package for each; temporary packages were removed. Nothing was uploaded or published.
 
-This evidence does not establish cross-platform runtime behavior, arbitrary preview subpath mounting, browser color-toggle behavior for changed assets (assets/layout were not changed here), real provider/crawler acceptance, an end-to-end OIDC release or a comprehensive security/privacy audit. Those claims require their own evidence and release authorization. The tag-route limitation remains visible rather than being called successful full-host parity.
+This initial evidence did not establish tag-route parity, arbitrary preview subpath mounting, browser behavior, real provider/crawler acceptance, an end-to-end OIDC release or a comprehensive security/privacy audit. The tag-route gap was retained until the separately verified engine update below.
+
+### Engine upgrade evidence (2026-09-15)
+
+The new engine release includes [getscissorhands/ScissorHands.NET#96](https://github.com/getscissorhands/ScissorHands.NET/pull/96), closing [issue #95](https://github.com/getscissorhands/ScissorHands.NET/issues/95). Upgrading used the existing centrally managed `1.*-*` ranges, without pinning versions or clearing shared caches:
+
+```powershell
+dotnet restore ./ScissorHandsPlugins.slnx --force-evaluate --no-cache
+dotnet build ./ScissorHandsPlugins.slnx -c Release --no-restore -warnaserror
+dotnet test -c Release --no-build --verbosity normal
+```
+
+All six projects resolve Core/Plugin and, where used, Theme/Web `1.0.0-preview.20260915.1`. The full Release build has **0 warnings/errors** and MTP passes **370 tests: 135 Google Analytics, 201 Open Graph and 34 sample; none failed or skipped**. Nine new route cases failed before the consumer fix and pass afterward. Tests preserve raw-slug behavior outside generated pages and reject malformed generated-route escapes without leaking payloads.
+
+[SampleTagRouteTests](test/ScissorHands.Plugins.Sample.Tests/SampleTagRouteTests.cs) uses the actual released generator, renderer, plugin runner, layout and built-in views. Four root/subpath x preview/build cases each render both modes and inspect ten pages, including generated tag lists, escaped names (`C# / <Tools>`, `%`, literal `%2F` and Unicode), index, post, page and generated 404. Each canonical URL is checked against an explicit expected route, not merely equality between two outputs. Tag titles, descriptions, locale, creator suppression, optional-image omission and single analytics output remain intact. No route is inferred from tag labels by the plugin.
+
+Independent sample CLI checks generated 12 pages in each of eight isolated builds (96 pages): both modes, root and `/blog/` bases, site images present/empty. Every canonical URL agrees with the actual generated route; all parsed plugin metadata agrees between modes. Both HTTP preview modes served HTML and local assets on temporary loopback ports; invalid required configuration still exits unsuccessfully with payload-free errors. No browser or provider scripts were executed; temporary sites/processes were cleaned up.
+
+Both local `1.0.0-preview.engine-update` plugin packages were inspected for assemblies, current README, MIT license, icon, the new Plugin dependency and symbol contents. Sample publish output resolves the new Web release and retains its theme manifest, CSS/JavaScript, favicon and notices. The packaged theme files/notices are byte-identical to the previous release, so no theme implementation or color-toggle change was introduced. Temporary output was removed; no package was uploaded.
+
+OG-Q-005 is resolved for this graph and layout contract. Google Analytics required no code changes: it does not calculate routes and all 135 regressions still pass. The sample layout/component lifecycle APIs required no changes: the existing document cascade forwards the newly supplied context. Live publishing, provider/crawler behavior, arbitrary preview prefix mounting and broader platform/security/privacy claims remain separate evidence and authorization boundaries.
 
 ## 3. Product-to-technical routing
 
@@ -224,7 +247,9 @@ The v0.7 catalog and v0.6 plugin pairs separate document responsibilities withou
 
 **Implementation follow-up (2026-09-15):** both plugins now implement the signed-off behavior with the full-solution, targeted, sample and package evidence above. Source APIs were checked against the exact package repository commit. OG-Q-005 captures the released engine's unequal tag-route contexts without adding engine responsibilities to this repository.
 
-**Readiness:** signed-off requirements remain Implementation-ready against catalog PRD v0.8; local implementation and its stated verification scope are complete. The engine tag-route context limitation and unverified external/platform/release claims remain explicit. @justinyoo owns release selection and authorization; local success is not publication permission or complete provider/audit acceptance. The [catalog source record](PRD.md#sources-and-review-status) retains the local product-decision basis.
+**Engine upgrade (2026-09-15):** refreshed the resolved graph to `1.0.0-preview.20260915.1`, preserved its generated-route escapes in Open Graph, and verified tag-page canonical URLs across both integrations. OG-Q-005 is closed with version-matched source and local integration evidence; earlier observations remain historical. Signed-off product scope and approval records are unchanged.
+
+**Readiness:** signed-off requirements remain Implementation-ready against catalog PRD v0.8; implementation and the current recorded verification scope are complete, including OG-Q-005 closure. Unverified external/platform/release claims remain explicit. @justinyoo owns release selection and authorization; local success is not publication permission or complete provider/audit acceptance. The [catalog source record](PRD.md#sources-and-review-status) retains the local product-decision basis.
 
 [upstream-plugin]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#plugin-authoring
 [upstream-urls]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/docs/website-documentation.md#shared-url-helpers
@@ -232,3 +257,5 @@ The v0.7 catalog and v0.6 plugin pairs separate document responsibilities withou
 [component-source]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/src/ScissorHands.Plugin/PluginComponentBase.cs
 [url-source]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/src/ScissorHands.Core/Urls/ContentUrlHelper.cs
 [generator-source]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/src/ScissorHands.Web/Generators/StaticSiteGenerator.cs
+[tag-context-reference]: https://github.com/getscissorhands/ScissorHands.NET/blob/772e9ffbc05761a14f2a3a93700e4fef2b6c13b3/docs/website-documentation.md#generated-tag-route-context
+[updated-generator]: https://github.com/getscissorhands/ScissorHands.NET/blob/772e9ffbc05761a14f2a3a93700e4fef2b6c13b3/src/ScissorHands.Web/Generators/StaticSiteGenerator.cs

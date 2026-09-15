@@ -766,6 +766,113 @@ public class OpenGraphContractTests
         component.ShouldThrow<ArgumentException>().Message.ShouldContain("Site.SiteUrl");
     }
 
+    [Theory]
+    [InlineData("/", "tags", "https://example.com/tags")]
+    [InlineData("/blog/", "tags/c%23", "https://example.com/blog/tags/c%23")]
+    [InlineData("/blog/", "tags/c%23%20%2F%20%3Ctools%3E", "https://example.com/blog/tags/c%23%20%2F%20%3Ctools%3E")]
+    [InlineData("/blog/", "tags/100%25", "https://example.com/blog/tags/100%25")]
+    [InlineData("/blog/", "tags/literal%252F", "https://example.com/blog/tags/literal%252F")]
+    [InlineData("/", "tags/%ED%95%9C%EA%B8%80", "https://example.com/tags/%ED%95%9C%EA%B8%80")]
+    public async Task Given_GeneratedPageRoute_When_Rendered_Then_It_Should_Preserve_EngineEscaping(
+        string baseUrl, string slug, string expected)
+    {
+        // Arrange
+        using var context = new BunitContext();
+        var site = Site(baseUrl: baseUrl, image: null, locale: "ko-KR");
+        var routeDocument = new ContentDocument
+        {
+            Kind = ContentKind.Page,
+            Metadata = new ContentMetadata { Slug = slug },
+        };
+        var hookDocument = new ContentDocument
+        {
+            Kind = ContentKind.Page,
+            Metadata = routeDocument.Metadata with { Title = "Tag: supplied hook title" },
+        };
+        var plugin = Manifest();
+
+        // Act
+        var component = Render(context, site, routeDocument, plugin);
+        var hook = Parse(await Hook(site, hookDocument, plugin));
+
+        // Assert
+        AssertParity(hook, Parse(component.Markup));
+        OpenGraphPluginHelper.GetContentUrl(routeDocument, site).ShouldBe(expected);
+        hook["og:url"].ShouldBe(expected);
+        hook["og:title"].ShouldBe(site.Title);
+        hook["og:description"].ShouldBe(site.Description);
+        hook["og:locale"].ShouldBe(site.Locale);
+        hook.ContainsKey("twitter:creator").ShouldBeFalse();
+        hook.ContainsKey("og:image").ShouldBeFalse();
+    }
+
+    [Theory]
+    [InlineData(ContentKind.Page, "/page.md", "https://example.com/blog/tags/c%2523")]
+    [InlineData(ContentKind.Post, "/post.md", "https://example.com/blog/tags/c%2523")]
+    [InlineData(ContentKind.Post, "", "https://example.com/blog/tags/c%2523")]
+    public async Task Given_NonGeneratedPageSlug_When_Rendered_Then_It_Should_Retain_RawContentEscaping(
+        ContentKind kind, string sourcePath, string expected)
+    {
+        // Arrange
+        using var context = new BunitContext();
+        var document = Document(kind: kind, sourcePath: sourcePath, slug: "tags/c%23");
+        var site = Site();
+        var plugin = Manifest();
+
+        // Act
+        var hook = Parse(await Hook(site, document, plugin));
+        var component = Render(context, site, document, plugin);
+
+        // Assert
+        AssertParity(hook, Parse(component.Markup));
+        hook["og:url"].ShouldBe(expected);
+    }
+
+    [Theory]
+    [InlineData("tags/%")]
+    [InlineData("tags/%2")]
+    [InlineData("tags/%GG")]
+    [InlineData("tags/../private")]
+    [InlineData("tags/./private")]
+    public async Task Given_InvalidGeneratedPageRoute_When_Rendered_Then_It_Should_FailWithoutLeakingTheRoute(string slug)
+    {
+        // Arrange
+        using var context = new BunitContext();
+        var document = Document(kind: ContentKind.Page, sourcePath: "", slug: slug);
+        var site = Site();
+        var plugin = Manifest();
+
+        // Act
+        Func<Task> hook = () => Hook(site, document, plugin);
+        Action component = () => Render(context, site, document, plugin);
+
+        // Assert
+        var exception = await hook.ShouldThrowAsync<ArgumentException>();
+        exception.Message.ShouldContain("Document.Metadata.Slug");
+        exception.Message.ShouldNotContain(slug);
+        component.ShouldThrow<ArgumentException>().Message.ShouldBe(exception.Message);
+    }
+
+    [Fact]
+    public void Given_GeneratedRouteChanges_When_Rerendered_Then_It_Should_RefreshAndClearTheUrl()
+    {
+        // Arrange
+        using var context = new BunitContext();
+        var host = Render(context, Site(), Document(kind: ContentKind.Page, sourcePath: "", slug: "tags/c%23"), Manifest());
+
+        // Act
+        host.Render(parameters => parameters.Add(p => p.Document,
+            Document(kind: ContentKind.Page, sourcePath: "", slug: "tags/100%25")));
+        var updated = Parse(host.Markup);
+        host.Render(parameters => parameters.Add(p => p.Document, (ContentDocument?)null));
+        var removed = Parse(host.Markup);
+
+        // Assert
+        updated["og:url"].ShouldBe("https://example.com/blog/tags/100%25");
+        removed["og:url"].ShouldBe("https://example.com/blog");
+        host.Markup.ShouldNotContain("tags/");
+    }
+
     private static IRenderedComponent<MetadataHost> Render(
         BunitContext context, SiteManifest? site, ContentDocument? document, PluginManifest plugin,
         IEnumerable<ContentDocument>? documents = null)

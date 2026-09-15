@@ -9,7 +9,7 @@ Preview locally built plugins using the NuGet.org engine and its built-in theme.
 From the repository root, using the SDK selected by [global.json](../global.json):
 
 ```bash
-dotnet restore
+dotnet restore --force-evaluate --no-cache
 dotnet build
 cd sample
 dotnet run -- --preview
@@ -35,7 +35,7 @@ If rendering reports a configuration error, correct the measurement identifier o
 
 The engine supplies a default site image when its setting is omitted. Set `Site.HeroImage` to `""` and leave content images empty to inspect image-tag omission.
 
-**Tag-page limitation:** this engine release supplies resolved tag routes to hooks but not to the component's document cascade. Component mode therefore emits the site-root `og:url` for tag pages; use `--use-placeholders` when their exact canonical URLs are required. The plugin does not infer engine routes from tag names. See [OG-Q-005](../src/ScissorHands.Plugin.OpenGraph/TRD.md#gaps-and-readiness).
+**Tag-page URLs:** engine `1.0.0-preview.20260915.1` supplies route-only documents before rendering, so both modes now emit accurate tag-page canonical URLs, including escaped names. The sample already forwards `Document` through the cascade; no route reconstruction or hook-only workaround is needed. Refresh cached floating dependencies and rebuild when upgrading. See the resolved [OG-Q-005](../src/ScissorHands.Plugin.OpenGraph/TRD.md#gaps-and-readiness).
 
 Inspect page source, not just the visible body:
 

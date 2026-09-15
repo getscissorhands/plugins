@@ -85,7 +85,7 @@ Shared commands and package conventions remain in [AGENTS.md](../../AGENTS.md). 
 
 ### Targeted evidence (2026-09-15)
 
-Windows .NET SDK `10.0.401`, `net10.0`, Release; existing restored dependencies were used without upgrade or reinstall. Resolved Core/Plugin: `1.0.0-preview.20260914.1`; bUnit `2.11.3`, xUnit v3 `4.0.1`, MTP `2.4.0`, Shouldly `4.3.0`, NSubstitute `6.2.0`. This is evidence for this graph, not every version in the floating ranges.
+Initial implementation validation used Windows .NET SDK `10.0.401`, `net10.0`, Release, with existing restored dependencies. That historical Core/Plugin baseline was `1.0.0-preview.20260914.1`; bUnit `2.11.3`, xUnit v3 `4.0.1`, MTP `2.4.0`, Shouldly `4.3.0`, NSubstitute `6.2.0`. This is evidence for that graph, not every version in the floating ranges.
 
 The installed ScissorHands.Core and ScissorHands.Plugin `1.0.0-preview.20260914.1` packages' `.nuspec` repository metadata identifies **exactly** upstream commit `7b5db6e1f27327cd8be50c08e4163e72e0a28425`, matching the pinned API documentation URLs; this is a package-to-source association, not merely a historical documentation snapshot. The [catalog's release-matched source verification](../../TRD.md#1-shared-boundaries) owns the shared evidence. At that commit, [PluginManifest](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/src/ScissorHands.Core/Manifests/PluginManifest.cs) shallow-copies options into an ordinal dictionary wrapped in `ReadOnlyDictionary`; nested values are not deep-copied. [PluginComponentBase](https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/src/ScissorHands.Plugin/PluginComponentBase.cs) provides parameter-time exact-ID selection and validation. The regressions above exercise those released contracts.
 
@@ -99,6 +99,8 @@ dotnet test --project ./test/ScissorHands.Plugin.GoogleAnalytics.Tests/ScissorHa
 Final result: build succeeded with **0 warnings, 0 errors**; MTP discovered **135 tests, 135 passed, 0 failed, 0 skipped**.
 
 **Shared validation completed:** the [catalog implementation evidence](../../TRD.md#implementation-evidence-2026-09-15) records a full Release build with 0 warnings/errors and 347 passing tests (GA 135, Open Graph 186, sample 26), eight isolated static builds (64 pages), both preview modes, and local package inspection at `1.0.0-preview.implementation`. GA output passed; sample checks used loopback HTML/local theme assets without JavaScript execution. Assembly, project README, license, icon, dependency and symbol contents passed inspection. The catalog owns exact shared commands, contexts and integration limits.
+
+**Engine upgrade revalidation (2026-09-15):** Core/Plugin now resolve to `1.0.0-preview.20260915.1`, with NuGet repository commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`. Google Analytics required no code change because it does not derive publication routes and its option/component contracts remain compatible. All **135 analytics tests** still pass within the **370-test** full suite. The [current shared upgrade evidence](../../TRD.md#engine-upgrade-evidence-2026-09-15) records root/subpath generation, both preview modes, unchanged analytics output and package contents with the new dependency. No preview/consent policy change or provider request was introduced.
 
 ## Gaps and readiness
 

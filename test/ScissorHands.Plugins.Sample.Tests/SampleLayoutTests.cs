@@ -312,10 +312,14 @@ public class SampleLayoutTests
     }
 
     [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Given_TagContextWithoutDocument_When_Processed_Then_It_Should_UseOnlyTheSuppliedRoute(
-        bool usePlaceholders)
+    [InlineData(false, "tags", "/", false)]
+    [InlineData(true, "tags", "/", true)]
+    [InlineData(false, "tags/preview", "/blog/", true)]
+    [InlineData(true, "tags/preview", "/blog/", false)]
+    [InlineData(false, "tags/c%23%20%2F%20%3Ctools%3E", "/blog/", false)]
+    [InlineData(true, "tags/c%23%20%2F%20%3Ctools%3E", "/blog/", true)]
+    public async Task Given_ResolvedTagDocument_When_Processed_Then_It_Should_UseTheSameRouteInBothModes(
+        bool usePlaceholders, string route, string baseUrl, bool isPreview)
     {
         // Arrange
         using var context = CreateContext(usePlaceholders);
@@ -323,22 +327,36 @@ public class SampleLayoutTests
         {
             Title = "Site",
             SiteUrl = "https://example.com",
-            BaseUrl = "/blog/",
+            BaseUrl = baseUrl,
+            Locale = "ko-KR",
+            IsPreview = isPreview,
             HeroImage = null,
         };
-        var manifests = new[] { new PluginManifest { Id = "open-graph" } };
+        var manifests = new[]
+        {
+            new PluginManifest
+            {
+                Id = "open-graph",
+                Options = new Dictionary<string, object?> { ["TwitterCreatorId"] = "@should-not-appear" },
+            },
+        };
         var runner = new PluginRunner(manifests, new IContentPlugin[] { new OpenGraphPlugin() }, site);
+        var routeDocument = new ContentDocument
+        {
+            Kind = ContentKind.Page,
+            Metadata = new ContentMetadata { Slug = route },
+        };
         var hookDocument = new ContentDocument
         {
             Kind = ContentKind.Page,
-            Metadata = new ContentMetadata { Title = "Tag: preview", Slug = "tags/preview" },
+            Metadata = routeDocument.Metadata with { Title = "Tag: preview" },
         };
 
         // Act
-        // The released generator creates the hook document only after rendering the tag layout.
         var rendered = context.Render<SampleLayout>(parameters => parameters
             .Add(component => component.Site, site)
             .Add(component => component.Theme, CreateTheme())
+            .Add(component => component.Document, routeDocument)
             .Add(component => component.Tag, "preview")
             .Add(component => component.TaggedPosts, Array.Empty<ContentDocument>())
             .Add(component => component.TaggedPages, Array.Empty<ContentDocument>())
@@ -348,9 +366,11 @@ public class SampleLayoutTests
 
         // Assert
         metadata["og:title"].ShouldBe("Site");
-        metadata["og:url"].ShouldBe(usePlaceholders
-            ? "https://example.com/blog/tags/preview"
-            : "https://example.com/blog");
+        metadata["og:url"].ShouldBe($"https://example.com{baseUrl}{route}");
+        metadata["og:description"].ShouldBe(site.Description);
+        metadata["og:locale"].ShouldBe("ko-KR");
+        rendered.Find("title").TextContent.ShouldBe("Site");
+        rendered.Find("html").GetAttribute("lang").ShouldBe("ko-kr");
         metadata.ContainsKey("twitter:creator").ShouldBeFalse();
         metadata.ContainsKey("og:image").ShouldBeFalse();
     }

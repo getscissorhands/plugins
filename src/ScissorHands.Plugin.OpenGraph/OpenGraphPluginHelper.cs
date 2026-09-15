@@ -24,6 +24,12 @@ public static class OpenGraphPluginHelper
             return siteUrl;
         }
 
+        var isGeneratedPage = document.Kind == ContentKind.Page && string.IsNullOrWhiteSpace(document.SourcePath);
+        if (isGeneratedPage && !HasValidPercentEncoding(document.Metadata.Slug))
+        {
+            throw new ArgumentException("Open Graph: Document.Metadata.Slug must contain valid percent escapes for a generated page route.", nameof(document));
+        }
+
         string contentUrl;
         try
         {
@@ -33,6 +39,13 @@ public static class OpenGraphPluginHelper
         {
             // The dependency's diagnostic may include the supplied slug. Keep context, not payload.
             throw new ArgumentException("Open Graph: Document.Metadata.Slug must not contain literal dot traversal segments.", nameof(document));
+        }
+
+        if (isGeneratedPage)
+        {
+            // Engine-generated page routes are already escaped. Retain those escapes without decoding
+            // encoded separators into path boundaries, while keeping Core's normalization/validation.
+            contentUrl = contentUrl.Replace("%25", "%", StringComparison.Ordinal);
         }
 
         return contentUrl == "."

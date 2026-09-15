@@ -8,7 +8,7 @@
 | Last updated | 2026-09-15 |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
-| Delivery state | Signed-off plugin behavior is implemented with local regression, sample and package evidence; the [TRD](TRD.md#implementation-evidence-2026-09-15) records results and the remaining engine tag-route context limitation |
+| Delivery state | Signed-off plugin behavior is implemented; the [TRD](TRD.md#engine-upgrade-evidence-2026-09-15) records current regression/integration evidence and resolution of the engine tag-route limitation |
 | Compatibility scope | Verified plugin/engine combinations; the [TRD](TRD.md#t-007-shared-build-and-compatibility-configuration) owns dependency and build constraints |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -93,7 +93,7 @@ The [release guide](README.md#support-and-recovery) describes these operational 
 
 ### Delegated questions
 
-Q-001 through Q-004 remain routing IDs. On 2026-09-14, the user explicitly confirmed Google Analytics validation, Open Graph consistency, required/optional metadata behavior, URL/output handling and regression coverage. These local runtime requirements are now implemented and verified within the documented scope. Paired-marker and preview policies remain unchanged. The newly observed [OG-Q-005](src/ScissorHands.Plugin.OpenGraph/PRD.md#plugin-questions-and-acceptance-limits) records an engine context limitation for generated tag pages, not a waiver of equivalent-input parity or permission to infer engine routes.
+Q-001 through Q-004 remain routing IDs. On 2026-09-14, the user explicitly confirmed Google Analytics validation, Open Graph consistency, required/optional metadata behavior, URL/output handling and regression coverage. These local runtime requirements are implemented and verified within the documented scope. Paired-marker and preview policies remain unchanged. [OG-Q-005](src/ScissorHands.Plugin.OpenGraph/PRD.md#plugin-questions-and-acceptance-limits) retains the discovered tag-page context gap and its verified resolution through the engine update, without inferring engine routes.
 
 | Previous ID / subject | Google Analytics owner | Open Graph owner |
 | --- | --- | --- |
@@ -124,6 +124,8 @@ Product decisions come from the user's authoring, upgrade, sample and requiremen
 
 **Requirements sign-off (2026-09-15, UTC+09:00):** @justinyoo signed off catalog PRD/TRD v0.8 and both plugin pairs v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669`. Requirements approval is preserved separately from subsequent delivery evidence; sign-off does not authorize publishing or merging the pull request.
 
-**Implementation follow-up (2026-09-15):** delivered strict analytics configuration, consistent metadata for equivalent inputs, required publication context, optional-image omission, context-correct output and lifecycle/cancellation regressions. Local sample and package checks are recorded in the TRD. Generated tag pages expose different context to components and hooks in the current engine; hook mode is the documented workaround for their canonical URLs. This is an implementation/evidence update, not a changed requirements sign-off.
+**Implementation follow-up (2026-09-15):** delivered strict analytics configuration, consistent metadata for equivalent inputs, required publication context, optional-image omission, context-correct output and lifecycle/cancellation regressions. Initial sample checks exposed different tag-page context in the then-current engine, documented as OG-Q-005. This historical finding and its later resolution remain in the TRD.
 
-**Readiness:** signed-off requirements remain Implementation-ready and their local implementation is complete. The tag-page integration limitation, live publishing verification, real provider behavior and release authorization remain explicit limits; no required behavior is relabeled as an optional deferral. Quantitative outcome evaluation remains outside the committed scope and under @justinyoo's ownership. Local evidence is not a completed audit or authorization to release.
+**Engine-update follow-up (2026-09-15):** applied the released upstream fix and preserved its escaped routes in Open Graph. Both component and hook modes now emit the correct tag canonical URLs without altering content metadata or reconstructing routes. OG-Q-005 is resolved against the verified release; no product scope or historical sign-off changes.
+
+**Readiness:** signed-off requirements remain Implementation-ready and their local implementation is complete, including the verified tag-page integration fix. Live publishing verification, real provider behavior and release authorization remain separate limits; no required behavior is relabeled as an optional deferral. Quantitative outcome evaluation remains outside the committed scope and under @justinyoo's ownership. Local evidence is not a completed audit or authorization to release.
