@@ -2,6 +2,8 @@
 
 Official plugins for ScissorHands.NET. Packages are currently preview releases, versioned independently from the engine.
 
+See [CHANGELOG.md](CHANGELOG.md) for notable changes and links to published release notes.
+
 ## List of Plugins
 
 | Plugin | Purpose |
@@ -25,6 +27,15 @@ The sample uses locally built plugins and the engine's built-in theme. Open `htt
 ## Build Your Plugin
 
 Start with [AGENTS.md](AGENTS.md) for repository conventions and build/test commands. The [catalog PRD](PRD.md) defines product scope; the [catalog TRD](TRD.md) links API contracts and each plugin's technical requirements. Use the existing plugins as examples rather than duplicating engine services.
+
+## Contributing and community
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests, and pull requests, and
+[SUPPORT.md](SUPPORT.md) for help. Community participation follows the
+[Code of Conduct](CODE_OF_CONDUCT.md).
+
+Report vulnerabilities privately through [SECURITY.md](SECURITY.md), not public
+issues. Conduct reports use the separate contact in the Code of Conduct.
 
 ## Publishing packages
 

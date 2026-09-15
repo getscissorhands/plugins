@@ -23,7 +23,7 @@ What kind of change does this Pull Request introduce?
 
 ## README updated?
 
-The top-level readme for this repo contains a link to each sample in the repo. If you're adding a new sample did you update the readme?
+For public behavior or configuration changes, update the affected package README and local PRD/TRD. Add new plugins to both root catalogs, and update the root README when adding samples.
 <!-- Mark one with an "x". -->
 ```
 [ ] Yes
@@ -42,6 +42,7 @@ git checkout [branch-name]
 
 * Test the code
 <!-- Add steps to run the tests suite and/or manually test -->
+<!-- Follow CONTRIBUTING.md for .NET/MTP commands. Record actual commands, results, and skipped or blocked checks; documentation-only changes need source/link review. -->
 ```
 ```
 
