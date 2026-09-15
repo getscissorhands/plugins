@@ -2,6 +2,8 @@
 
 Official plugins for ScissorHands.NET. Packages are currently preview releases, versioned independently from the engine.
 
+See [CHANGELOG.md](CHANGELOG.md) for notable changes and links to published release notes.
+
 ## List of Plugins
 
 | Plugin | Purpose |
