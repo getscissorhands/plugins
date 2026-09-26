@@ -517,8 +517,8 @@ public class OpenGraphContractTests
     {
         // Arrange
         using var context = new BunitContext();
-        var site = Site(title: text, description: text, locale: text);
-        var document = Document(title: text, description: text, handle: documentAuthor ? text : null);
+        var site = Site(title: text, description: text);
+        var document = Document(title: text, description: text, handle: documentAuthor ? text : null, locale: text);
         var plugin = Manifest(siteId: text, creatorId: documentAuthor ? "unused" : text);
 
         // Act
@@ -801,7 +801,7 @@ public class OpenGraphContractTests
         hook["og:url"].ShouldBe(expected);
         hook["og:title"].ShouldBe(site.Title);
         hook["og:description"].ShouldBe(site.Description);
-        hook["og:locale"].ShouldBe(site.Locale);
+        hook["og:locale"].ShouldBe("ko-kr");
         hook.ContainsKey("twitter:creator").ShouldBeFalse();
         hook.ContainsKey("og:image").ShouldBeFalse();
     }
@@ -911,14 +911,14 @@ public class OpenGraphContractTests
             HeroImage = image,
             Title = title,
             Description = description,
-            Locale = locale,
+            Locales = [locale],
             IsPreview = isPreview,
         };
 
     private static ContentDocument Document(
         ContentKind kind = ContentKind.Post, string sourcePath = "/post.md", string title = "Document",
         string slug = "/post", string? description = "Document description", string? image = "/images/post.png",
-        string? handle = null)
+        string? handle = null, string? locale = null)
         => new()
         {
             Kind = kind,
@@ -930,6 +930,7 @@ public class OpenGraphContractTests
                 Description = description,
                 HeroImage = image,
                 TwitterHandle = handle,
+                Locale = locale,
             },
         };
 
@@ -949,19 +950,20 @@ public class OpenGraphContractTests
     {
         [Parameter] public SiteManifest? Site { get; set; }
         [Parameter] public ContentDocument? Document { get; set; }
+        [Parameter] public LocaleContext? LocaleContext { get; set; }
         [Parameter] public IEnumerable<ContentDocument>? Documents { get; set; }
         [Parameter] public IEnumerable<PluginManifest>? Plugins { get; set; }
         [Parameter] public string Id { get; set; } = "open-graph";
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
-            builder.AddContent(0, Cascade(Site, Cascade(Document, Cascade(Documents, Cascade(Plugins, child =>
+            builder.AddContent(0, Cascade(Site, Cascade(Document, Cascade(LocaleContext, Cascade(Documents, Cascade(Plugins, child =>
             {
                 child.OpenComponent<OpenGraphComponent>(0);
                 child.AddAttribute(1, nameof(OpenGraphComponent.Id), Id);
                 child.AddAttribute(2, nameof(OpenGraphComponent.Name), "Unrelated component label");
                 child.CloseComponent();
-            })))));
+            }))))));
         }
 
         private static RenderFragment Cascade<T>(T value, RenderFragment child) => builder =>

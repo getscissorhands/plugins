@@ -11,6 +11,14 @@ See [CHANGELOG.md](CHANGELOG.md) for notable changes and links to published rele
 | [Google Analytics](src/ScissorHands.Plugin.GoogleAnalytics/README.md) | Add Google tag markup |
 | [Open Graph](src/ScissorHands.Plugin.OpenGraph/README.md) | Add Open Graph and Twitter-card metadata |
 
+## Engine compatibility
+
+The current source targets **ScissorHands.NET `1.0.0-preview.20260927.1`**. The [compatibility record](TRD.md#engine-compatibility-evidence-2026-09-27) records actual resolved dependencies, tests and package checks; existing central `1.*-*` ranges remain unchanged. Refresh restores with `dotnet restore ./ScissorHandsPlugins.slnx --force-evaluate --no-cache` and inspect the resolved graph rather than assuming a float or cached package proves compatibility.
+
+This is **source compatibility, not a new published plugin release**. Both local plugin projects are consumed by the sample; plugin package versions and release approval remain independent of engine versions. Theme consumers need a separately approved compatible plugin release before using these changes through NuGet.
+
+For migration, replace removed `Site.Locale` and `UseLocaleInUrl` with ordered `Site.Locales` (or omit locales to disable localization), move translations into declared additional-locale directories instead of frontmatter `locale`, and supply all three required application `Theme.Localization` messages per locale. Primary routes remain unprefixed. Custom layouts must forward `Document` and `LocaleContext` and retain theme-owned canonical/alternate metadata, translation notices and publication badges. See the [sample guide](sample/README.md), [Open Graph guide](src/ScissorHands.Plugin.OpenGraph/README.md), and [release-matched engine migration guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#upgrading-to-vnext).
+
 ## Local preview
 
 Use the SDK selected by [global.json](global.json). From the repository root:

@@ -30,7 +30,10 @@ public sealed class OpenGraphPlugin : ContentPlugin
         AppendMeta(output, "property", "og:title", metadata.Title);
         AppendMeta(output, "property", "og:description", metadata.Description);
         AppendMeta(output, "property", "og:type", "website");
-        AppendMeta(output, "property", "og:locale", metadata.Locale);
+        if (!string.IsNullOrWhiteSpace(metadata.Locale))
+        {
+            AppendMeta(output, "property", "og:locale", metadata.Locale);
+        }
         AppendMeta(output, "property", "og:url", metadata.Url);
         if (!string.IsNullOrEmpty(metadata.ImageUrl))
         {

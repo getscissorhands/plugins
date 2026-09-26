@@ -7,7 +7,7 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.7 / Implementation-ready |
-| Last updated | 2026-09-15 |
+| Last updated | 2026-09-27 (compatibility follow-up; historical sign-off unchanged) |
 | Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
 | Delivery state | Implementation follow-up 2026-09-15: behavior implemented; targeted regressions and shared solution/sample/package checks passed. [Technical evidence](TRD.md#targeted-evidence-2026-09-15) retains external verification and release-authorization limits |
 | Plugin ID | `google-analytics` |
@@ -40,6 +40,8 @@ The following records define the **accepted policy** following the user's 2026-0
 | P-NFR-004 | Site owners explicitly control enablement, including preview | Retain rendering in both preview and production when configured; no new automatic suppression switch is introduced. The fake-ID sample remains enabled. Generation makes no measurement request, but visiting output can contact Google even with a fake ID. Consent integration and provider-side retention/deletion remain the consuming site's/provider's responsibility; no compliance, offline or delivery guarantee is provided |
 
 Shared `P-NFR-001/002/003/005` apply: preserve compatibility and author-supplied configuration, expose observed failures/cancellation and protect output. The plugin depends on an external Google service; it does not own site navigation or localized visible UI. The TRD records the associated URL and client constraints.
+
+**Compatibility acceptance (#17):** preserve engine-required translation notices and draft/scheduled publication badges in final HTML. Localized, fallback and generated pages retain configured analytics in both integration modes, including preview. The engine owns content eligibility and localization; this does not add analytics suppression or consent behavior. The [TRD](TRD.md#engine-compatibility-2026-09-27) records the tested baseline separately from plugin release authorization.
 
 ## Plugin questions and acceptance limits
 

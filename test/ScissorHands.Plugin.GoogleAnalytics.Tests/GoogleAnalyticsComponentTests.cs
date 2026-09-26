@@ -151,7 +151,7 @@ public class GoogleAnalyticsComponentTests
         // Act
         cut.Render(parameters => parameters
             .Add(p => p.Plugins, new[] { GoogleAnalyticsTestData.CreateManifest("G-UPDATED") })
-            .Add(p => p.Site, new SiteManifest { IsPreview = true, BaseUrl = "/updated", Locale = "ko-KR" })
+            .Add(p => p.Site, new SiteManifest { IsPreview = true, BaseUrl = "/updated", Locales = ["en-us", "ko-kr"] })
             .Add(p => p.Document, new ContentDocument { Metadata = new ContentMetadata { Title = "Updated" } }));
 
         // Assert
@@ -254,15 +254,26 @@ public class GoogleAnalyticsComponentTests
     }
 
     [Theory]
-    [InlineData(false, "")]
-    [InlineData(true, "")]
-    [InlineData(false, "/blog")]
-    [InlineData(true, "/blog")]
-    public void Given_PublicationContext_When_OnParametersSet_Then_It_Should_Keep_Configured_External_Tag(bool isPreview, string baseUrl)
+    [InlineData(false, "", false)]
+    [InlineData(true, "", false)]
+    [InlineData(false, "/blog", false)]
+    [InlineData(true, "/blog", false)]
+    [InlineData(false, "", true)]
+    [InlineData(true, "", true)]
+    [InlineData(false, "/blog", true)]
+    [InlineData(true, "/blog", true)]
+    public void Given_PublicationContext_When_OnParametersSet_Then_It_Should_Keep_Configured_External_Tag(
+        bool isPreview, string baseUrl, bool localized)
     {
         // Arrange
         using var context = new BunitContext();
-        var site = new SiteManifest { IsPreview = isPreview, BaseUrl = baseUrl, SiteUrl = "https://example.test", Locale = "ko-KR" };
+        var site = new SiteManifest
+        {
+            IsPreview = isPreview,
+            BaseUrl = baseUrl,
+            SiteUrl = "https://example.test",
+            Locales = localized ? ["en-us", "ko-kr"] : [],
+        };
 
         // Act
         var cut = context.Render<AnalyticsHost>(parameters => parameters

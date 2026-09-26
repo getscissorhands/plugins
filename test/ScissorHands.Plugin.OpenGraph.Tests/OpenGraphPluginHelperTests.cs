@@ -316,7 +316,7 @@ public class OpenGraphPluginHelperTests
 			HeroImage = heroImage,
 			Title = "Site Title",
 			Description = "Site Description",
-			Locale = "en-US",
+			Locales = ["en-US"],
 		};
 	}
 }

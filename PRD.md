@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document version / status | 0.8 / Implementation-ready |
-| Last updated | 2026-09-15 |
+| Last updated | 2026-09-27 (compatibility follow-up; historical sign-off unchanged) |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
-| Delivery state | Signed-off plugin behavior is implemented; the [TRD](TRD.md#engine-upgrade-evidence-2026-09-15) records current regression/integration evidence and resolution of the engine tag-route limitation |
+| Delivery state | Signed-off plugin behavior is implemented; the [TRD](TRD.md#engine-compatibility-evidence-2026-09-27) records the current compatibility migration separately from historical implementation evidence |
 | Compatibility scope | Verified plugin/engine combinations; the [TRD](TRD.md#t-007-shared-build-and-compatibility-configuration) owns dependency and build constraints |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -127,5 +127,7 @@ Product decisions come from the user's authoring, upgrade, sample and requiremen
 **Implementation follow-up (2026-09-15):** delivered strict analytics configuration, consistent metadata for equivalent inputs, required publication context, optional-image omission, context-correct output and lifecycle/cancellation regressions. Initial sample checks exposed different tag-page context in the then-current engine, documented as OG-Q-005. This historical finding and its later resolution remain in the TRD.
 
 **Engine-update follow-up (2026-09-15):** applied the released upstream fix and preserved its escaped routes in Open Graph. Both component and hook modes now emit the correct tag canonical URLs without altering content metadata or reconstructing routes. OG-Q-005 is resolved against the verified release; no product scope or historical sign-off changes.
+
+**Compatibility follow-up (#17, 2026-09-27):** migrate the existing plugins and sample to the engine's ordered-locales and publication-context contracts. The owning plugin pairs define preservation of notices/badges, actual-content language and social metadata behavior; the sample exercises translations, primary-content fallbacks, generated pages and preview-only content. Engine routing, eligibility, theme localization and canonical/alternate metadata remain upstream/theme responsibilities. [Technical evidence](TRD.md#engine-compatibility-evidence-2026-09-27) distinguishes verified source compatibility from a separately authorized, independently versioned plugin release.
 
 **Readiness:** signed-off requirements remain Implementation-ready and their local implementation is complete, including the verified tag-page integration fix. Live publishing verification, real provider behavior and release authorization remain separate limits; no required behavior is relabeled as an optional deferral. Quantitative outcome evaluation remains outside the committed scope and under @justinyoo's ownership. Local evidence is not a completed audit or authorization to release.

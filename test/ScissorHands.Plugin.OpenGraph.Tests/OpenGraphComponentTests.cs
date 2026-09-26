@@ -44,7 +44,7 @@ public class OpenGraphComponentTests
 		cut.Markup.ShouldContain("property=\"og:title\"");
 		cut.Markup.ShouldContain("property=\"og:title\" content=\"Hello | My Blog\"");
 		cut.Markup.ShouldContain("property=\"og:description\" content=\"Post description\"");
-		cut.Markup.ShouldContain("property=\"og:locale\" content=\"en-US\"");
+		cut.Markup.ShouldContain("property=\"og:locale\" content=\"en-us\"");
 		cut.Markup.ShouldContain("property=\"og:url\" content=\"https://example.com/blog/hello-world\"");
 		cut.Markup.ShouldContain("property=\"og:image\" content=\"https://example.com/blog/images/hero.png\"");
 		cut.Markup.ShouldContain("property=\"og:site_name\" content=\"My Blog\"");
@@ -226,7 +226,7 @@ public class OpenGraphComponentTests
 			BaseUrl = baseUrl,
 			Title = title,
 			Description = description,
-			Locale = locale,
+			Locales = [locale],
 			HeroImage = heroImage,
 		};
 	}

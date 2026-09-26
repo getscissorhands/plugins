@@ -328,7 +328,7 @@ public class SampleLayoutTests
             Title = "Site",
             SiteUrl = "https://example.com",
             BaseUrl = baseUrl,
-            Locale = "ko-KR",
+            Locales = ["ko-KR"],
             IsPreview = isPreview,
             HeroImage = null,
         };
@@ -368,7 +368,7 @@ public class SampleLayoutTests
         metadata["og:title"].ShouldBe("Site");
         metadata["og:url"].ShouldBe($"https://example.com{baseUrl}{route}");
         metadata["og:description"].ShouldBe(site.Description);
-        metadata["og:locale"].ShouldBe("ko-KR");
+        metadata["og:locale"].ShouldBe("ko-kr");
         rendered.Find("title").TextContent.ShouldBe("Site");
         rendered.Find("html").GetAttribute("lang").ShouldBe("ko-kr");
         metadata.ContainsKey("twitter:creator").ShouldBeFalse();

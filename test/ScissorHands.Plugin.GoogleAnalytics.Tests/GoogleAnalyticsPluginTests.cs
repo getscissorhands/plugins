@@ -139,16 +139,27 @@ public class GoogleAnalyticsPluginTests
     }
 
     [Theory]
-    [InlineData(false, "")]
-    [InlineData(true, "")]
-    [InlineData(false, "/blog")]
-    [InlineData(true, "/blog")]
-    public async Task Given_PublicationContext_When_PostHtmlAsync_Then_It_Should_Keep_Configured_External_Tag(bool isPreview, string baseUrl)
+    [InlineData(false, "", false)]
+    [InlineData(true, "", false)]
+    [InlineData(false, "/blog", false)]
+    [InlineData(true, "/blog", false)]
+    [InlineData(false, "", true)]
+    [InlineData(true, "", true)]
+    [InlineData(false, "/blog", true)]
+    [InlineData(true, "/blog", true)]
+    public async Task Given_PublicationContext_When_PostHtmlAsync_Then_It_Should_Keep_Configured_External_Tag(
+        bool isPreview, string baseUrl, bool localized)
     {
         // Arrange
         var plugin = new GoogleAnalyticsPlugin();
         var manifest = GoogleAnalyticsTestData.CreateManifest("G-EXAMPLE");
-        var site = new SiteManifest { IsPreview = isPreview, BaseUrl = baseUrl, SiteUrl = "https://example.test", Locale = "ko-KR" };
+        var site = new SiteManifest
+        {
+            IsPreview = isPreview,
+            BaseUrl = baseUrl,
+            SiteUrl = "https://example.test",
+            Locales = localized ? ["en-us", "ko-kr"] : [],
+        };
 
         // Act
         var result = await plugin.PostHtmlAsync(
@@ -178,6 +189,38 @@ public class GoogleAnalyticsPluginTests
 
         // Assert
         exception.CancellationToken.ShouldBe(cancellation.Token);
+    }
+
+    [Fact]
+    public async Task Given_LocalizationAndPublicationMarkup_When_PostHtmlAsync_Then_It_Should_Preserve_Required_Output()
+    {
+        // Arrange
+        var plugin = new GoogleAnalyticsPlugin();
+        var manifest = GoogleAnalyticsTestData.CreateManifest("G-EXAMPLE");
+        const string metadata = """
+            <link rel="canonical" href="https://example.test/blog/post/" />
+            <link rel="alternate" hreflang="en-us" href="https://example.test/blog/post/" />
+            """;
+        const string body = """
+            <main><article lang="en-us" data-publication-content="ko-kr/post">
+            <span data-publication-badge="draft" data-publication-route="ko-kr/post" data-publication-placement="detail">Draft</span>
+            <span data-publication-badge="scheduled" data-publication-route="ko-kr/post" data-publication-placement="detail" data-publication-date="2099-01-01">Scheduled on 2099-01-01</span>
+            <aside data-localization-fallback="ko-kr" lang="ko-kr">Translation unavailable. Showing original content.</aside>
+            <p>Original content</p></article></main>
+            """;
+
+        // Act
+        var result = await plugin.PostHtmlAsync(
+            $"<html lang=\"ko-kr\"><head>{metadata}{GoogleAnalyticsTestData.Marker}</head><body>{body}</body></html>",
+            new ContentDocument(), manifest,
+            new SiteManifest { IsPreview = true, Locales = ["en-us", "ko-kr"] },
+            Xunit.TestContext.Current.CancellationToken);
+
+        // Assert
+        result.ShouldContain(metadata);
+        result.ShouldContain(body);
+        using var parsed = new HtmlParser().ParseDocument(result);
+        GoogleAnalyticsTestData.AssertTag(parsed.QuerySelectorAll("script"), "G-EXAMPLE");
     }
 
     [Theory]

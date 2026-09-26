@@ -2,6 +2,7 @@
 title: About the plugin sample
 slug: about
 description: A page demonstrates that the Twitter creator tag is post-only.
+show_in_navigation: true
 tags:
   - preview
 ---

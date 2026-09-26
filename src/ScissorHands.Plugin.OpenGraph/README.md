@@ -10,6 +10,8 @@ Install the preview package in your ScissorHands.NET host:
 dotnet add package ScissorHands.Plugin.OpenGraph --prerelease
 ```
 
+**Compatibility:** this source revision targets engine Core/Plugin `1.0.0-preview.20260927.1` (.NET 10). It does not establish that a published Open Graph package already contains the migration. Use the local project reference to validate this revision, or choose an independently released plugin version whose release notes explicitly verify this engine combination. Plugin versions do not track engine version numbers.
+
 Configure the site and plugin in `appsettings.json`:
 
 ```json
@@ -19,7 +21,6 @@ Configure the site and plugin in `appsettings.json`:
     "BaseUrl": "/blog/",
     "Title": "My site",
     "Description": "About this site",
-    "Locale": "en-US",
     "HeroImage": "/images/site.png"
   },
   "Plugins": [
@@ -57,18 +58,46 @@ Given equivalent host context, both integrations produce equivalent metadata:
 - Individual source-backed documents use `Document title | Site title` and the document description, falling back to the site description only when null. Collections, source-less documents and missing documents use site title/description.
 - `twitter:creator` appears only for an individual source-backed **post**, not pages, collections or source-less posts. A nonblank document `TwitterHandle` overrides `TwitterCreatorId`.
 - A nonblank document hero image wins over the site image. When neither exists, both image tags are omitted; the card remains `summary_large_image`.
+- With no `Site.Locales`, localization is disabled and `og:locale` is omitted. With locales configured, the tag describes actual content language: a Korean fallback containing English content reports English, while a real Korean translation reports Korean.
 
 **Suppressing the inherited image:** the released `SiteManifest` supplies an external `hero.jpg` by default. Omitting `Site.HeroImage` therefore does not necessarily remove image metadata. Set `"HeroImage": ""` inside `Site` and leave the document image absent to omit both image tags.
 
 Configured output requires site context and an absolute HTTP(S) `SiteUrl` with a host and no query/fragment. A path on `SiteUrl` is preserved. `BaseUrl` is an optional local path prefix, not an absolute/network URL or a query/fragment; use `""` or `"/"` for root deployment. Blank/root content slugs map to this publication root. In the example above, `/post` becomes `https://example.com/blog/post`, and `/images/site.png` becomes `https://example.com/blog/images/site.png`.
 
-**Generated tag pages:** verified with engine `1.0.0-preview.20260915.1`, both modes receive the resolved route and emit the same canonical URL, including escaped tag names. Custom layouts must forward `Document` through `CascadingMainLayoutBase`. Generated routes are consumed as supplied, not reconstructed from tag labels or escaped twice. The earlier component limitation is resolved as [OG-Q-005](https://github.com/getscissorhands/plugins/blob/main/src/ScissorHands.Plugin.OpenGraph/TRD.md#og-q-005-generated-tag-pages-receive-unequal-host-context).
+**Resolved routes:** custom layouts must forward both `Document` and `LocaleContext` through `CascadingMainLayoutBase`. `og:url` identifies the current route, including translated/fallback copies and generated home/tag/404 pages, with no extra locale prefix or generated-route escaping. A fallback at `/blog/ko-kr/about` keeps that social URL; the theme's separate canonical still identifies the primary `/blog/about`. Open Graph emits no canonical/hreflang links and leaves existing theme metadata, fallback notices and preview badges untouched. Generated collections and the shared 404 do not acquire paired-document SEO.
 
-When upgrading from an older cached engine, refresh floating dependencies with `dotnet restore --force-evaluate --no-cache`, then rebuild. Hosts on `1.0.0-preview.20260914.1` still need hook mode for tag-page canonical URLs; a plugin update alone cannot supply their missing component context.
+Components prefer the engine's actual-language and current-route snapshot; hooks receive the resolved document, not `LocaleContext`. Do not assume arbitrary slug/language changes by earlier Markdown hooks refresh prepared snapshots or preserve cross-surface parity.
+
+The intentional fallback distinction follows the released plugin contract's supplied-route composition. Open Graph does not infer a primary route or read canonical links back from theme HTML. Consequently, `og:url` need not equal the theme canonical, and consolidation of fallback sharing identifiers by social platforms is not guaranteed.
+
+**Historical compatibility:** the previous source revision verified generated tag-route parity with `1.0.0-preview.20260915.1`, closing [OG-Q-005](https://github.com/getscissorhands/plugins/blob/main/src/ScissorHands.Plugin.OpenGraph/TRD.md#og-q-005-generated-tag-pages-receive-unequal-host-context). Its older `1.0.0-preview.20260914.1` host required hook mode because tag documents did not reach components. This is retained history, not a claim that this newly compiled revision supports those older binaries.
 
 Images accept local paths, including a single leading `/` or local backslash separators, and absolute HTTP(S) URLs with a host. External origins, supported queries/fragments, existing percent encoding and meaningful trailing slashes are preserved. Unsupported schemes (`data:`, `javascript:`, `file:`, `ftp:`, etc.), malformed references/percent escapes, control characters and network paths such as `//host/image.png` or `\\host\image.png` are rejected. Use explicit HTTP(S) URLs for external images and prefer percent-encoded spaces.
 
 The plugin does not mount the host at `BaseUrl`. See the [technical requirements](https://github.com/getscissorhands/plugins/blob/main/src/ScissorHands.Plugin.OpenGraph/TRD.md) for complete metadata, URL, lifecycle and verification contracts.
+
+## Locale migration for engine `1.0.0-preview.20260927.1`
+
+1. Remove `Site.Locale`, `Site.LocalizationFallbackMessages`, `UseLocaleInUrl` and frontmatter `locale`. The engine rejects obsolete settings; renaming only a C# property is not a complete host migration.
+2. For a nonlocalized site, omit `Site.Locales` (as above), or use `[]`/`null`. No language is inferred from English UI defaults. For localization, declare the primary first, for example `"Locales": ["en-US", "ko-KR"]`. Primary routes stay unprefixed; translations belong in the matching additional-locale directory with matching relative filenames/slugs.
+3. Supply all required application-owned messages under top-level `Theme.Localization` for **every** declared locale:
+
+   ```json
+   {
+     "Theme": {
+       "Localization": {
+         "en-us": { "TranslationUnavailable": "Translation unavailable.", "Draft": "Draft", "ScheduledOn": "Scheduled on {0}" },
+         "ko-kr": { "TranslationUnavailable": "번역을 사용할 수 없습니다.", "Draft": "초안", "ScheduledOn": "{0} 게시 예정" }
+       }
+     }
+   }
+   ```
+
+   `Site.Theme` remains the theme slug string. The host's effective theme supplies the catalog; Open Graph neither validates nor modifies those messages.
+4. Upgrade custom layouts to forward resolved context and render the engine's theme-owned localization/status contracts. Keep canonical/hreflang markup separate from Open Graph, and retain fallback notices/badges in both component and placeholder modes. Never deploy preview output.
+5. Refresh cached major floats with `dotnet restore --force-evaluate --no-cache`, rebuild, and verify the actual dependency graph and both insertion paths. A newer engine alone does not upgrade an already-published plugin binary.
+
+See the [release-matched engine migration guide](https://github.com/getscissorhands/ScissorHands.NET/blob/7b1c53296fe1e806c465c549c8429dba7eac61d7/docs/website-documentation.md#locale-routing-migration) for content pairing, publication eligibility and required theme rendering.
 
 ## Breaking migration from the earlier permissive behavior
 

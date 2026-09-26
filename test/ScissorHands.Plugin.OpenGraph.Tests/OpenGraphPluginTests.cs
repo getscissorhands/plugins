@@ -392,7 +392,7 @@ public class OpenGraphPluginTests
             BaseUrl = baseUrl,
             Title = title,
             Description = description,
-            Locale = locale,
+            Locales = [locale],
             HeroImage = heroImage,
         };
     }
