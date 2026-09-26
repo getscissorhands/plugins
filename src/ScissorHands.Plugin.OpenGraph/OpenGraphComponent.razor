@@ -5,7 +5,10 @@
     <meta property="og:title" content="@ContentTitle" />
     <meta property="og:description" content="@ContentDescription" />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="@ContentLocale" />
+    @if (!string.IsNullOrWhiteSpace(ContentLocale))
+    {
+        <meta property="og:locale" content="@ContentLocale" />
+    }
     <meta property="og:url" content="@ContentUrl" />
     @if (!string.IsNullOrEmpty(HeroImageUrl))
     {

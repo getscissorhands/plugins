@@ -17,15 +17,19 @@ public static class OpenGraphPluginHelper
     /// <returns>The absolute publication URL, or the site root for an absent/root slug.</returns>
     /// <exception cref="ArgumentException">The site publication context or content slug is invalid.</exception>
     public static string GetContentUrl(ContentDocument? document, SiteManifest? site)
+        => GetContentUrl(document, site, null);
+
+    internal static string GetContentUrl(ContentDocument? document, SiteManifest? site, LocaleContext? localeContext)
     {
         var siteUrl = GetSiteUrl(site);
-        if (string.IsNullOrWhiteSpace(document?.Metadata.Slug))
+        var slug = localeContext?.Route ?? document?.Metadata.Slug;
+        if (string.IsNullOrWhiteSpace(slug))
         {
             return siteUrl;
         }
 
-        var isGeneratedPage = document.Kind == ContentKind.Page && string.IsNullOrWhiteSpace(document.SourcePath);
-        if (isGeneratedPage && !HasValidPercentEncoding(document.Metadata.Slug))
+        var isGeneratedPage = document?.Kind == ContentKind.Page && string.IsNullOrWhiteSpace(document.SourcePath);
+        if (isGeneratedPage && !HasValidPercentEncoding(slug))
         {
             throw new ArgumentException("Open Graph: Document.Metadata.Slug must contain valid percent escapes for a generated page route.", nameof(document));
         }
@@ -33,7 +37,7 @@ public static class OpenGraphPluginHelper
         string contentUrl;
         try
         {
-            contentUrl = ContentUrlHelper.GetContentUrl(document.Metadata.Slug);
+            contentUrl = ContentUrlHelper.GetContentUrl(slug);
         }
         catch (ArgumentException)
         {

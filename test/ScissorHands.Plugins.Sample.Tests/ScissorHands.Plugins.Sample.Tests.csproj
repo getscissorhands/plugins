@@ -2,6 +2,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\sample\sample.csproj" />
+    <Content Include="..\..\sample\contents\**\*"
+             Link="SampleContents\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

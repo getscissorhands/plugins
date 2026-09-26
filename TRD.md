@@ -5,13 +5,13 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.8 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-15 |
+| Last updated / PRD consulted | 2026-09-27 (compatibility follow-up; historical sign-off unchanged) |
 | Product baseline | [Catalog PRD](PRD.md) v0.8, Implementation-ready with confirmed product scope, acceptance and release policy; shared requirements and delegated plugin baselines |
 | Scope | Shared authoring/compatibility obligations and an index of per-plugin technical requirements |
 | Sources | Local PRD decisions, historical source baseline `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`, implementation follow-up 2026-09-15, current configuration and relevant engine API references |
-| Delivery state | Both plugin implementations verified on the new engine release, including OG-Q-005 closure; [current evidence and remaining limits](#engine-upgrade-evidence-2026-09-15) below |
+| Delivery state | Compatibility migration for issue #17; [current evidence and remaining limits](#engine-compatibility-evidence-2026-09-27) below; historical OG-Q-005 closure retained |
 | Historical dependency baseline | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; preserve this evidence and record the actual resolved graph again for each upgrade/release |
-| Current dependency baseline | Core/Plugin/Theme/Web `1.0.0-preview.20260915.1`, NuGet repository commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`; central major-version floats retained |
+| Current dependency baseline | Core/Plugin/Theme/Web `1.0.0-preview.20260927.1`, NuGet repository commit `7b1c53296fe1e806c465c549c8429dba7eac61d7`; central major-version floats retained |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
 
@@ -38,7 +38,9 @@ Configuration sources are [root props](Directory.Build.props), [source props](sr
 
 **Historical API verification (initial implementation, 2026-09-15):** Core/Plugin/Theme/Web then resolved to `1.0.0-preview.20260914.1`, with NuGet repository commit `7b5db6e1f27327cd8be50c08e4163e72e0a28425`. That implementation consulted [PluginManifest][manifest-source], [PluginComponentBase][component-source] and [ContentUrlHelper][url-source] at the matching commit. The old evidence remains historical, not the current dependency graph.
 
-**Current API verification (engine update, 2026-09-15):** all six projects now resolve `1.0.0-preview.20260915.1`; installed package metadata identifies commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`. The [released tag-context documentation][tag-context-reference] and [updated generator][updated-generator] show route-only page documents supplied before Razor rendering. The existing component/cascade API remains source-compatible and the sample already forwards `Document`; Open Graph now preserves generated-route escapes while retaining raw-slug behavior for source-backed content. No navigation reconstruction, new public API or change to analytics behavior is needed. Exact upgrade evidence is recorded below.
+**Historical API verification (engine update, 2026-09-15):** all six projects then resolved `1.0.0-preview.20260915.1`; installed package metadata identifies commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`. The [released tag-context documentation][tag-context-reference] and [updated generator][updated-generator] show route-only page documents supplied before Razor rendering. That migration preserved generated-route escapes while retaining raw-slug behavior for source-backed content. Exact historical evidence is recorded below.
+
+**Current release-matched API verification:** the [versioned migration guide][current-migration] and [plugin guide][current-plugin] match the resolved package repository commit `7b1c53296fe1e806c465c549c8429dba7eac61d7`. `Site.Locales` replaces removed `Site.Locale`/`UseLocaleInUrl`; frontmatter `locale` is rejected. `PluginComponentBase` adds optional `LocaleContext` while retaining exact-ID selection and hook signatures. The [locale render contract][current-localization] distinguishes requested locale, actual content language, prepared routes and document SEO; [publication status][current-publication] supplies immutable preview status and requires theme-rendered badges to survive post-HTML hooks. Each plugin's TRD records its adaptation; the sample forwards this context rather than recreating engine selection.
 
 ## 2. Shared technical requirements
 
@@ -146,6 +148,8 @@ Use new plugin-prefixed IDs; preserve existing IDs or provide explicit relocatio
 
 The non-packable `sample` web project must consume centrally versioned ScissorHands.Web from NuGet.org and reference local plugin projects. It reuses six built-in views with a small layout that forwards upstream cascading context and selects either components or paired markers, never both. Only configured plugins produce markers/output. Both Open Graph and Google Analytics are enabled in the sample; analytics uses fake measurement ID `G-EXAMPLE` at the user's request. The fake ID is for markup inspection and does not prevent browser requests to Google. Removing the analytics manifest disables its output; no plugin-level preview suppression or consent handling is introduced.
 
+For the current engine baseline, forward `Document` and `LocaleContext` through `CascadingMainLayoutBase`. Use ordered `Site.Locales` and complete application `Theme.Localization` messages when localization is enabled; the [sample guide](sample/README.md) owns the concrete configuration. Theme-owned canonical/alternate metadata, fallback banners and detail/listing publication badges must survive both plugins and the engine's final-HTML validation. Do not disable that validation or move route/eligibility selection into the plugins.
+
 Copy the Web package's linked theme content into build/publish output without version-specific paths. Include the default manifest and third-party notice, not just CSS/JS: the engine resolves the bundled theme below the application output and copies its assets into generated output. The sample layout renders manifest URLs through `GetThemeUrl` and supplies the theme's header/navigation/footer classes and `theme-toggle` control. The packaged script persists the color preference in browser localStorage. No separate CSS/JS implementation or full theme/navigation fork is introduced.
 
 Run from the sample directory so upstream working-directory roots resolve correctly. Provide local content, a hero-image fixture, a single `http` launch profile at `http://localhost:5000` and documented preview/build commands. `Site.SiteUrl` uses the same URL for static metadata; no-profile runs use the host's default address unless overridden. The sample bootstrap consumes `--use-placeholders` and prepends `--Sample:UsePlaceholders=true` to the forwarded host arguments so the switch works before or after the engine's bare mode flag. Other arguments retain their order; no `Sample` JSON block or separate hook profile is needed. Ignore and exclude generated `preview`/`dist` inputs. The sample consumes upstream serving and does not implement missing subpath-mount behavior or claim provider acceptance.
@@ -190,6 +194,35 @@ Independent sample CLI checks generated 12 pages in each of eight isolated build
 Both local `1.0.0-preview.engine-update` plugin packages were inspected for assemblies, current README, MIT license, icon, the new Plugin dependency and symbol contents. Sample publish output resolves the new Web release and retains its theme manifest, CSS/JavaScript, favicon and notices. The packaged theme files/notices are byte-identical to the previous release, so no theme implementation or color-toggle change was introduced. Temporary output was removed; no package was uploaded.
 
 OG-Q-005 is resolved for this graph and layout contract. Google Analytics required no code changes: it does not calculate routes and all 135 regressions still pass. The sample layout/component lifecycle APIs required no changes: the existing document cascade forwards the newly supplied context. Live publishing, provider/crawler behavior, arbitrary preview prefix mounting and broader platform/security/privacy claims remain separate evidence and authorization boundaries.
+
+### Engine compatibility evidence (2026-09-27)
+
+Issue [#17](https://github.com/getscissorhands/plugins/issues/17) targets **`1.0.0-preview.20260927.1`**. Validation runs on Linux with .NET SDK `10.0.401`, `net10.0`, Release and the existing MTP/xUnit infrastructure. A forced, no-cache restore (without clearing shared caches or changing central ranges) established the following graph from each project's `obj/project.assets.json`:
+
+| Projects | Resolved engine packages |
+| --- | --- |
+| Both `src` plugin projects and their two plugin test projects | Core/Plugin `1.0.0-preview.20260927.1` |
+| `sample` and `ScissorHands.Plugins.Sample.Tests` | Core/Plugin/Theme/Web `1.0.0-preview.20260927.1` |
+
+All six Release `.deps.json` build outputs confirm the same engine graph, and all four installed `.nuspec` files identify repository commit **`7b1c53296fe1e806c465c549c8429dba7eac61d7`**, matching the references above. Test tooling resolves bUnit `2.11.3`, xUnit v3 `4.0.1`, MTP `2.4.0`, Shouldly `4.3.0` and NSubstitute `6.2.0`. No dependency declaration or lock policy change was needed; future floating restores must be reverified and are not covered by this graph's evidence.
+
+```bash
+dotnet restore ./ScissorHandsPlugins.slnx --force-evaluate --no-cache
+dotnet build ./ScissorHandsPlugins.slnx -c Release --no-restore -warnaserror
+dotnet test -c Release --no-build --verbosity normal
+```
+
+Targeted Release builds have **0 warnings/errors**. Google Analytics passes **144 tests**, and Open Graph passes **237 tests**, with none failed or skipped. Analytics implementation, configuration and preview behavior are unchanged; fixtures now use `Locales`, and regressions cover localization disabled/enabled and preservation of theme markup. Open Graph's 36 new cases cover actual language, resolved current routes, generated-page context, disabled locales, cascade updates and unchanged theme SEO/notices/badges.
+
+**Final solution verification:** the commands above completed with **0 warnings/errors and 419 passing tests (GA 144, Open Graph 237, sample 38); none failed or skipped**. The sample matrix performs 16 real-loader/generator executions and inspects **360 pages** across component/hook, localization disabled/enabled, root/subpath and preview/production combinations. Runtime-created fixtures cover real translations, primary-content fallbacks, generated home/tag/shared-404 pages, escaped tags, draft pages/posts and scheduled posts. A fixed clock makes publication assertions deterministic. A test plugin observes prepared home/tag collections and Markdown-hook inputs, confirming ineligible routes are absent in production. Required notices and detail/listing badges pass the engine's final-HTML validation after both plugins; no validation bypass is used.
+
+**CLI and assets:** four explicit `--build` runs (both modes at `/` and `/blog/`) generated **60 pages** from the final checked-in sample. Both explicit `--preview` modes generated **30 pages**, with loopback-only HTML and asset requests verifying `/blog/` mounting, fallback output, and byte-identical default-theme CSS/JavaScript/notices. Servers and generated artifacts were removed. The checked-in sample demonstrates primary content and Korean fallbacks; authored translation/publication fixtures remain isolated test data. Toggle markup and packaged script wiring were inspected, but browser JavaScript, styling/accessibility and provider behavior were not executed or claimed.
+
+**Local package inspection:** both projects packed successfully with `-c Release --no-restore -p:Version=1.0.0-preview.local` into a scoped, ignored validation directory. Each `.nupkg` contains the `net10.0` assembly, current package README, MIT expression/license and icon, and declares ScissorHands.Plugin `1.0.0-preview.20260927.1`; both `.snupkg` files contain symbols. These local validation versions were passed on the command line, not written into project files. Packages were inspected and removed, never uploaded.
+
+Secret scanning found no secrets in changed files. CodeQL reported **0 C# alerts**. The bundled review could not run because its configured model was unavailable; a separate read-only review of the committed migration found no significant issues. CodeQL's temporary build paths required a fresh forced/no-cache restore before the final successful solution run; the repaired graph was rechecked at the same engine version.
+
+This source revision and local prerelease artifacts are **not a published compatible plugin release**. Plugin version selection and authorization remain independent from engine versions under T-007/T-008. No packages, tags or releases are published by this migration. Live provider/crawler behavior, consent, arbitrary production/preview mounting, cross-platform acceptance and end-to-end publishing remain outside local evidence.
 
 ## 3. Product-to-technical routing
 
@@ -259,3 +292,7 @@ The v0.7 catalog and v0.6 plugin pairs separate document responsibilities withou
 [generator-source]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/src/ScissorHands.Web/Generators/StaticSiteGenerator.cs
 [tag-context-reference]: https://github.com/getscissorhands/ScissorHands.NET/blob/772e9ffbc05761a14f2a3a93700e4fef2b6c13b3/docs/website-documentation.md#generated-tag-route-context
 [updated-generator]: https://github.com/getscissorhands/ScissorHands.NET/blob/772e9ffbc05761a14f2a3a93700e4fef2b6c13b3/src/ScissorHands.Web/Generators/StaticSiteGenerator.cs
+[current-migration]: https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#upgrading-to-vnext
+[current-plugin]: https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#plugin-authoring
+[current-localization]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b1c53296fe1e806c465c549c8429dba7eac61d7/docs/website-documentation.md#locale-render-context
+[current-publication]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b1c53296fe1e806c465c549c8429dba7eac61d7/docs/website-documentation.md#publication-status-theme-contract

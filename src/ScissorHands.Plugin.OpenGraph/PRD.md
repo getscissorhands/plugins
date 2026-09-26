@@ -6,8 +6,8 @@
 
 | Field | Value |
 | --- | --- |
-| Version / status | 0.7 / Implementation-ready |
-| Last updated | 2026-09-15 |
+| Version / status | 0.8 / Implementation-ready |
+| Last updated | 2026-09-26 |
 | Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
 | Delivery state | Accepted behavior implemented in the delivery follow-up, with targeted local verification; release/integration limits and evidence are owned by the [TRD](TRD.md#delivery-evidence) |
 | Plugin ID | `open-graph` |
@@ -39,6 +39,7 @@ These records define the **accepted product policy** following the user's 2026-0
 | P-FR-005 | Sharing clients receive valid publication URLs without empty image metadata | Require site context and a valid publication address when producing metadata; otherwise fail clearly. Honor root and subpath deployments. Support local images and external web images without changing the meaning of their references; reject unsupported or malformed addresses. If no content or site image is available, omit image metadata instead of emitting empty values. The accepted URL forms and omission contract are defined in [T-005](TRD.md#t-005-content-and-image-url-boundaries) |
 | OG-FR-001 | Theme authors control insertion and updates; specializes shared P-FR-001/P-FR-004 | Render at every requested insertion and preserve content without an insertion request for valid inputs. Disabling removes output; enabling without required context fails clearly. Selection/context changes must not leave stale metadata. Do not add global deduplication. Matching and refresh contracts are defined in [OG-TR-002](TRD.md#og-tr-002-hook-and-component-integration) |
 | OG-NFR-001 | Authors inspect the same metadata in preview and production | Keep Open Graph enabled in both modes when configured, subject to the same validation rules. Generation does not fetch images or call a social platform; consumers may later request external image URLs. No provider-delivery or privacy conformance claim follows |
+| OG-FR-002 | Social metadata honors the engine's localization context | Omit the language tag when localization is disabled. Otherwise describe the actual content language, not the requested language of a fallback. Use the supplied current publication route for social URLs, including translations, fallback copies and generated home/tag/404 pages; do not prepend locales or infer routes from filenames. The theme alone owns canonical/hreflang links: a fallback may have a localized social URL while its canonical identifies the primary document. Preserve theme notices and preview badges |
 
 Shared `P-NFR-001/002/003/005` govern compatibility, author-supplied configuration, observable failures/cancellation, output integrity and the site's route/locale context. Preserve the host's intended publication structure rather than inventing navigation or locale routes. No analytics policy is inherited from the sibling plugin.
 
@@ -79,3 +80,5 @@ Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview
 **Integration finding (2026-09-15, UTC+09:00):** OG-Q-005 records unequal host-supplied context for generated tag pages and the hook-mode workaround. Prior requirement/question IDs and the historical sign-off are preserved; no plugin route-generation responsibility or provider-acceptance claim is introduced.
 
 **Engine-update follow-up (2026-09-15, UTC+09:00):** OG-Q-005 is now resolved against the new released context contract. Tag-page URLs match in both modes while title/description/locale fallbacks, optional images and creator eligibility remain unchanged. The TRD records exact versions, escaped-route handling and regression evidence; historical sign-off is preserved.
+
+**Issue #17 compatibility migration (2026-09-26):** v0.8 adds OG-FR-002 for the ordered locale inventory and actual/requested-language distinction. Existing title/creator, option ownership, enablement, preview, cancellation and output policies remain binding. This is a source migration against the newly resolved engine, not a claim that an independently versioned plugin containing it is already published. The v0.7 sign-off and earlier verification remain historical; current API references, test evidence and integration limitations belong in the TRD. Release selection and authorization remain with @justinyoo.

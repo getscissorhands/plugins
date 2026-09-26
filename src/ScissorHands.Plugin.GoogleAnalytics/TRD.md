@@ -7,7 +7,7 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.7 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-15 |
+| Last updated / PRD consulted | 2026-09-27 (compatibility follow-up; historical sign-off unchanged) |
 | Product baseline | Google Analytics PRD v0.7; signed-off requirements with an implementation follow-up, not a new product decision |
 | Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Source baseline | Historical implementation `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; implementation follow-up 2026-09-15 based on `9107f3e` |
@@ -101,6 +101,14 @@ Final result: build succeeded with **0 warnings, 0 errors**; MTP discovered **13
 **Shared validation completed:** the [catalog implementation evidence](../../TRD.md#implementation-evidence-2026-09-15) records a full Release build with 0 warnings/errors and 347 passing tests (GA 135, Open Graph 186, sample 26), eight isolated static builds (64 pages), both preview modes, and local package inspection at `1.0.0-preview.implementation`. GA output passed; sample checks used loopback HTML/local theme assets without JavaScript execution. Assembly, project README, license, icon, dependency and symbol contents passed inspection. The catalog owns exact shared commands, contexts and integration limits.
 
 **Engine upgrade revalidation (2026-09-15):** Core/Plugin now resolve to `1.0.0-preview.20260915.1`, with NuGet repository commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`. Google Analytics required no code change because it does not derive publication routes and its option/component contracts remain compatible. All **135 analytics tests** still pass within the **370-test** full suite. The [current shared upgrade evidence](../../TRD.md#engine-upgrade-evidence-2026-09-15) records root/subpath generation, both preview modes, unchanged analytics output and package contents with the new dependency. No preview/consent policy change or provider request was introduced.
+
+### Engine compatibility (2026-09-27)
+
+The issue #17 migration uses Core/Plugin **`1.0.0-preview.20260927.1`**, restored with `--force-evaluate --no-cache`; both the library and test `project.assets.json` resolve that exact version. Package repository metadata identifies `7b1c53296fe1e806c465c549c8429dba7eac61d7`. The release-matched [ContentPlugin](https://github.com/getscissorhands/ScissorHands.NET/blob/7b1c53296fe1e806c465c549c8429dba7eac61d7/src/ScissorHands.Plugin/ContentPlugin.cs) and [PluginComponentBase](https://github.com/getscissorhands/ScissorHands.NET/blob/7b1c53296fe1e806c465c549c8429dba7eac61d7/src/ScissorHands.Plugin/PluginComponentBase.cs) retain hook signatures, exact ID selection, and parameter-time manifest refresh. The new optional locale cascade does not affect analytics configuration; no production code or option change is necessary.
+
+Fixtures now use ordered `Site.Locales` instead of removed `Site.Locale`. Both paths cover localization disabled/enabled, preview/production and root/subpath contexts; the external loader and synthetic configuration remain unchanged. A hook regression preserves canonical/alternate links, a fallback notice and both publication badges byte-for-byte outside the insertion point. These synthetic markup assertions do not claim to validate theme receipts: the [sample integration evidence](../../TRD.md#engine-compatibility-evidence-2026-09-27) exercises actual engine validation after both plugins.
+
+Release build and MTP targeted validation use the commands above: **0 warnings/errors; 144 tests passed, none failed or skipped** on Linux SDK `10.0.401`. Shared compatibility/package evidence and environment limits are recorded in the catalog. Neither a matching engine version nor successful local packing authorizes a plugin release; this source migration is not a published-package compatibility claim.
 
 ## Gaps and readiness
 

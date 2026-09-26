@@ -3,15 +3,17 @@
 
 <CascadingMainLayoutBase Documents="@Documents" TaggedDocuments="@TaggedDocuments" Tag="@Tag"
                          TaggedPosts="@TaggedPosts" TaggedPages="@TaggedPages" Document="@Document"
-                         PageNavigation="@PageNavigation" Plugins="@Plugins" Theme="@Theme" Site="@Site">
+                         PageNavigation="@PageNavigation" LocaleContext="@LocaleContext"
+                         Plugins="@Plugins" Theme="@Theme" Site="@Site">
     <!DOCTYPE html>
-    <html lang="@PageLocale">
+    <html lang="@(string.IsNullOrWhiteSpace(PageLocale) ? null : PageLocale)">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <base href="@Site?.BaseUrl" />
         <title>@PageTitle</title>
         <meta name="description" content="@PageDescription" />
+        <LocalizationMetadata />
         <meta name="theme-color" content="#fffcf5" />
         @if (Theme is not null)
         {
@@ -47,12 +49,18 @@
     </head>
     <body>
         <header class="site-header">
-            <a class="site-title" href=".">@Site?.Title</a>
+            <a class="site-title" href="@GetHomeUrl()">@Site?.Title</a>
             <nav aria-label="Sample navigation">
                 <ul class="navigation-list">
-                    <li><a href=".">Home</a></li>
-                    <li><a href="about">About</a></li>
-                    <li><a href="tags">Tags</a></li>
+                    <li><a href="@GetHomeUrl()">Home</a></li>
+                    @foreach (var item in NavigationTree.Where(node => node.Url is not null))
+                    {
+                        <li><a href="@item.Url">@item.Title</a></li>
+                    }
+                    @if (GetTagIndexUrl() is { } tagIndexUrl)
+                    {
+                        <li><a href="@tagIndexUrl">Tags</a></li>
+                    }
                 </ul>
                 <button id="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">
                     <svg class="theme-icon moon-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -67,7 +75,11 @@
             <p>Rendering with @(Configuration.GetValue<bool>("Sample:UsePlaceholders") ? "post-HTML hooks" : "Razor components").
                 Inspect page source for plugin output in the head.</p>
         </header>
-        <main>@Body</main>
+        <ScissorHands.Web.LanguageSwitcher />
+        <main>
+            <ScissorHands.Web.LocalizationFallbackBanner />
+            @Body
+        </main>
         <footer class="site-footer">
             <small>Local plugin preview. Analytics-enabled pages may contact Google, even with a fake measurement ID.</small>
             <small>ScissorHands.NET theme assets adapted from <a href="https://github.com/ChurchTao/PlainPage">PlainPage</a>.</small>

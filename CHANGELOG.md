@@ -19,13 +19,32 @@ These changes are not part of the latest published release.
 - Weekly Dependabot updates for GitHub Actions only, preserving the existing
   NuGet major-version floating dependency policy.
 - This changelog and its README entry point.
+- Localization regressions covering disabled/enabled sites, actual translations
+  and primary-content fallbacks, generated routes, and preservation of
+  engine-required notices and preview publication badges.
 
 ### Changed
 
+- Migrate both official plugin sources, their fixtures and the sample to
+  ScissorHands.NET `1.0.0-preview.20260927.1`, retaining central major-version
+  floats and independent plugin release versions. This is not a published
+  compatible plugin release.
+- **Breaking consumer migration:** replace removed `Site.Locale`/`UseLocaleInUrl` and
+  frontmatter `locale` with ordered `Site.Locales` and directory-based
+  translations; supply complete application `Theme.Localization` messages.
+  Custom layouts must forward locale context and preserve required notices and
+  publication badges. See the [compatibility guide](README.md#engine-compatibility).
 - Replaced legacy Markdown bug and feature templates with project-specific YAML
   issue forms.
 - Updated README, issue-chooser, and pull-request guidance to link the community
   policies and existing .NET/MTP contribution workflow.
+
+### Fixed
+
+- Open Graph now uses actual content language and resolved render routes, omits
+  `og:locale` when localization is disabled, and leaves theme-owned
+  canonical/alternate-language metadata unchanged. Analytics retains its
+  existing manifest enablement and preview behavior.
 
 ## [1.0.0-preview.20260915.1] - 2026-09-15
 

@@ -2,6 +2,14 @@
 
 Adds [Google Analytics](https://analytics.google.com) tag markup to a compatible ScissorHands.NET site.
 
+## Engine compatibility
+
+This source revision targets ScissorHands.NET **`1.0.0-preview.20260927.1`**. Plugin versions remain independent; this migration does not publish a compatible plugin package. Consumers need a separately approved compatible release or the local project references used by the [sample](https://github.com/getscissorhands/plugins/tree/main/sample).
+
+Replace removed `Site.Locale`/`UseLocaleInUrl` settings with ordered `Site.Locales`, or omit locales to disable localization. Every declared locale requires application `Theme.Localization` messages `TranslationUnavailable`, `Draft`, and `ScheduledOn` (with `{0}`). Remove frontmatter `locale`; primary content remains in the content root and translations go in declared additional-locale directories. See the [versioned migration guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#upgrading-to-vnext).
+
+Analytics options, manifest enablement and preview behavior are unchanged. Neither integration changes language metadata, translation notices or publication badges. Custom layouts must preserve the engine's localization/publication rendering contract; analytics does not replace it.
+
 ## Getting Started
 
 Install the preview package in your ScissorHands.NET host:
