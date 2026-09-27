@@ -9,7 +9,16 @@ Older history is available in [GitHub Releases][releases].
 
 ## [Unreleased]
 
-These changes are not part of the latest published release.
+### Changed
+
+- Clarified published plugin compatibility, installation examples and
+  post-release verification evidence. No runtime or dependency policy changes.
+
+## [1.0.0-preview.20260927.1] - 2026-09-26
+
+Published Google Analytics and Open Graph packages for the verified
+ScissorHands.NET `1.0.0-preview.20260927.1` combination, including the migration
+from [PR #18][localization-pr]. Plugin and engine version policies remain independent.
 
 ### Added
 
@@ -27,8 +36,7 @@ These changes are not part of the latest published release.
 
 - Migrate both official plugin sources, their fixtures and the sample to
   ScissorHands.NET `1.0.0-preview.20260927.1`, retaining central major-version
-  floats and independent plugin release versions. This is not a published
-  compatible plugin release.
+  floats and independent plugin release versions.
 - **Breaking consumer migration:** replace removed `Site.Locale`/`UseLocaleInUrl` and
   frontmatter `locale` with ordered `Site.Locales` and directory-based
   translations; supply complete application `Theme.Localization` messages.
@@ -45,6 +53,22 @@ These changes are not part of the latest published release.
   `og:locale` when localization is disabled, and leaves theme-owned
   canonical/alternate-language metadata unchanged. Analytics retains its
   existing manifest enablement and preview behavior.
+
+### Migration
+
+Upgrade both plugins as well as the engine. Open Graph
+`1.0.0-preview.20260915.1` can compile in a host using the new engine but fails
+during generation when it calls the removed `SiteManifest.get_Locale()` API.
+The published `1.0.0-preview.20260927.1` binary resolves that incompatibility.
+Follow the [current migration guidance](README.md#engine-compatibility) for
+ordered locales, application messages and custom-layout context.
+
+The [release workflow][localization-release-run] completed NuGet.org OIDC
+publication, GitHub Packages publication and GitHub release creation. A fresh
+NuGet-only consumer verified the published binaries in both component/hook build
+and preview modes at root and subpath URLs. See the
+[post-release evidence](TRD.md#published-release-verification-2026-09-27);
+browser/provider acceptance and future release authorization remain separate.
 
 ## [1.0.0-preview.20260915.1] - 2026-09-15
 
@@ -103,9 +127,12 @@ Configured preview output remains enabled. Browsing the sample can still contact
 Google even with its fake analytics ID; this release does not add consent
 management or automatic preview suppression.
 
-[Unreleased]: https://github.com/getscissorhands/plugins/compare/v1.0.0-preview.20260915.1...HEAD
+[Unreleased]: https://github.com/getscissorhands/plugins/compare/v1.0.0-preview.20260927.1...HEAD
+[1.0.0-preview.20260927.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1
 [1.0.0-preview.20260915.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260915.1
 [releases]: https://github.com/getscissorhands/plugins/releases
 [migration-pr]: https://github.com/getscissorhands/plugins/pull/10
+[localization-pr]: https://github.com/getscissorhands/plugins/pull/18
+[localization-release-run]: https://github.com/getscissorhands/plugins/actions/runs/36280943492
 [ga-migration]: https://github.com/getscissorhands/plugins/blob/v1.0.0-preview.20260915.1/src/ScissorHands.Plugin.GoogleAnalytics/README.md#configuration-and-breaking-migration
 [og-migration]: https://github.com/getscissorhands/plugins/blob/v1.0.0-preview.20260915.1/src/ScissorHands.Plugin.OpenGraph/README.md#breaking-migration-from-the-earlier-permissive-behavior

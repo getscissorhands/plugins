@@ -9,7 +9,7 @@
 | Version / status | 0.7 / Implementation-ready |
 | Last updated | 2026-09-27 (compatibility follow-up; historical sign-off unchanged) |
 | Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
-| Delivery state | Implementation follow-up 2026-09-15: behavior implemented; targeted regressions and shared solution/sample/package checks passed. [Technical evidence](TRD.md#targeted-evidence-2026-09-15) retains external verification and release-authorization limits |
+| Delivery state | Accepted behavior and compatibility migration released; [technical evidence](../../TRD.md#published-release-verification-2026-09-27) confirms the published combination while retaining provider/browser and future release-authorization limits |
 | Plugin ID | `google-analytics` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |

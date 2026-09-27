@@ -4,13 +4,15 @@ Adds [Open Graph](https://ogp.me/) and Twitter-card metadata to a compatible Sci
 
 ## Getting Started
 
-Install the preview package in your ScissorHands.NET host:
+Install the verified preview package in your ScissorHands.NET host:
 
 ```bash
-dotnet add package ScissorHands.Plugin.OpenGraph --prerelease
+dotnet add package ScissorHands.Plugin.OpenGraph --version 1.0.0-preview.20260927.1
 ```
 
-**Compatibility:** this source revision targets engine Core/Plugin `1.0.0-preview.20260927.1` (.NET 10). It does not establish that a published Open Graph package already contains the migration. Use the local project reference to validate this revision, or choose an independently released plugin version whose release notes explicitly verify this engine combination. Plugin versions do not track engine version numbers.
+**Published compatibility:** Open Graph `1.0.0-preview.20260927.1` is verified with engine Core/Plugin `1.0.0-preview.20260927.1` (.NET 10). The [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1) is available on NuGet.org, and a clean NuGet-only consumer passed component/hook build and preview checks at root and subpath URLs. Plugin versions do not track engine version numbers.
+
+Do not retain Open Graph `1.0.0-preview.20260915.1` with this engine: its binary calls the removed `SiteManifest.get_Locale()` API. A successful host build does not prevent the resulting `MissingMethodException` during generation. Upgrade the plugin and refresh the resolved dependency graph.
 
 Configure the site and plugin in `appsettings.json`:
 
