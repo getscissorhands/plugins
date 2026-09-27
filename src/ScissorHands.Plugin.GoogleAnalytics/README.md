@@ -4,7 +4,7 @@ Adds [Google Analytics](https://analytics.google.com) tag markup to a compatible
 
 ## Engine compatibility
 
-This source revision targets ScissorHands.NET **`1.0.0-preview.20260927.1`**. Plugin versions remain independent; this migration does not publish a compatible plugin package. Consumers need a separately approved compatible release or the local project references used by the [sample](https://github.com/getscissorhands/plugins/tree/main/sample).
+**Published and verified:** `ScissorHands.Plugin.GoogleAnalytics` **`1.0.0-preview.20260927.1`** with ScissorHands.NET **`1.0.0-preview.20260927.1`**. The [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1) is available on NuGet.org; a clean NuGet-only consumer verified both integration paths. Plugin versions remain independent of engine versions. The [sample](https://github.com/getscissorhands/plugins/tree/main/sample) still uses local project references for plugin development.
 
 Replace removed `Site.Locale`/`UseLocaleInUrl` settings with ordered `Site.Locales`, or omit locales to disable localization. Every declared locale requires application `Theme.Localization` messages `TranslationUnavailable`, `Draft`, and `ScheduledOn` (with `{0}`). Remove frontmatter `locale`; primary content remains in the content root and translations go in declared additional-locale directories. See the [versioned migration guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#upgrading-to-vnext).
 
@@ -12,10 +12,10 @@ Analytics options, manifest enablement and preview behavior are unchanged. Neith
 
 ## Getting Started
 
-Install the preview package in your ScissorHands.NET host:
+Install the verified preview package in your ScissorHands.NET host:
 
 ```bash
-dotnet add package ScissorHands.Plugin.GoogleAnalytics --prerelease
+dotnet add package ScissorHands.Plugin.GoogleAnalytics --version 1.0.0-preview.20260927.1
 ```
 
 Add this entry to the `Plugins` array in `appsettings.json`. Replace `G-EXAMPLE` with your Google Analytics measurement ID for real tracking:

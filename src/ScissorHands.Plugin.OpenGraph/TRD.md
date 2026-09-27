@@ -7,11 +7,11 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.8 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-26 |
+| Last updated / PRD consulted | 2026-09-27 (post-release evidence; product requirements unchanged) |
 | Product baseline | Open Graph PRD v0.8, Implementation-ready; OG-FR-002 adds explicit localization compatibility |
 | Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Historical source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; retained as pre-delivery evidence, not the delivered implementation |
-| Delivery state | Original behavior delivered 2026-09-15; issue #17 source migration and targeted evidence below, not published-package availability or release approval |
+| Delivery state | Issue #17 migration released as Open Graph `1.0.0-preview.20260927.1`; [published-package verification](../../TRD.md#published-release-verification-2026-09-27) supplements the historical source/targeted evidence below |
 | Current dependency baseline | Core/Plugin `1.0.0-preview.20260927.1`, source commit `7b1c53296fe1e806c465c549c8429dba7eac61d7`; major floats retained |
 | Package / plugin ID | `ScissorHands.Plugin.OpenGraph` / `open-graph` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
@@ -214,4 +214,4 @@ No analytics/consent service, database, account system, remote-generation API, n
 
 **Delivery follow-up (2026-09-15, UTC+09:00):** implements the accepted behavior and local regression evidence without changing reviewed document versions or the historical sign-off at `02fbfc029c7560e2dc24543ee99b6d3fdce2b669`.
 
-**Readiness:** historical delivery against plugin PRD v0.7/shared v0.8, including OG-Q-005 closure, remains recorded above. The v0.8 issue #17 source migration targets `1.0.0-preview.20260927.1`; current targeted evidence is separate from historical full-solution/sample/package results. This does not claim that an existing published plugin contains these changes or that this newly compiled binary supports old engines. Scoped consumer integration, actual publishing verification and release authorization remain required release gates, not approved deferrals. Shared T-008 records setup and independent-verification limits; local validation is not production/crawler acceptance, a completed audit or release approval.
+**Readiness:** historical delivery against plugin PRD v0.7/shared v0.8, including OG-Q-005 closure, remains recorded above. Open Graph `1.0.0-preview.20260927.1` now contains the issue #17 migration and is verified with the matching engine in a fresh NuGet-only consumer; see the [catalog release evidence](../../TRD.md#published-release-verification-2026-09-27). The older published binary's removed-locale-API failure is migration history, not a current blocker. This does not establish backward compatibility with old engines, production/crawler acceptance or a completed audit. Shared T-008 still governs authorization and evidence for future releases.

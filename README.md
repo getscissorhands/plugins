@@ -13,9 +13,11 @@ See [CHANGELOG.md](CHANGELOG.md) for notable changes and links to published rele
 
 ## Engine compatibility
 
-The current source targets **ScissorHands.NET `1.0.0-preview.20260927.1`**. The [compatibility record](TRD.md#engine-compatibility-evidence-2026-09-27) records actual resolved dependencies, tests and package checks; existing central `1.*-*` ranges remain unchanged. Refresh restores with `dotnet restore ./ScissorHandsPlugins.slnx --force-evaluate --no-cache` and inspect the resolved graph rather than assuming a float or cached package proves compatibility.
+Both official plugins are published on NuGet.org as **`1.0.0-preview.20260927.1`**, verified with **ScissorHands.NET `1.0.0-preview.20260927.1`**. See the [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1) and [published-package evidence](TRD.md#published-release-verification-2026-09-27). Plugin versions remain independent of engine versions; these matching numbers describe this verified combination, not a versioning rule.
 
-This is **source compatibility, not a new published plugin release**. Both local plugin projects are consumed by the sample; plugin package versions and release approval remain independent of engine versions. Theme consumers need a separately approved compatible plugin release before using these changes through NuGet.
+The [source compatibility record](TRD.md#engine-compatibility-evidence-2026-09-27) records resolved dependencies, tests and package checks; existing central `1.*-*` ranges remain unchanged. Refresh restores with `dotnet restore ./ScissorHandsPlugins.slnx --force-evaluate --no-cache` and inspect the resolved graph rather than assuming a float or cached package proves compatibility. The checked-in sample continues to reference local plugin projects; a separate NuGet-only consumer verified the published binaries.
+
+Upgrade both plugin packages when adopting this engine release. Published Open Graph `1.0.0-preview.20260915.1` calls the removed `SiteManifest.get_Locale()` API and can build successfully but fail during generation with the new engine. The verified `1.0.0-preview.20260927.1` package resolves that failure.
 
 For migration, replace removed `Site.Locale` and `UseLocaleInUrl` with ordered `Site.Locales` (or omit locales to disable localization), move translations into declared additional-locale directories instead of frontmatter `locale`, and supply all three required application `Theme.Localization` messages per locale. Primary routes remain unprefixed. Custom layouts must forward `Document` and `LocaleContext` and retain theme-owned canonical/alternate metadata, translation notices and publication badges. See the [sample guide](sample/README.md), [Open Graph guide](src/ScissorHands.Plugin.OpenGraph/README.md), and [release-matched engine migration guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#upgrading-to-vnext).
 
@@ -56,6 +58,8 @@ NuGet.org uses [OIDC trusted publishing](https://learn.microsoft.com/en-us/nuget
 3. In the publishing account's NuGet.org trusted-publishing settings, authorize repository owner `getscissorhands`, repository `plugins`, workflow filename **`main.yaml`** (not its full path), and environment `nuget-release`. Scope the policy to the plugin package IDs and allow new packages as well as new versions if needed for the first publication. The selected NuGet owner must have permission to publish those package IDs.
 
 Workflow configuration alone does not configure external trust or prove publishing succeeds. Technical details and setup evidence are in [T-008](TRD.md#t-008-package-and-consumer-documentation).
+
+For `1.0.0-preview.20260927.1`, the [release workflow](https://github.com/getscissorhands/plugins/actions/runs/36280943492) successfully completed NuGet OIDC login, NuGet.org and GitHub Packages publication, and GitHub release creation. This is evidence for that release, not authorization for a future one.
 
 ## Support and recovery
 

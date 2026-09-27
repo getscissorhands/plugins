@@ -11,7 +11,7 @@
 | Product baseline | Google Analytics PRD v0.7; signed-off requirements with an implementation follow-up, not a new product decision |
 | Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Source baseline | Historical implementation `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; implementation follow-up 2026-09-15 based on `9107f3e` |
-| Delivery state | Strict configuration/output handling and lifecycle/cancellation regressions implemented; targeted and shared solution/sample/package checks passed. [Evidence](#targeted-evidence-2026-09-15) retains external verification and release-authorization limits |
+| Delivery state | Accepted behavior and compatibility migration released; [published-package verification](../../TRD.md#published-release-verification-2026-09-27) records the delivered combination separately from historical tests and remaining provider/browser limits |
 | Package / plugin ID | `ScissorHands.Plugin.GoogleAnalytics` / `google-analytics` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -116,7 +116,7 @@ The [PRD decision records](PRD.md#plugin-questions-and-acceptance-limits) retain
 
 **Breaking migration:** the earlier hooks/components accepted arbitrary strings and emitted an empty ID for missing or non-string values. Both now fail for those configurations. Configure a `MeasurementId` accepted by GA-TR-001, or remove the plugin manifest, before upgrading. Public entry points are unchanged; the shared helper is internal. The sample's synthetic `G-EXAMPLE` and paired markers remain compatible without a sample change.
 
-**Remaining evidence/authorization:** full-solution, scoped sample-host and package-content checks are completed above, not pending. External publication, real provider/consent behavior and a comprehensive output/privacy audit remain unverified. Evidence is limited to the recorded environment and does not establish browser JavaScript behavior or broader cross-platform compatibility. Existing publishing-setup observations do not prove OIDC/registry delivery. No release is authorized by these checks; @justinyoo owns release selection and authorization.
+**Post-release evidence/remaining limits:** the [catalog release verification](../../TRD.md#published-release-verification-2026-09-27) confirms Google Analytics `1.0.0-preview.20260927.1` publication and a fresh NuGet-only consumer on the matching engine. The completed release workflow supplies OIDC/registry execution evidence; historical setup observations and test results remain unchanged. Real provider/consent behavior, browser JavaScript and a comprehensive output/privacy audit remain unverified. @justinyoo owns authorization for future releases.
 
 No visible controls, local storage, authentication, remote-generation API or performance SLA is in scope. Privacy/client implications are explicitly applicable because browser code contacts Google. Other capabilities require their own product change, not inherited sibling requirements.
 
