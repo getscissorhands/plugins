@@ -9,10 +9,34 @@ Older history is available in [GitHub Releases][releases].
 
 ## [Unreleased]
 
+## [1.0.0-preview.20260928.1] - 2026-09-28
+
+Published both plugins for the ScissorHands.NET `1.0.0-preview.20260928.1`
+engine after [PR #20][theme-images-pr]. Plugin and engine versions remain
+independent.
+
 ### Changed
 
-- Clarified published plugin compatibility, installation examples and
-  post-release verification evidence. No runtime or dependency policy changes.
+- Clarified the previous release's compatibility, installation examples and
+  post-release verification evidence in [PR #19][compatibility-pr]; that
+  documentation change did not alter runtime or dependency policy.
+- **Breaking consumer migration:** Open Graph now reads its site-wide image
+  fallback from the first `Theme.HeroImages` entry instead of the removed
+  `Site.HeroImage` setting. Document images still take precedence; with no
+  image, both image tags are omitted. Move site images to `Theme.HeroImages`,
+  forward `ThemeSettings` in custom layouts, and pass the effective settings
+  when constructing the hook plugin manually. The previous Open Graph binary
+  is not compatible with the new engine's removed image API.
+- Refreshed both plugins and the sample against engine
+  `1.0.0-preview.20260928.1` without changing central version ranges or
+  Google Analytics markup. The sample now forwards theme settings in both
+  insertion modes.
+
+The [release workflow][theme-images-release-run] completed its build/test
+matrix, package publication and GitHub release creation. The
+[source verification](TRD.md#nuget-refresh-evidence-2026-09-28) covers 425
+tests and both sample modes; no separate NuGet-only consumer or browser/provider
+acceptance is recorded for this release.
 
 ## [1.0.0-preview.20260927.1] - 2026-09-26
 
@@ -127,11 +151,15 @@ Configured preview output remains enabled. Browsing the sample can still contact
 Google even with its fake analytics ID; this release does not add consent
 management or automatic preview suppression.
 
-[Unreleased]: https://github.com/getscissorhands/plugins/compare/v1.0.0-preview.20260927.1...HEAD
+[Unreleased]: https://github.com/getscissorhands/plugins/compare/v1.0.0-preview.20260928.1...HEAD
+[1.0.0-preview.20260928.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260928.1
 [1.0.0-preview.20260927.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1
 [1.0.0-preview.20260915.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260915.1
 [releases]: https://github.com/getscissorhands/plugins/releases
 [migration-pr]: https://github.com/getscissorhands/plugins/pull/10
+[compatibility-pr]: https://github.com/getscissorhands/plugins/pull/19
+[theme-images-pr]: https://github.com/getscissorhands/plugins/pull/20
+[theme-images-release-run]: https://github.com/getscissorhands/plugins/actions/runs/36477251269
 [localization-pr]: https://github.com/getscissorhands/plugins/pull/18
 [localization-release-run]: https://github.com/getscissorhands/plugins/actions/runs/36280943492
 [ga-migration]: https://github.com/getscissorhands/plugins/blob/v1.0.0-preview.20260915.1/src/ScissorHands.Plugin.GoogleAnalytics/README.md#configuration-and-breaking-migration
