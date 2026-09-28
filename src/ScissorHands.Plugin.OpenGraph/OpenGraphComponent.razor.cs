@@ -64,7 +64,7 @@ public partial class OpenGraphComponent : PluginComponentBase
             return;
         }
 
-        var metadata = OpenGraphMetadata.Create(Plugin, Site, Document, Documents, LocaleContext);
+        var metadata = OpenGraphMetadata.Create(Plugin, Site, Document, Documents, LocaleContext, ThemeSettings);
         ContentTitle = metadata.Title;
         ContentDescription = metadata.Description;
         ContentLocale = metadata.Locale;

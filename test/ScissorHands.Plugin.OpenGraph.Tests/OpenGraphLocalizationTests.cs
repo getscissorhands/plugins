@@ -126,9 +126,9 @@ public class OpenGraphLocalizationTests
         using var context = new BunitContext();
         var site = configuration switch
         {
-            0 => new SiteManifest { SiteUrl = "https://example.com", HeroImage = "" },
-            1 => new SiteManifest { SiteUrl = "https://example.com", HeroImage = "", Locales = null! },
-            _ => new SiteManifest { SiteUrl = "https://example.com", HeroImage = "", Locales = [] },
+            0 => new SiteManifest { SiteUrl = "https://example.com" },
+            1 => new SiteManifest { SiteUrl = "https://example.com", Locales = null! },
+            _ => new SiteManifest { SiteUrl = "https://example.com", Locales = [] },
         };
         var document = Document("ko-kr/about", null);
 
@@ -155,7 +155,7 @@ public class OpenGraphLocalizationTests
     {
         // Arrange
         using var context = new BunitContext();
-        var site = new SiteManifest { SiteUrl = "https://example.com", BaseUrl = baseUrl, HeroImage = "" };
+        var site = new SiteManifest { SiteUrl = "https://example.com", BaseUrl = baseUrl };
         var document = Document(route, null, generated: true);
 
         // Act
@@ -206,7 +206,6 @@ public class OpenGraphLocalizationTests
             SiteUrl = "https://example.com",
             Locales = localized ? ["en-us", "ko-kr"] : [],
             IsPreview = preview,
-            HeroImage = "",
         };
         var notice = localized
             ? "<section data-localization-fallback lang=\"ko-kr\" role=\"note\">번역 &amp; unavailable</section>"
@@ -250,7 +249,7 @@ public class OpenGraphLocalizationTests
         var disabled = cut.Markup;
         cut.Render(p => p.Add(x => x.LocaleContext, (LocaleContext?)null)
             .Add(x => x.Document, (ContentDocument?)null)
-            .Add(x => x.Site, new SiteManifest { SiteUrl = "https://other.example", HeroImage = "" }));
+            .Add(x => x.Site, new SiteManifest { SiteUrl = "https://other.example" }));
         cut.Render(p => p.Add(x => x.Plugins, new[] { Plugin }));
         var restored = Parse(cut.Markup);
 
@@ -276,7 +275,7 @@ public class OpenGraphLocalizationTests
             new LocaleContext { Locale = "ko-kr", ContentLocale = "ko-kr", Route = "about" });
 
         // Act
-        cut.Render(p => p.Add(x => x.Site, new SiteManifest { SiteUrl = "https://example.com", Locales = [], HeroImage = "" }));
+        cut.Render(p => p.Add(x => x.Site, new SiteManifest { SiteUrl = "https://example.com", Locales = [] }));
 
         // Assert
         Parse(cut.Markup).ContainsKey("og:locale").ShouldBeFalse();
@@ -289,7 +288,6 @@ public class OpenGraphLocalizationTests
         Locales = ["EN_US", "ko-KR"],
         Title = "Site",
         Description = "Site description",
-        HeroImage = "",
     };
 
     private static ContentDocument Document(string route, string? language, bool generated = false) => new()

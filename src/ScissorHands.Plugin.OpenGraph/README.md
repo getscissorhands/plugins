@@ -12,7 +12,9 @@ dotnet add package ScissorHands.Plugin.OpenGraph --version 1.0.0-preview.2026092
 
 **Published compatibility:** Open Graph `1.0.0-preview.20260927.1` is verified with engine Core/Plugin `1.0.0-preview.20260927.1` (.NET 10). The [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1) is available on NuGet.org, and a clean NuGet-only consumer passed component/hook build and preview checks at root and subpath URLs. Plugin versions do not track engine version numbers.
 
-Do not retain Open Graph `1.0.0-preview.20260915.1` with this engine: its binary calls the removed `SiteManifest.get_Locale()` API. A successful host build does not prevent the resulting `MissingMethodException` during generation. Upgrade the plugin and refresh the resolved dependency graph.
+**Source upgrade:** this repository now builds against engine `1.0.0-preview.20260928.1`; the published plugin above does not support the removed `SiteManifest.HeroImage` API. Do not combine that binary with the new engine. A compatible plugin release has not been published.
+
+Do not retain Open Graph `1.0.0-preview.20260915.1` with the `20260927.1` engine: its binary calls the removed `SiteManifest.get_Locale()` API. A successful host build does not prevent the resulting `MissingMethodException` during generation. Upgrade the plugin and refresh the resolved dependency graph.
 
 Configure the site and plugin in `appsettings.json`:
 
@@ -22,8 +24,12 @@ Configure the site and plugin in `appsettings.json`:
     "SiteUrl": "https://example.com",
     "BaseUrl": "/blog/",
     "Title": "My site",
-    "Description": "About this site",
-    "HeroImage": "/images/site.png"
+    "Description": "About this site"
+  },
+  "Theme": {
+    "HeroImages": [
+      { "Source": "/images/site.png", "Alt": "Site illustration" }
+    ]
   },
   "Plugins": [
     {
@@ -53,20 +59,22 @@ Alternatively, use the paired placeholder for the post-HTML hook:
 
 Choose one path per insertion to avoid duplicates. Hook placeholders must be paired, not self-closing; every matching pair is replaced. The `Id` is exact and case-sensitive; an optional manifest `Name` is only a display label. Remove the entry from `Plugins` to disable output.
 
+The host injects its validated `ThemeSettings` into the Open Graph hook plugin. If you construct `OpenGraphPlugin` manually, pass those settings to its constructor; the parameterless constructor has no site-wide image fallback.
+
 ## Metadata and publication URLs
 
 Given equivalent host context, both integrations produce equivalent metadata:
 
 - Individual source-backed documents use `Document title | Site title` and the document description, falling back to the site description only when null. Collections, source-less documents and missing documents use site title/description.
 - `twitter:creator` appears only for an individual source-backed **post**, not pages, collections or source-less posts. A nonblank document `TwitterHandle` overrides `TwitterCreatorId`.
-- A nonblank document hero image wins over the site image. When neither exists, both image tags are omitted; the card remains `summary_large_image`.
+- A nonblank document hero image wins over the first `Theme.HeroImages` entry's `Source`. When neither exists, both image tags are omitted; the card remains `summary_large_image`. Later entries are not used for social metadata.
 - With no `Site.Locales`, localization is disabled and `og:locale` is omitted. With locales configured, the tag describes actual content language: a Korean fallback containing English content reports English, while a real Korean translation reports Korean.
 
-**Suppressing the inherited image:** the released `SiteManifest` supplies an external `hero.jpg` by default. Omitting `Site.HeroImage` therefore does not necessarily remove image metadata. Set `"HeroImage": ""` inside `Site` and leave the document image absent to omit both image tags.
+**Omitting image metadata:** `Theme.HeroImages` is optional; omit it or use `[]`, and leave the document image absent. A null or empty settings list also produces no fallback image. The old `Site.HeroImage` key is rejected by the new engine.
 
 Configured output requires site context and an absolute HTTP(S) `SiteUrl` with a host and no query/fragment. A path on `SiteUrl` is preserved. `BaseUrl` is an optional local path prefix, not an absolute/network URL or a query/fragment; use `""` or `"/"` for root deployment. Blank/root content slugs map to this publication root. In the example above, `/post` becomes `https://example.com/blog/post`, and `/images/site.png` becomes `https://example.com/blog/images/site.png`.
 
-**Resolved routes:** custom layouts must forward both `Document` and `LocaleContext` through `CascadingMainLayoutBase`. `og:url` identifies the current route, including translated/fallback copies and generated home/tag/404 pages, with no extra locale prefix or generated-route escaping. A fallback at `/blog/ko-kr/about` keeps that social URL; the theme's separate canonical still identifies the primary `/blog/about`. Open Graph emits no canonical/hreflang links and leaves existing theme metadata, fallback notices and preview badges untouched. Generated collections and the shared 404 do not acquire paired-document SEO.
+**Resolved routes:** custom layouts must forward `Document`, `LocaleContext` and `ThemeSettings` through `CascadingMainLayoutBase`. `og:url` identifies the current route, including translated/fallback copies and generated home/tag/404 pages, with no extra locale prefix or generated-route escaping. A fallback at `/blog/ko-kr/about` keeps that social URL; the theme's separate canonical still identifies the primary `/blog/about`. Open Graph emits no canonical/hreflang links and leaves existing theme metadata, fallback notices and preview badges untouched. Generated collections and the shared 404 do not acquire paired-document SEO.
 
 Components prefer the engine's actual-language and current-route snapshot; hooks receive the resolved document, not `LocaleContext`. Do not assume arbitrary slug/language changes by earlier Markdown hooks refresh prepared snapshots or preserve cross-surface parity.
 
@@ -104,8 +112,8 @@ See the [release-matched engine migration guide](https://github.com/getscissorha
 ## Breaking migration from the earlier permissive behavior
 
 1. Supply valid publication context wherever enabled. Invalid origins now fail with a field-specific error instead of relative URLs/default tags; an absent hook marker does not hide invalid configuration.
-2. Correct unsupported image references. Errors identify `Site.HeroImage` or `Document.Metadata.HeroImage` without echoing arbitrary input.
-3. Account for omitted image/creator tags. Clear the inherited site image explicitly if no image is wanted.
+2. Correct unsupported image references. Errors identify `Theme.HeroImages[0].Source` or `Document.Metadata.HeroImage` without echoing arbitrary input.
+3. Account for omitted image/creator tags. Without a configured first theme image or document image, image tags are absent.
 4. Supply original metadata text, not HTML or pre-encoded entities. Both integrations treat metadata as data.
 
 An absent manifest remains silent without validating unused site/image context. Components refresh as context changes; provide site context before enabling and disable before removing it.

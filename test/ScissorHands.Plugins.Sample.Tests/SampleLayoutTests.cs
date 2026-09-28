@@ -28,14 +28,17 @@ public class SampleLayoutTests
             ?? throw new InvalidOperationException("The sample must configure its plugins.");
         var site = configuration.GetSection("Site").Get<SiteManifest>()
             ?? throw new InvalidOperationException("The sample must configure its site.");
+        var settings = configuration.GetSection("Theme").Get<ThemeSettings>()
+            ?? throw new InvalidOperationException("The sample must configure its theme settings.");
         var document = new ContentDocument();
         var runner = new PluginRunner(manifests,
-            new IContentPlugin[] { new OpenGraphPlugin(), new GoogleAnalyticsPlugin() }, site);
+            new IContentPlugin[] { new OpenGraphPlugin(settings), new GoogleAnalyticsPlugin() }, site);
 
         // Act
         var rendered = context.Render<SampleLayout>(parameters => parameters
             .Add(component => component.Site, site)
             .Add(component => component.Theme, CreateTheme())
+            .Add(component => component.ThemeSettings, settings)
             .Add(component => component.Document, document)
             .Add(component => component.Plugins, manifests));
         var html = await runner.RunPostHtmlAsync(rendered.Markup, document, Xunit.TestContext.Current.CancellationToken);
@@ -46,6 +49,7 @@ public class SampleLayoutTests
         html.Split("gtag/js?id=G-EXAMPLE", StringSplitOptions.None).Length.ShouldBe(2);
         html.Split("gtag('config', 'G-EXAMPLE');", StringSplitOptions.None).Length.ShouldBe(2);
         html.Split("property=\"og:title\"", StringSplitOptions.None).Length.ShouldBe(2);
+        html.ShouldContain("content=\"http://localhost:5000/images/sample.svg\"");
         html.ShouldNotContain("<plugin:");
         html.ShouldContain("may contact Google, even with a fake measurement ID");
     }
@@ -67,7 +71,6 @@ public class SampleLayoutTests
             Description = "Site description",
             SiteUrl = "https://example.com",
             BaseUrl = "/blog/",
-            HeroImage = "/images/sample.svg",
         };
         var document = new ContentDocument
         {
@@ -214,7 +217,6 @@ public class SampleLayoutTests
             SiteUrl = "https://example.com",
             BaseUrl = "/blog/",
             IsPreview = isPreview,
-            HeroImage = null,
         };
         var document = new ContentDocument
         {
@@ -330,7 +332,6 @@ public class SampleLayoutTests
             BaseUrl = baseUrl,
             Locales = ["ko-KR"],
             IsPreview = isPreview,
-            HeroImage = null,
         };
         var manifests = new[]
         {

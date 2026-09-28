@@ -12,6 +12,16 @@ namespace ScissorHands.Plugin.OpenGraph;
 public sealed class OpenGraphPlugin : ContentPlugin
 {
     private const string PLACEHOLDER = "<plugin:open-graph></plugin:open-graph>";
+    private readonly ThemeSettings _themeSettings;
+
+    public OpenGraphPlugin() : this(new ThemeSettings())
+    {
+    }
+
+    public OpenGraphPlugin(ThemeSettings themeSettings)
+    {
+        _themeSettings = themeSettings ?? throw new ArgumentNullException(nameof(themeSettings));
+    }
 
     /// <inheritdoc />
     public override string Id => "open-graph";
@@ -24,7 +34,7 @@ public sealed class OpenGraphPlugin : ContentPlugin
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var metadata = OpenGraphMetadata.Create(plugin, site, document);
+        var metadata = OpenGraphMetadata.Create(plugin, site, document, themeSettings: _themeSettings);
         var output = new StringBuilder();
 
         AppendMeta(output, "property", "og:title", metadata.Title);

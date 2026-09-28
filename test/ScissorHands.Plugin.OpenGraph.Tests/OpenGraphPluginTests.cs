@@ -89,7 +89,7 @@ public class OpenGraphPluginTests
         var pg = new OpenGraphPlugin();
         var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", heroImage: "/images/hero.png");
         var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
-        var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "", title: "My Blog", description: "Site description", locale: "en-US", heroImage: "/images/site-hero.png");
+        var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "", title: "My Blog", description: "Site description", locale: "en-US");
 
         // Act
         var result = await pg.PostHtmlAsync(html, document, plugin, site, Xunit.TestContext.Current.CancellationToken);
@@ -383,8 +383,7 @@ public class OpenGraphPluginTests
         string baseUrl = "",
         string title = "Site title",
         string description = "Site description",
-        string locale = "en-US",
-        string heroImage = "/images/site-hero.png")
+        string locale = "en-US")
     {
         return new SiteManifest
         {
@@ -393,7 +392,6 @@ public class OpenGraphPluginTests
             Title = title,
             Description = description,
             Locales = [locale],
-            HeroImage = heroImage,
         };
     }
 }

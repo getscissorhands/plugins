@@ -68,7 +68,6 @@ public class SampleTagRouteTests
                 Locales = localized ? originalSite.Locales : [],
                 SiteUrl = "https://example.com",
                 BaseUrl = baseUrl,
-                HeroImage = "",
                 Theme = "default",
                 UseDateInPostUrl = false,
                 TimeZone = "UTC",
@@ -79,8 +78,9 @@ public class SampleTagRouteTests
             paths.GetThemesRoot().Returns(Path.Combine(workspace.FullName, "themes"));
             var fileSystem = new FileSystem();
             var loader = new ContentLoader(paths, fileSystem, site, NullLogger<ContentLoader>.Instance);
-            var applicationTheme = configuration.GetSection("Theme").Get<ThemeManifest>()!;
-            var themeService = new ThemeService(paths, fileSystem, site, applicationTheme, NullLogger<ThemeService>.Instance);
+            var configuredTheme = configuration.GetSection("Theme").Get<ThemeSettings>()!;
+            var applicationTheme = new ThemeSettings { Localization = configuredTheme.Localization };
+            var themeService = new ThemeService(paths, fileSystem, NullLogger<ThemeService>.Instance);
             var manifests = configuration.GetSection("Plugins").Get<PluginManifest[]>()!
                 .Append(new PluginManifest { Id = "sample-probe" }).ToArray();
             var primaryRoutes = new List<string>
@@ -105,6 +105,7 @@ public class SampleTagRouteTests
                 var services = new ServiceCollection();
                 services.AddLogging();
                 services.AddSingleton<IThemeService>(themeService);
+                services.AddSingleton(applicationTheme);
                 services.AddSingleton(observations);
                 services.AddSingleton<IConfiguration>(new ConfigurationBuilder()
                     .AddInMemoryCollection(new Dictionary<string, string?>
@@ -116,9 +117,9 @@ public class SampleTagRouteTests
                     provider.GetRequiredService<ILoggerFactory>());
                 var probe = new CollectionProbePlugin();
                 var runner = new PluginRunner(manifests,
-                    new IContentPlugin[] { new OpenGraphPlugin(), new GoogleAnalyticsPlugin(), probe }, site);
+                    new IContentPlugin[] { new OpenGraphPlugin(applicationTheme), new GoogleAnalyticsPlugin(), probe }, site);
                 var generator = new StaticSiteGenerator(loader, new MarkdownService(), runner, themeService,
-                    renderer, paths, fileSystem, site, NullLogger<StaticSiteGenerator>.Instance, new SampleClock());
+                    renderer, paths, fileSystem, site, NullLogger<StaticSiteGenerator>.Instance, new SampleClock(), applicationTheme);
 
                 // Act
                 await generator.BuildAsync<SampleLayout, ProbeIndexView, PostView, PageView, NotFoundView, ProbeTagListView, ProbeTagView>(

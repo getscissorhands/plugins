@@ -22,11 +22,12 @@ internal sealed record OpenGraphMetadata(
         SiteManifest? site,
         ContentDocument? document,
         IEnumerable<ContentDocument>? documents = null,
-        LocaleContext? localeContext = null)
+        LocaleContext? localeContext = null,
+        ThemeSettings? themeSettings = null)
     {
         // Resolve required context before deriving any output, including optional images.
         var url = OpenGraphPluginHelper.GetContentUrl(document, site, localeContext);
-        var imageUrl = OpenGraphPluginHelper.GetHeroImageUrl(document, site);
+        var imageUrl = OpenGraphPluginHelper.GetHeroImageUrl(document, site, themeSettings);
         var useContentMetadata = OpenGraphPluginHelper.UseContentMetadata(documents, document);
         var creatorId = OpenGraphPluginHelper.GetOptionValue<string>(plugin, "TwitterCreatorId");
 

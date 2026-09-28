@@ -123,10 +123,13 @@ public class OpenGraphPluginHelperTests
 	{
 		// Arrange
 		var document = CreateDocument("/hello-world", heroImage: contentHeroImage);
-		var site = CreateSite(siteUrl, baseUrl, heroImage: siteHeroImage);
+		var site = CreateSite(siteUrl, baseUrl);
 
 		// Act
-		var result = OpenGraphPluginHelper.GetHeroImageUrl(document, site);
+		var result = OpenGraphPluginHelper.GetHeroImageUrl(document, site, new ThemeSettings
+		{
+			HeroImages = [new ThemeHeroImage { Source = siteHeroImage, Alt = "" }],
+		});
 
 		// Assert
 		result.ShouldBe(expected);
@@ -307,13 +310,12 @@ public class OpenGraphPluginHelperTests
 		};
 	}
 
-	private static SiteManifest CreateSite(string siteUrl, string baseUrl, string heroImage = "/images/site.png")
+	private static SiteManifest CreateSite(string siteUrl, string baseUrl)
 	{
 		return new SiteManifest
 		{
 			SiteUrl = siteUrl,
 			BaseUrl = baseUrl,
-			HeroImage = heroImage,
 			Title = "Site Title",
 			Description = "Site Description",
 			Locales = ["en-US"],
