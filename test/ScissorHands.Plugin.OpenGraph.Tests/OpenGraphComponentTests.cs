@@ -28,7 +28,7 @@ public class OpenGraphComponentTests
 	{
 		// Arrange
 		using var ctx = new BunitContext();
-		var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "/blog/", title: "My Blog", description: "Site description", locale: "en-US", heroImage: "/images/site-hero.png");
+		var site = CreateSiteManifest(siteUrl: "https://example.com", baseUrl: "/blog/", title: "My Blog", description: "Site description", locale: "en-US");
 		var document = CreateDocument(kind: ContentKind.Post, title: "Hello", slug: "/hello-world", description: "Post description", heroImage: "/images/hero.png");
 		var plugin = CreatePluginManifest(twitterSiteId: "@site", twitterCreatorId: "@creator");
 
@@ -217,8 +217,7 @@ public class OpenGraphComponentTests
 		string baseUrl = "",
 		string title = "Site title",
 		string description = "Site description",
-		string locale = "en-US",
-		string heroImage = "/images/site-hero.png")
+		string locale = "en-US")
 	{
 		return new SiteManifest
 		{
@@ -227,7 +226,6 @@ public class OpenGraphComponentTests
 			Title = title,
 			Description = description,
 			Locales = [locale],
-			HeroImage = heroImage,
 		};
 	}
 }

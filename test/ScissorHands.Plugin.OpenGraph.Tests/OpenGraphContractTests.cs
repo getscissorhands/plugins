@@ -182,7 +182,7 @@ public class OpenGraphContractTests
     {
         // Arrange
         using var context = new BunitContext();
-        var site = Site(image: image);
+        var site = Site();
         var document = Document(image: image);
         var plugin = Manifest();
 
@@ -199,6 +199,81 @@ public class OpenGraphContractTests
         hook["twitter:card"].ShouldBe("summary_large_image");
         hook["twitter:creator"].ShouldBe("@creator");
         hook.Count.ShouldBe(11);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Given_NullOrEmptyHeroImages_When_Rendered_Then_It_Should_Omit_ImageTags(bool nullImages)
+    {
+        // Arrange
+        using var context = new BunitContext();
+        var site = Site();
+        var document = Document(image: null);
+        var settings = new ThemeSettings { HeroImages = nullImages ? null! : [] };
+        var plugin = Manifest();
+
+        // Act
+        var hook = Parse(await Hook(site, document, plugin, settings));
+        var component = Render(context, site, document, plugin, settings: settings);
+
+        // Assert
+        AssertParity(hook, Parse(component.Markup));
+        hook.ContainsKey("og:image").ShouldBeFalse();
+        hook.ContainsKey("twitter:image").ShouldBeFalse();
+        OpenGraphPluginHelper.GetHeroImageUrl(document, site, settings).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Given_MultipleThemeImages_When_Rendered_Then_It_Should_Use_FirstImageInBothPaths()
+    {
+        // Arrange
+        using var context = new BunitContext();
+        var site = Site();
+        var document = Document(image: null);
+        var settings = new ThemeSettings
+        {
+            HeroImages =
+            [
+                new ThemeHeroImage { Source = "/images/first.png", Alt = "first" },
+                new ThemeHeroImage { Source = "/images/second.png", Alt = "second" },
+            ],
+        };
+
+        // Act
+        var hook = Parse(await Hook(site, document, Manifest(), settings));
+        var component = Render(context, site, document, Manifest(), settings: settings);
+
+        // Assert
+        AssertParity(hook, Parse(component.Markup));
+        hook["og:image"].ShouldBe("https://example.com/blog/images/first.png");
+        hook["twitter:image"].ShouldBe(hook["og:image"]);
+        component.Render(parameters => parameters.Add(p => p.ThemeSettings, new ThemeSettings()));
+        Parse(component.Markup).ContainsKey("og:image").ShouldBeFalse();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task Given_InvalidFirstThemeImage_When_Rendered_Then_It_Should_FailInBothPaths(string? source)
+    {
+        // Arrange
+        using var context = new BunitContext();
+        var site = Site();
+        var document = Document(image: null);
+        var settings = new ThemeSettings
+        {
+            HeroImages = [new ThemeHeroImage { Source = source!, Alt = "" }],
+        };
+
+        // Act
+        Func<Task> hook = () => Hook(site, document, Manifest(), settings);
+        Action component = () => Render(context, site, document, Manifest(), settings: settings);
+
+        // Assert
+        (await hook.ShouldThrowAsync<ArgumentException>()).Message.ShouldContain("Theme.HeroImages[0].Source");
+        component.ShouldThrow<ArgumentException>().Message.ShouldContain("Theme.HeroImages[0].Source");
     }
 
     [Theory]
@@ -379,18 +454,19 @@ public class OpenGraphContractTests
     {
         // Arrange
         using var context = new BunitContext();
-        var site = Site(image: "https://cdn.example.com/site.png?x=%2f#preview");
+        var site = Site();
+        var settings = Settings("https://cdn.example.com/site.png?x=%2f#preview");
         var document = Document(image: image);
         var plugin = Manifest();
 
         // Act
-        var hook = Parse(await Hook(site, document, plugin));
-        var component = Render(context, site, document, plugin);
+        var hook = Parse(await Hook(site, document, plugin, settings));
+        var component = Render(context, site, document, plugin, settings: settings);
 
         // Assert
         AssertParity(hook, Parse(component.Markup));
-        hook["og:image"].ShouldBe(site.HeroImage);
-        OpenGraphPluginHelper.GetHeroImageUrl(document, site).ShouldBe(site.HeroImage);
+        hook["og:image"].ShouldBe(settings.HeroImages[0].Source);
+        OpenGraphPluginHelper.GetHeroImageUrl(document, site, settings).ShouldBe(settings.HeroImages[0].Source);
     }
 
     [Fact]
@@ -398,14 +474,15 @@ public class OpenGraphContractTests
     {
         // Arrange
         using var context = new BunitContext();
-        var site = Site(image: "javascript:unused");
+        var site = Site();
+        var settings = Settings("javascript:unused");
         var document = Document();
         var plugin = Manifest();
 
         // Act
-        var helper = OpenGraphPluginHelper.GetHeroImageUrl(document, site);
-        var hook = Parse(await Hook(site, document, plugin));
-        var component = Render(context, site, document, plugin);
+        var helper = OpenGraphPluginHelper.GetHeroImageUrl(document, site, settings);
+        var hook = Parse(await Hook(site, document, plugin, settings));
+        var component = Render(context, site, document, plugin, settings: settings);
 
         // Assert
         AssertParity(hook, Parse(component.Markup));
@@ -418,19 +495,20 @@ public class OpenGraphContractTests
     {
         // Arrange
         using var context = new BunitContext();
-        var site = Site(image: "//private.example/site.png");
+        var site = Site();
+        var settings = Settings("//private.example/site.png");
         var document = Document(image: null);
         var plugin = Manifest();
 
         // Act
-        Action helper = () => OpenGraphPluginHelper.GetHeroImageUrl(document, site);
-        Func<Task> hook = () => Hook(site, document, plugin);
-        Action component = () => Render(context, site, document, plugin);
+        Action helper = () => OpenGraphPluginHelper.GetHeroImageUrl(document, site, settings);
+        Func<Task> hook = () => Hook(site, document, plugin, settings);
+        Action component = () => Render(context, site, document, plugin, settings: settings);
 
         // Assert
-        helper.ShouldThrow<ArgumentException>().Message.ShouldContain("Site.HeroImage");
-        (await hook.ShouldThrowAsync<ArgumentException>()).Message.ShouldContain("Site.HeroImage");
-        component.ShouldThrow<ArgumentException>().Message.ShouldContain("Site.HeroImage");
+        helper.ShouldThrow<ArgumentException>().Message.ShouldContain("Theme.HeroImages[0].Source");
+        (await hook.ShouldThrowAsync<ArgumentException>()).Message.ShouldContain("Theme.HeroImages[0].Source");
+        component.ShouldThrow<ArgumentException>().Message.ShouldContain("Theme.HeroImages[0].Source");
     }
 
     [Theory]
@@ -660,7 +738,7 @@ public class OpenGraphContractTests
 
         // Act
         cut.Render(parameters => parameters
-            .Add(p => p.Site, Site(siteUrl: "http://other.example", baseUrl: "/new", image: null, title: "New site"))
+            .Add(p => p.Site, Site(siteUrl: "http://other.example", baseUrl: "/new", title: "New site"))
             .Add(p => p.Document, Document(kind: ContentKind.Page, title: "About", slug: "/about", image: null))
             .Add(p => p.Plugins, new[] { Manifest(siteId: "@updated", creatorId: "@new-creator") }));
         var page = Parse(cut.Markup);
@@ -778,7 +856,7 @@ public class OpenGraphContractTests
     {
         // Arrange
         using var context = new BunitContext();
-        var site = Site(baseUrl: baseUrl, image: null, locale: "ko-KR");
+        var site = Site(baseUrl: baseUrl, locale: "ko-KR");
         var routeDocument = new ContentDocument
         {
             Kind = ContentKind.Page,
@@ -875,17 +953,19 @@ public class OpenGraphContractTests
 
     private static IRenderedComponent<MetadataHost> Render(
         BunitContext context, SiteManifest? site, ContentDocument? document, PluginManifest plugin,
-        IEnumerable<ContentDocument>? documents = null)
+        IEnumerable<ContentDocument>? documents = null, ThemeSettings? settings = null)
     {
         return context.Render<MetadataHost>(parameters => parameters
             .Add(p => p.Site, site)
             .Add(p => p.Document, document)
             .Add(p => p.Documents, documents)
+            .Add(p => p.ThemeSettings, settings)
             .Add(p => p.Plugins, new[] { plugin }));
     }
 
-    private static Task<string> Hook(SiteManifest? site, ContentDocument? document, PluginManifest plugin)
-        => new OpenGraphPlugin().PostHtmlAsync(Marker, document!, plugin, site!, Xunit.TestContext.Current.CancellationToken);
+    private static Task<string> Hook(SiteManifest? site, ContentDocument? document, PluginManifest plugin, ThemeSettings? settings = null)
+        => new OpenGraphPlugin(settings ?? new ThemeSettings()).PostHtmlAsync(
+            Marker, document!, plugin, site!, Xunit.TestContext.Current.CancellationToken);
 
     private static Dictionary<string, string> Parse(string html)
         => new HtmlParser().ParseDocument(html).QuerySelectorAll("meta")
@@ -902,18 +982,22 @@ public class OpenGraphContractTests
     }
 
     private static SiteManifest Site(
-        string? siteUrl = "https://example.com", string baseUrl = "/blog/", string? image = "/images/site.png",
+        string? siteUrl = "https://example.com", string baseUrl = "/blog/",
         string title = "Site", string description = "Site description", string locale = "en-US", bool isPreview = false)
         => new()
         {
             SiteUrl = siteUrl!,
             BaseUrl = baseUrl,
-            HeroImage = image,
             Title = title,
             Description = description,
             Locales = [locale],
             IsPreview = isPreview,
         };
+
+    private static ThemeSettings Settings(string image) => new()
+    {
+        HeroImages = [new ThemeHeroImage { Source = image, Alt = "" }],
+    };
 
     private static ContentDocument Document(
         ContentKind kind = ContentKind.Post, string sourcePath = "/post.md", string title = "Document",
@@ -953,17 +1037,18 @@ public class OpenGraphContractTests
         [Parameter] public LocaleContext? LocaleContext { get; set; }
         [Parameter] public IEnumerable<ContentDocument>? Documents { get; set; }
         [Parameter] public IEnumerable<PluginManifest>? Plugins { get; set; }
+        [Parameter] public ThemeSettings? ThemeSettings { get; set; }
         [Parameter] public string Id { get; set; } = "open-graph";
 
         protected override void BuildRenderTree(RenderTreeBuilder builder)
         {
-            builder.AddContent(0, Cascade(Site, Cascade(Document, Cascade(LocaleContext, Cascade(Documents, Cascade(Plugins, child =>
+            builder.AddContent(0, Cascade(ThemeSettings, Cascade(Site, Cascade(Document, Cascade(LocaleContext, Cascade(Documents, Cascade(Plugins, child =>
             {
                 child.OpenComponent<OpenGraphComponent>(0);
                 child.AddAttribute(1, nameof(OpenGraphComponent.Id), Id);
                 child.AddAttribute(2, nameof(OpenGraphComponent.Name), "Unrelated component label");
                 child.CloseComponent();
-            }))))));
+            })))))));
         }
 
         private static RenderFragment Cascade<T>(T value, RenderFragment child) => builder =>

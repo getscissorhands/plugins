@@ -5,13 +5,13 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.8 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-27 (compatibility follow-up; historical sign-off unchanged) |
+| Last updated / PRD consulted | 2026-09-28 (dependency refresh; historical sign-off unchanged) |
 | Product baseline | [Catalog PRD](PRD.md) v0.8, Implementation-ready with confirmed product scope, acceptance and release policy; shared requirements and delegated plugin baselines |
 | Scope | Shared authoring/compatibility obligations and an index of per-plugin technical requirements |
 | Sources | Local PRD decisions, historical source baseline `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`, implementation follow-up 2026-09-15, current configuration and relevant engine API references |
 | Delivery state | Issue #17 migration released as plugin `1.0.0-preview.20260927.1`; [published-package verification](#published-release-verification-2026-09-27) supersedes the prepublication limitation, with historical evidence and OG-Q-005 closure retained |
 | Historical dependency baseline | Resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`; preserve this evidence and record the actual resolved graph again for each upgrade/release |
-| Current dependency baseline | Core/Plugin/Theme/Web `1.0.0-preview.20260927.1`, NuGet repository commit `7b1c53296fe1e806c465c549c8429dba7eac61d7`; central major-version floats retained |
+| Current dependency baseline | Core/Plugin/Theme/Web `1.0.0-preview.20260928.1`, NuGet repository commit `d93089534dd5f56c2a1e4177a9399b148136ed34`; central major-version floats retained |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
 
@@ -40,7 +40,9 @@ Configuration sources are [root props](Directory.Build.props), [source props](sr
 
 **Historical API verification (engine update, 2026-09-15):** all six projects then resolved `1.0.0-preview.20260915.1`; installed package metadata identifies commit `772e9ffbc05761a14f2a3a93700e4fef2b6c13b3`. The [released tag-context documentation][tag-context-reference] and [updated generator][updated-generator] show route-only page documents supplied before Razor rendering. That migration preserved generated-route escapes while retaining raw-slug behavior for source-backed content. Exact historical evidence is recorded below.
 
-**Current release-matched API verification:** the [versioned migration guide][current-migration] and [plugin guide][current-plugin] match the resolved package repository commit `7b1c53296fe1e806c465c549c8429dba7eac61d7`. `Site.Locales` replaces removed `Site.Locale`/`UseLocaleInUrl`; frontmatter `locale` is rejected. `PluginComponentBase` adds optional `LocaleContext` while retaining exact-ID selection and hook signatures. The [locale render contract][current-localization] distinguishes requested locale, actual content language, prepared routes and document SEO; [publication status][current-publication] supplies immutable preview status and requires theme-rendered badges to survive post-HTML hooks. Each plugin's TRD records its adaptation; the sample forwards this context rather than recreating engine selection.
+**Previous release-matched API verification (2026-09-27):** the versioned migration and plugin guides at commit `7b1c53296fe1e806c465c549c8429dba7eac61d7` established ordered `Site.Locales`, optional component `LocaleContext`, and theme-owned localization/publication rendering. This remains historical evidence for the published plugin/engine combination, not the current resolved graph.
+
+**Current release-matched API verification (2026-09-28):** [migration guidance][current-migration], [plugin guide][current-plugin], [theme settings][current-theme-settings] and [SiteManifest][current-site-manifest] match the NuGet repository commit `d93089534dd5f56c2a1e4177a9399b148136ed34`. `Site.HeroImage` is removed; optional application `Theme.HeroImages` and `ThemeSettings.Localization` are independent of the package theme manifest. `PluginComponentBase` receives `ThemeSettings` through the cascade, while the unchanged post-HTML hook gets it through dependency injection in the plugin constructor. Existing locale/route handling and publication status remain in force. The sample forwards the settings; Open Graph selects the first configured image as its site fallback.
 
 ## 2. Shared technical requirements
 
@@ -238,6 +240,14 @@ Both component/hook paths passed explicit `--build` and `--preview` modes at `/`
 
 The previously observed downstream failure with Open Graph `1.0.0-preview.20260915.1` and the new engine (`MissingMethodException` for `SiteManifest.get_Locale()`) is now migration history, not a blocker for the verified published combination. Package READMEs were authored before publication; this repository's post-release clarification supersedes that wording without replacing immutable released artifacts. Real provider/crawler behavior, consent, browser interaction/accessibility and arbitrary production hosting remain outside these checks. Future release authorization remains with @justinyoo.
 
+### NuGet refresh evidence (2026-09-28)
+
+A forced, no-cache solution restore on macOS arm64 with SDK `10.0.401` resolved Core/Plugin/Theme/Web `1.0.0-preview.20260928.1` in all applicable projects; NuGet metadata identifies upstream commit `d93089534dd5f56c2a1e4177a9399b148136ed34`. Test dependencies resolved bUnit `2.11.3`, coverlet.collector `10.1.0`, Microsoft.NET.Test.Sdk `18.10.1`, NSubstitute `6.2.0`, Shouldly `4.3.0`, xUnit v3 `4.0.1` and xunit.runner.visualstudio `4.0.0`. These are the latest releases allowed by the existing major floats; Shouldly `5.0.0-preview.2` was not adopted because test tooling remains on stable major releases. No version range, SDK, package ID or release version was changed.
+
+The engine removed `SiteManifest.HeroImage` and moved optional site-wide images to `ThemeSettings.HeroImages`. Open Graph now reads the first `Source` through constructor-injected settings for hooks and cascaded settings for components, with document image precedence and no image tags if neither is available. The sample moved its configuration to `Theme:HeroImages` and forwards settings. The [Open Graph TRD](src/ScissorHands.Plugin.OpenGraph/TRD.md#t-005-content-and-image-url-boundaries) records the release-matched API sources and migration details; the Google Analytics hook/component contracts remain unchanged.
+
+Release solution build with `-warnaserror` completed with 0 warnings/errors; **425 MTP tests passed, 0 failed/skipped**, including null/empty and ordered-fallback regressions and the actual generator integration matrix. Both sample `--build` modes produced matching site fallback images in `og:image` and `twitter:image`. Local prerelease packs of both plugins contained their `net10.0` assembly, package README, MIT license, icon, symbols in paired `.snupkg` files, and the new Plugin dependency; no artifacts were published. This is source compatibility with the newly resolved engine, not a published binary, NuGet-only consumer check, browser/provider acceptance, or authorization to tag/publish plugins. Published plugins remain verified only with the previous engine release.
+
 ## 3. Product-to-technical routing
 
 | Catalog PRD ID | Technical coverage / owner |
@@ -306,7 +316,9 @@ The v0.7 catalog and v0.6 plugin pairs separate document responsibilities withou
 [generator-source]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b5db6e1f27327cd8be50c08e4163e72e0a28425/src/ScissorHands.Web/Generators/StaticSiteGenerator.cs
 [tag-context-reference]: https://github.com/getscissorhands/ScissorHands.NET/blob/772e9ffbc05761a14f2a3a93700e4fef2b6c13b3/docs/website-documentation.md#generated-tag-route-context
 [updated-generator]: https://github.com/getscissorhands/ScissorHands.NET/blob/772e9ffbc05761a14f2a3a93700e4fef2b6c13b3/src/ScissorHands.Web/Generators/StaticSiteGenerator.cs
-[current-migration]: https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#upgrading-to-vnext
-[current-plugin]: https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#plugin-authoring
+[current-migration]: https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260928.1/docs/website-documentation.md#upgrading-to-vnext
+[current-plugin]: https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260928.1/docs/website-documentation.md#plugin-authoring
+[current-theme-settings]: https://github.com/getscissorhands/ScissorHands.NET/blob/d93089534dd5f56c2a1e4177a9399b148136ed34/src/ScissorHands.Core/Manifests/ThemeSettings.cs
+[current-site-manifest]: https://github.com/getscissorhands/ScissorHands.NET/blob/d93089534dd5f56c2a1e4177a9399b148136ed34/src/ScissorHands.Core/Manifests/SiteManifest.cs
 [current-localization]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b1c53296fe1e806c465c549c8429dba7eac61d7/docs/website-documentation.md#locale-render-context
 [current-publication]: https://github.com/getscissorhands/ScissorHands.NET/blob/7b1c53296fe1e806c465c549c8429dba7eac61d7/docs/website-documentation.md#publication-status-theme-contract

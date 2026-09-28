@@ -62,22 +62,38 @@ public static class OpenGraphPluginHelper
     /// </summary>
     /// <param name="document"><see cref="ContentDocument"/> instance.</param>
     /// <param name="site"><see cref="SiteManifest"/> instance.</param>
-    /// <returns>The selected image URL, or an empty string when neither image is available.</returns>
+    /// <returns>The document image URL, or an empty string when no image is available.</returns>
     /// <exception cref="ArgumentException">The site publication context or selected image reference is invalid.</exception>
     public static string GetHeroImageUrl(ContentDocument? document, SiteManifest? site)
+        => GetHeroImageUrl(document, site, null);
+
+    /// <summary>
+    /// Gets the hero image URL with the application's site-wide image fallback.
+    /// </summary>
+    /// <param name="document"><see cref="ContentDocument"/> instance.</param>
+    /// <param name="site"><see cref="SiteManifest"/> instance.</param>
+    /// <param name="themeSettings">Application theme settings; the first hero image is the site fallback.</param>
+    /// <returns>The selected image URL, or an empty string when neither image is available.</returns>
+    /// <exception cref="ArgumentException">The site publication context or selected image reference is invalid.</exception>
+    public static string GetHeroImageUrl(ContentDocument? document, SiteManifest? site, ThemeSettings? themeSettings)
     {
         var siteUrl = GetSiteUrl(site);
         var useSiteImage = string.IsNullOrWhiteSpace(document?.Metadata.HeroImage);
         var imageUrl = useSiteImage
-            ? site!.HeroImage
+            ? themeSettings?.HeroImages.FirstOrDefault()?.Source
             : document!.Metadata.HeroImage;
+
+        if (useSiteImage && themeSettings?.HeroImages.Count > 0 && string.IsNullOrWhiteSpace(imageUrl))
+        {
+            throw InvalidImage("Theme.HeroImages[0].Source");
+        }
 
         if (string.IsNullOrWhiteSpace(imageUrl))
         {
             return string.Empty;
         }
 
-        var context = useSiteImage ? "Site.HeroImage" : "Document.Metadata.HeroImage";
+        var context = useSiteImage ? "Theme.HeroImages[0].Source" : "Document.Metadata.HeroImage";
         if (imageUrl.Any(char.IsControl) || !HasValidPercentEncoding(imageUrl))
         {
             throw InvalidImage(context);

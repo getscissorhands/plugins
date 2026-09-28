@@ -4,16 +4,17 @@ Preview locally built plugins using the NuGet.org engine and its built-in theme.
 
 ## Verified engine baseline and migration
 
-This sample targets the verified Core/Plugin/Theme/Web `1.0.0-preview.20260927.1` contracts ([release-matched guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#locale-specific-sites)); central major-version floating ranges remain unchanged.
+This sample targets source compatibility with Core/Plugin/Theme/Web `1.0.0-preview.20260928.1` ([release-matched guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260928.1/docs/website-documentation.md#application-theme-settings)); central major-version floating ranges remain unchanged. The sample uses locally built plugins; the published `20260927.1` Open Graph binary is incompatible with this engine.
 
 Both plugin packages are also [published as `1.0.0-preview.20260927.1`](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1). This checked-in sample intentionally retains local project references. A separate copy using only the published NuGet packages passed clean restore/build and both component/hook `--build`/`--preview` modes at `/` and `/blog/`; see the [release verification](../TRD.md#published-release-verification-2026-09-27). NuGet consumers must upgrade the plugins as well as the engine; the older published Open Graph binary is not compatible with the removed locale API.
 
 - Replace removed `Site.Locale` and `Site.UseLocaleInUrl` with ordered `Site.Locales`. The sample declares `["en-US", "ko-KR"]`: primary content stays unprefixed and additional content uses `ko-kr/` exactly once.
 - Remove frontmatter `locale`; it is a migration error. Place real translations under the declared additional-locale directory with the same relative filename as the primary document. The integration tests create an isolated Korean About fixture with explicit `ko-kr/about` slug: the localized loader strips its prefix before composition; with localization disabled it remains a distinct ordinary route.
 - Every declared locale, including the primary, requires all three nonblank application messages: `TranslationUnavailable`, `Draft`, and `ScheduledOn` under `Theme.Localization`. `ScheduledOn` must contain the real `{0}` date argument. [appsettings.json](appsettings.json) supplies complete English/Korean catalogs; package defaults cannot replace missing entries.
+- `Site.HeroImage` is no longer supported. `Theme.HeroImages` supplies optional ordered site images with `Source` and `Alt`; the first entry is Open Graph's site fallback in both modes. An omitted, null or empty list produces no site fallback.
 - Set `Site.Locales` to `[]` to disable localization. No implicit language, HTML `lang`, Open Graph locale, translation notice, or paired-document SEO is inferred from English UI defaults. Locale-looking folders remain ordinary content, not excluded translations.
 
-The layout forwards `LocaleContext` and all document collections unchanged. Publication status travels on the engine's `ContentDocument.PublicationStatus` snapshots. Reused engine metadata, language-switcher and fallback-banner components render the prepared context; built-in content/listing views render required publication badges. The sample does not duplicate notices/badges, compute publication eligibility, or disable engine validation.
+The layout forwards `LocaleContext`, `ThemeSettings` and all document collections unchanged. Publication status travels on the engine's `ContentDocument.PublicationStatus` snapshots. Reused engine metadata, language-switcher and fallback-banner components render the prepared context; built-in content/listing views render required publication badges. The sample does not duplicate notices/badges, compute publication eligibility, or disable engine validation.
 
 ## Run locally
 
@@ -46,7 +47,7 @@ No configuration edit or separate launch profile is needed. Omit the switch for 
 
 If rendering reports a configuration error, correct the measurement identifier or site publication URL in `appsettings.json`; enabled plugins no longer emit empty tracking identifiers or default metadata for missing required site context. See the [Google Analytics](../src/ScissorHands.Plugin.GoogleAnalytics/README.md) and [Open Graph](../src/ScissorHands.Plugin.OpenGraph/README.md) guides. Images remain optional: without a content or site image, image metadata is omitted.
 
-The engine supplies a default site image when its setting is omitted. Set `Site.HeroImage` to `""` and leave content images empty to inspect image-tag omission.
+To inspect image-tag omission, remove `Theme.HeroImages` or set it to `[]` and leave document images empty. There is no default site image.
 
 **Document and collection URLs:** both modes use engine-resolved slugs for Open Graph `og:url`, including localized and escaped tag routes. The engine's canonical/alternate links are separate: a translated document is self-canonical, a fallback points to its primary document, and alternatives include only real translations. Canonical document links include trailing slashes; existing Open Graph route formatting does not. Generated home/tag pages and the shared 404 have no paired-document canonical/alternate links. No route reconstruction or hook-only workaround is needed.
 
