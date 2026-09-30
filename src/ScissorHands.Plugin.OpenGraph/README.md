@@ -7,12 +7,12 @@ Adds [Open Graph](https://ogp.me/) and Twitter-card metadata to a compatible Sci
 Install the verified preview package in your ScissorHands.NET host:
 
 ```bash
-dotnet add package ScissorHands.Plugin.OpenGraph --version 1.0.0-preview.20260927.1
+dotnet add package ScissorHands.Plugin.OpenGraph --version 1.0.0-preview.20260928.1
 ```
 
-**Published compatibility:** Open Graph `1.0.0-preview.20260927.1` is verified with engine Core/Plugin `1.0.0-preview.20260927.1` (.NET 10). The [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1) is available on NuGet.org, and a clean NuGet-only consumer passed component/hook build and preview checks at root and subpath URLs. Plugin versions do not track engine version numbers.
+**Published compatibility:** Open Graph `1.0.0-preview.20260928.1` was built and source-checked with engine Core/Plugin `1.0.0-preview.20260928.1` (.NET 10). The [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260928.1) is available on NuGet.org; a separate NuGet-only consumer check was not recorded. Plugin versions do not track engine version numbers.
 
-**Source upgrade:** this repository now builds against engine `1.0.0-preview.20260928.1`; the published plugin above does not support the removed `SiteManifest.HeroImage` API. Do not combine that binary with the new engine. A compatible plugin release has not been published.
+**Source upgrade:** this repository now builds against engine `1.0.0-preview.20260930.1`, whose default-theme asset paths have changed. Local plugin and sample tests pass; compatibility of the previously published binary with this engine has not been established, and no new plugin release has been published. Open Graph `20260927.1` still references the removed `SiteManifest.HeroImage` API and must not be combined with the `20260928.1` or newer engine.
 
 Do not retain Open Graph `1.0.0-preview.20260915.1` with the `20260927.1` engine: its binary calls the removed `SiteManifest.get_Locale()` API. A successful host build does not prevent the resulting `MissingMethodException` during generation. Upgrade the plugin and refresh the resolved dependency graph.
 

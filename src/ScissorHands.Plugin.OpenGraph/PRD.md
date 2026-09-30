@@ -7,9 +7,9 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.8 / Implementation-ready |
-| Last updated | 2026-09-28 (theme-image source migration; historical release evidence unchanged) |
+| Last updated | 2026-09-29 (dependency follow-up; historical sign-off unchanged) |
 | Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
-| Delivery state | Accepted behavior and compatibility migration released; [published-package evidence](../../TRD.md#published-release-verification-2026-09-27) supplements the historical verification and remaining limits in the [TRD](TRD.md#delivery-evidence) |
+| Delivery state | Accepted behavior and compatibility migration released; `20260928.1` published for its matching engine, while [latest source compatibility](../../TRD.md#latest-nuget-refresh-evidence-2026-09-29) does not establish published-binary compatibility with `20260930.1` |
 | Plugin ID | `open-graph` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -63,7 +63,7 @@ Shared [Q-005](../../PRD.md#shared-release-question) governs independent preview
 
 **Release impact:** stricter publication-address validation, text-safe raw output and more selective creator/image metadata are breaking changes for affected consumers. They must supply valid site information, correct unsupported image references, supply metadata as text rather than markup and account for fields that may no longer appear; images remain optional. Technical migration details are in [the TRD](TRD.md#gaps-and-readiness) and usage/recovery steps in the [README](README.md#breaking-migration-from-the-earlier-permissive-behavior).
 
-**Readiness:** The signed-off v0.7 requirements baseline remains implementation-ready. Its behavior and the subsequent localization migration have been delivered and verified; this is a delivery update, not a changed sign-off. OG-Q-005 is resolved within the tested host/version scope. The [post-release verification](../../TRD.md#published-release-verification-2026-09-27) records successful publication and consumer checks. Crawler/browser acceptance remains outside that evidence, and shared Q-005 governs future release authorization. Neither document approval nor validation is a completed audit. The [catalog source record](../../PRD.md#sources-and-review-status) records the local decision basis.
+**Readiness:** The signed-off v0.7 requirements baseline remains implementation-ready. Its behavior and the subsequent localization migration have been delivered and verified; this is a delivery update, not a changed sign-off. OG-Q-005 is resolved within the tested host/version scope. The [post-release verification](../../TRD.md#published-release-verification-2026-09-27) records successful publication and consumer checks for the earlier combination; `20260928.1` was subsequently published for its matching engine, and `20260930.1` is source-tested only. Crawler/browser acceptance remains outside that evidence, and shared Q-005 governs future release authorization. Neither document approval nor validation is a completed audit. The [catalog source record](../../PRD.md#sources-and-review-status) records the local decision basis.
 
 **v0.3 clarification:** recorded @justinyoo's ownership and engine-independent preview releases; it did not approve a recovery policy or a specific deferral.
 

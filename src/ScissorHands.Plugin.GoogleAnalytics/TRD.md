@@ -7,11 +7,11 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.7 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-28 (dependency refresh; historical sign-off unchanged) |
+| Last updated / PRD consulted | 2026-09-29 (dependency refresh; historical sign-off unchanged) |
 | Product baseline | Google Analytics PRD v0.7; signed-off requirements with an implementation follow-up, not a new product decision |
 | Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Source baseline | Historical implementation `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; implementation follow-up 2026-09-15 based on `9107f3e` |
-| Delivery state | Accepted behavior and compatibility migration released; [published-package verification](../../TRD.md#published-release-verification-2026-09-27) records the delivered combination separately from historical tests and remaining provider/browser limits |
+| Delivery state | Accepted behavior and compatibility migration released; `20260928.1` published for its matching engine, while the [current compatibility evidence](../../TRD.md#latest-nuget-refresh-evidence-2026-09-29) is source-only |
 | Package / plugin ID | `ScissorHands.Plugin.GoogleAnalytics` / `google-analytics` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -23,7 +23,9 @@ The local PRD, this TRD and catalog requirements define the accepted obligations
 
 The plugin is an independent Razor class library consuming upstream Plugin/Core. It overrides only `PostHtmlAsync`, has no `DependsOn` override, and performs no filesystem or outbound measurement operation during generation. Removing its manifest disables host hooks/component output; it does not unload or sandbox the assembly. It is not an analytics client service, registry or consent backend. Source links and verification below own the implementation details formerly repeated in the PRD.
 
-**Current dependency refresh (2026-09-28):** Core/Plugin `1.0.0-preview.20260928.1` resolves to commit `d93089534dd5f56c2a1e4177a9399b148136ed34`. Release-matched [ContentPlugin](https://github.com/getscissorhands/ScissorHands.NET/blob/d93089534dd5f56c2a1e4177a9399b148136ed34/src/ScissorHands.Plugin/ContentPlugin.cs) and [PluginComponentBase](https://github.com/getscissorhands/ScissorHands.NET/blob/d93089534dd5f56c2a1e4177a9399b148136ed34/src/ScissorHands.Plugin/PluginComponentBase.cs) retain analytics' hook and manifest-selection contracts; added theme settings do not affect its markup. The shared [source compatibility evidence](../../TRD.md#nuget-refresh-evidence-2026-09-28) covers the new resolved graph. Previous published-release evidence remains historical, not an independent release of this source.
+**Previous dependency refresh (2026-09-28):** Core/Plugin `1.0.0-preview.20260928.1` resolves to commit `d93089534dd5f56c2a1e4177a9399b148136ed34`. Release-matched [ContentPlugin](https://github.com/getscissorhands/ScissorHands.NET/blob/d93089534dd5f56c2a1e4177a9399b148136ed34/src/ScissorHands.Plugin/ContentPlugin.cs) and [PluginComponentBase](https://github.com/getscissorhands/ScissorHands.NET/blob/d93089534dd5f56c2a1e4177a9399b148136ed34/src/ScissorHands.Plugin/PluginComponentBase.cs) retain analytics' hook and manifest-selection contracts; added theme settings do not affect its markup. The shared [source compatibility evidence](../../TRD.md#nuget-refresh-evidence-2026-09-28) covers that resolved graph.
+
+**Current dependency refresh (2026-09-29):** Core/Plugin `1.0.0-preview.20260930.1` resolves to commit `5313f20d7e862b4be2b6a54b5a3242f804b2e180`. Release-matched [ContentPlugin](https://github.com/getscissorhands/ScissorHands.NET/blob/5313f20d7e862b4be2b6a54b5a3242f804b2e180/src/ScissorHands.Plugin/ContentPlugin.cs) and [PluginComponentBase](https://github.com/getscissorhands/ScissorHands.NET/blob/5313f20d7e862b4be2b6a54b5a3242f804b2e180/src/ScissorHands.Plugin/PluginComponentBase.cs) retain the same integration contracts. The [shared latest-graph evidence](../../TRD.md#latest-nuget-refresh-evidence-2026-09-29) covers 144 analytics tests in the full suite. This does not verify a published plugin binary with the newer engine.
 
 ## GA-TR-001: Measurement configuration
 

@@ -4,9 +4,9 @@ Preview locally built plugins using the NuGet.org engine and its built-in theme.
 
 ## Verified engine baseline and migration
 
-This sample targets source compatibility with Core/Plugin/Theme/Web `1.0.0-preview.20260928.1` ([release-matched guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260928.1/docs/website-documentation.md#application-theme-settings)); central major-version floating ranges remain unchanged. The sample uses locally built plugins; the published `20260927.1` Open Graph binary is incompatible with this engine.
+This sample targets source compatibility with Core/Plugin/Theme/Web `1.0.0-preview.20260930.1` ([release-matched guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260930.1/docs/website-documentation.md#application-theme-settings)); central major-version floating ranges remain unchanged. The sample uses locally built plugins, not previously published plugin binaries.
 
-Both plugin packages are also [published as `1.0.0-preview.20260927.1`](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1). This checked-in sample intentionally retains local project references. A separate copy using only the published NuGet packages passed clean restore/build and both component/hook `--build`/`--preview` modes at `/` and `/blog/`; see the [release verification](../TRD.md#published-release-verification-2026-09-27). NuGet consumers must upgrade the plugins as well as the engine; the older published Open Graph binary is not compatible with the removed locale API.
+Both plugin packages are [published as `1.0.0-preview.20260928.1`](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260928.1) for the matching engine. This checked-in sample intentionally retains local project references; no separate NuGet-only consumer check is recorded for the `20260928.1` or `20260930.1` combinations. The earlier [published-binary verification](../TRD.md#published-release-verification-2026-09-27) covers only the `20260927.1` combination. NuGet consumers must select a plugin binary compatible with their engine rather than assuming the source-tested graph proves published-binary compatibility.
 
 - Replace removed `Site.Locale` and `Site.UseLocaleInUrl` with ordered `Site.Locales`. The sample declares `["en-US", "ko-KR"]`: primary content stays unprefixed and additional content uses `ko-kr/` exactly once.
 - Remove frontmatter `locale`; it is a migration error. Place real translations under the declared additional-locale directory with the same relative filename as the primary document. The integration tests create an isolated Korean About fixture with explicit `ko-kr/about` slug: the localized loader strips its prefix before composition; with localization disabled it remains a distinct ordinary route.
@@ -15,6 +15,8 @@ Both plugin packages are also [published as `1.0.0-preview.20260927.1`](https://
 - Set `Site.Locales` to `[]` to disable localization. No implicit language, HTML `lang`, Open Graph locale, translation notice, or paired-document SEO is inferred from English UI defaults. Locale-looking folders remain ordinary content, not excluded translations.
 
 The layout forwards `LocaleContext`, `ThemeSettings` and all document collections unchanged. Publication status travels on the engine's `ContentDocument.PublicationStatus` snapshots. Reused engine metadata, language-switcher and fallback-banner components render the prepared context; built-in content/listing views render required publication badges. The sample does not duplicate notices/badges, compute publication eligibility, or disable engine validation.
+
+The `20260930.1` default theme moves its stylesheet to `assets/css/theme.css` and script to `assets/js/theme.js`, with decorative icons under `assets/images/icons/`. The sample resolves stylesheet/script URLs from the bundled `theme.json` instead of hardcoding those paths.
 
 ## Run locally
 

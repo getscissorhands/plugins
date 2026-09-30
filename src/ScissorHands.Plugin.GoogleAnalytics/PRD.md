@@ -7,9 +7,9 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.7 / Implementation-ready |
-| Last updated | 2026-09-27 (compatibility follow-up; historical sign-off unchanged) |
+| Last updated | 2026-09-29 (dependency follow-up; historical sign-off unchanged) |
 | Parent baseline | Catalog PRD v0.8; shared requirements apply as described below |
-| Delivery state | Accepted behavior and compatibility migration released; [technical evidence](../../TRD.md#published-release-verification-2026-09-27) confirms the published combination while retaining provider/browser and future release-authorization limits |
+| Delivery state | Accepted behavior and compatibility migration released; `20260928.1` published for its matching engine, while [latest source compatibility](../../TRD.md#latest-nuget-refresh-evidence-2026-09-29) does not establish published-binary compatibility with `20260930.1` |
 | Plugin ID | `google-analytics` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
