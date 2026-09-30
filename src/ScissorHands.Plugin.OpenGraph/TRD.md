@@ -7,12 +7,12 @@
 | Field | Value |
 | --- | --- |
 | Version / status | 0.8 / Implementation-ready |
-| Last updated / PRD consulted | 2026-09-28 (source compatibility update; published evidence remains historical) |
+| Last updated / PRD consulted | 2026-09-29 (source compatibility update; published evidence remains historical) |
 | Product baseline | Open Graph PRD v0.8, Implementation-ready; OG-FR-002 adds explicit localization compatibility |
 | Shared baseline | Catalog PRD/TRD v0.8; apply shared obligations without silently overriding them |
 | Historical source baseline | Commit `283eb0fa228ce005b63c05ca6e726e5c08b4bd13`; retained as pre-delivery evidence, not the delivered implementation |
-| Delivery state | Issue #17 migration released as Open Graph `1.0.0-preview.20260927.1`; [published-package verification](../../TRD.md#published-release-verification-2026-09-27) supplements the historical source/targeted evidence below |
-| Current dependency baseline | Core/Plugin `1.0.0-preview.20260928.1`, source commit `d93089534dd5f56c2a1e4177a9399b148136ed34`; major floats retained |
+| Delivery state | Issue #17 migration released as `20260927.1`; `20260928.1` subsequently published for its matching engine; [latest source compatibility](../../TRD.md#latest-nuget-refresh-evidence-2026-09-29) does not establish new binary compatibility |
+| Current dependency baseline | Core/Plugin `1.0.0-preview.20260930.1`, source commit `5313f20d7e862b4be2b6a54b5a3242f804b2e180`; major floats retained |
 | Package / plugin ID | `ScissorHands.Plugin.OpenGraph` / `open-graph` |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.7 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -23,6 +23,8 @@ This TRD owns Open Graph's technical behavior and evidence expectations. Shared 
 The local PRD, this TRD and catalog requirements define the accepted obligations. Engine identity, hook and component API references are centralized in the [catalog TRD](../../TRD.md#1-shared-boundaries). That release-matching policy also applies to the Core URL-helper reference below. Engine planning/contributor documents are not prerequisites or sources of additional policy.
 
 The plugin is an independent Razor class library consuming Plugin/Core. It overrides only `PostHtmlAsync`, has no `DependsOn` override, and performs no file/network operation in generation. It does not implement route loading, navigation, preview hosting or image fetching. Source links and verification below own the implementation details formerly repeated in the PRD.
+
+**Latest dependency refresh (2026-09-29):** resolved Core/Plugin `1.0.0-preview.20260930.1` metadata identifies commit `5313f20d7e862b4be2b6a54b5a3242f804b2e180`. The release-matched [ThemeSettings](https://github.com/getscissorhands/ScissorHands.NET/blob/5313f20d7e862b4be2b6a54b5a3242f804b2e180/src/ScissorHands.Core/Manifests/ThemeSettings.cs), [PluginComponentBase](https://github.com/getscissorhands/ScissorHands.NET/blob/5313f20d7e862b4be2b6a54b5a3242f804b2e180/src/ScissorHands.Plugin/PluginComponentBase.cs) and [ContentUrlHelper](https://github.com/getscissorhands/ScissorHands.NET/blob/5313f20d7e862b4be2b6a54b5a3242f804b2e180/src/ScissorHands.Core/Urls/ContentUrlHelper.cs) retain the existing image-fallback, cascade and URL contracts. Upstream changed the default theme, not these Core/Plugin sources; all 243 Open Graph regressions pass as part of the [shared source compatibility check](../../TRD.md#latest-nuget-refresh-evidence-2026-09-29). Published-binary compatibility with this newer engine has not been established.
 
 **Historical API record (initial implementation, 2026-09-15):** project assets then resolved ScissorHands.Core/Plugin `1.0.0-preview.20260914.1`, whose NuGet repository metadata identified commit `7b5db6e1f27327cd8be50c08e4163e72e0a28425`. The earlier verification below describes that baseline; it is not the current restored graph or a claim covering every version in the floating range.
 
@@ -214,4 +216,4 @@ No analytics/consent service, database, account system, remote-generation API, n
 
 **Delivery follow-up (2026-09-15, UTC+09:00):** implements the accepted behavior and local regression evidence without changing reviewed document versions or the historical sign-off at `02fbfc029c7560e2dc24543ee99b6d3fdce2b669`.
 
-**Readiness:** historical delivery against plugin PRD v0.7/shared v0.8, including OG-Q-005 closure, remains recorded above. Open Graph `1.0.0-preview.20260927.1` now contains the issue #17 migration and is verified with the matching engine in a fresh NuGet-only consumer; see the [catalog release evidence](../../TRD.md#published-release-verification-2026-09-27). The older published binary's removed-locale-API failure is migration history, not a current blocker. This does not establish backward compatibility with old engines, production/crawler acceptance or a completed audit. Shared T-008 still governs authorization and evidence for future releases.
+**Readiness:** historical delivery against plugin PRD v0.7/shared v0.8, including OG-Q-005 closure, remains recorded above. Open Graph `1.0.0-preview.20260927.1` contains the issue #17 migration and passed a fresh NuGet-only consumer check with the matching engine; see the [catalog release evidence](../../TRD.md#published-release-verification-2026-09-27). The `20260928.1` plugin was subsequently published for the matching engine with source/build verification but no separate NuGet-only consumer check. Source compatibility with `20260930.1` is now verified locally; no plugin binary has been published specifically for that engine. The older published binary's removed-locale-API failure is migration history, not a current blocker. This does not establish backward compatibility with old engines, production/crawler acceptance or a completed audit. Shared T-008 still governs authorization and evidence for future releases.

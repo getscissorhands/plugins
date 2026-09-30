@@ -5,10 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Document version / status | 0.8 / Implementation-ready |
-| Last updated | 2026-09-28 (source dependency refresh; historical sign-off unchanged) |
+| Last updated | 2026-09-29 (source dependency refresh; historical sign-off unchanged) |
 | Audience | Plugin authors, maintainers, and consuming site/theme authors |
 | Scope | An extensible official plugin catalog; each plugin owns its product baseline |
-| Delivery state | Signed-off plugin behavior is implemented; the [TRD](TRD.md#nuget-refresh-evidence-2026-09-28) records source compatibility with the current engine separately from the previously published plugin/engine combination |
+| Delivery state | Signed-off plugin behavior is implemented; plugin `20260928.1` is published for its matching engine, while the [TRD](TRD.md#latest-nuget-refresh-evidence-2026-09-29) records source-only compatibility with engine `20260930.1` |
 | Compatibility scope | Verified plugin/engine combinations; the [TRD](TRD.md#t-007-shared-build-and-compatibility-configuration) owns dependency and build constraints |
 | Owner | @justinyoo owns implementation, verification, support and release authorization |
 | Sign-off | @justinyoo signed off v0.8 at commit `02fbfc029c7560e2dc24543ee99b6d3fdce2b669` on 2026-09-15 (UTC+09:00). Approval covers requirements and acceptance criteria, not completed implementation or publication authorization |
@@ -130,6 +130,8 @@ Product decisions come from the user's authoring, upgrade, sample and requiremen
 
 **Compatibility follow-up (#17, 2026-09-27):** migrate the existing plugins and sample to the engine's ordered-locales and publication-context contracts. The owning plugin pairs define preservation of notices/badges, actual-content language and social metadata behavior; the sample exercises translations, primary-content fallbacks, generated pages and preview-only content. Engine routing, eligibility, theme localization and canonical/alternate metadata remain upstream/theme responsibilities. [Technical evidence](TRD.md#engine-compatibility-evidence-2026-09-27) distinguishes verified source compatibility from a separately authorized, independently versioned plugin release.
 
-**NuGet refresh (2026-09-28):** source now consumes the newer engine's application theme settings and optional hero-image list. Open Graph preserves document-image precedence and uses the first configured theme image as its site fallback in both insertion modes; absent images still omit tags. [Technical evidence](TRD.md#nuget-refresh-evidence-2026-09-28) is source-only: the previously published plugins remain verified with the earlier engine, not this new release.
+**NuGet refresh (2026-09-28):** source began consuming the newer engine's application theme settings and optional hero-image list. Open Graph preserves document-image precedence and uses the first configured theme image as its site fallback in both insertion modes; absent images still omit tags. The [original technical evidence](TRD.md#nuget-refresh-evidence-2026-09-28) was source-only; plugin `20260928.1` was subsequently published for that engine.
+
+**Latest dependency refresh (2026-09-29):** local plugin behavior remains unchanged with engine `20260930.1`; the sample checks the engine's moved default-theme assets. [Current technical evidence](TRD.md#latest-nuget-refresh-evidence-2026-09-29) covers source compatibility, not publication or published-binary acceptance for this newer engine.
 
 **Readiness:** signed-off requirements remain Implementation-ready and their implementation is complete, including the verified tag-page integration fix. The [post-release evidence](TRD.md#published-release-verification-2026-09-27) confirms issue #17 acceptance, publication and the delivered plugin/engine combination. Real provider/browser behavior, quantitative outcome evaluation and future release authorization remain separate limits under @justinyoo's ownership. No required behavior is relabeled as an optional deferral, and verification is not a completed audit or blanket authorization to release.

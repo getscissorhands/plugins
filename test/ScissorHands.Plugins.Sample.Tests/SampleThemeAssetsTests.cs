@@ -24,20 +24,21 @@ public class SampleThemeAssetsTests
 
         // Assert
         theme.Slug.ShouldBe("default");
-        theme.Stylesheets.ShouldContain("/assets/theme.css");
-        theme.Scripts.ShouldContain("/assets/theme.js");
-        foreach (var path in new[]
-        {
-            "theme.json",
-            "favicon.ico",
-            Path.Combine("assets", "theme.css"),
-            Path.Combine("assets", "theme.js"),
-            Path.Combine("assets", "THIRD-PARTY-NOTICES.md"),
-        })
+        theme.Stylesheets.ShouldContain("/assets/css/theme.css");
+        theme.Scripts.ShouldContain("/assets/js/theme.js");
+        foreach (var path in theme.Stylesheets.Concat(theme.Scripts)
+            .Select(asset => asset.TrimStart('/'))
+            .Concat(["theme.json", "favicon.ico", Path.Combine("assets", "THIRD-PARTY-NOTICES.md")]))
         {
             var asset = new FileInfo(Path.Combine(themeRoot, path));
             asset.Exists.ShouldBeTrue($"The bundled theme must contain {path}.");
             asset.Length.ShouldBeGreaterThan(0L);
+        }
+        var icons = Directory.GetFiles(Path.Combine(themeRoot, "assets", "images", "icons"), "*.svg");
+        icons.ShouldNotBeEmpty();
+        foreach (var icon in icons)
+        {
+            new FileInfo(icon).Length.ShouldBeGreaterThan(0L);
         }
     }
 }

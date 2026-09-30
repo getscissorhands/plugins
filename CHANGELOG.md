@@ -9,6 +9,11 @@ Older history is available in [GitHub Releases][releases].
 
 ## [Unreleased]
 
+### Changed
+
+- Re-evaluated central NuGet floats against ScissorHands.NET `1.0.0-preview.20260930.1`. Kept stable test dependencies (Shouldly 4.3.0 rather than its 5.0 prerelease) and retained the existing version ranges.
+- Updated sample asset checks for the new default-theme CSS/JavaScript paths while preserving manifest-based layout URLs; no plugin runtime or publication change.
+
 ## [1.0.0-preview.20260928.1] - 2026-09-28
 
 Published both plugins for the ScissorHands.NET `1.0.0-preview.20260928.1`

@@ -4,9 +4,9 @@ Adds [Google Analytics](https://analytics.google.com) tag markup to a compatible
 
 ## Engine compatibility
 
-**Published and verified:** `ScissorHands.Plugin.GoogleAnalytics` **`1.0.0-preview.20260927.1`** with ScissorHands.NET **`1.0.0-preview.20260927.1`**. The [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1) is available on NuGet.org; a clean NuGet-only consumer verified both integration paths. Plugin versions remain independent of engine versions. The [sample](https://github.com/getscissorhands/plugins/tree/main/sample) still uses local project references for plugin development.
+**Published:** `ScissorHands.Plugin.GoogleAnalytics` **`1.0.0-preview.20260928.1`** for ScissorHands.NET **`1.0.0-preview.20260928.1`**. The [release](https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260928.1) is available on NuGet.org; source compatibility was checked, but a separate NuGet-only consumer check was not recorded. This repository's source now builds with engine `1.0.0-preview.20260930.1`; no new plugin binary has been published for that engine. Plugin versions remain independent of engine versions. The [sample](https://github.com/getscissorhands/plugins/tree/main/sample) uses local project references.
 
-Replace removed `Site.Locale`/`UseLocaleInUrl` settings with ordered `Site.Locales`, or omit locales to disable localization. Every declared locale requires application `Theme.Localization` messages `TranslationUnavailable`, `Draft`, and `ScheduledOn` (with `{0}`). Remove frontmatter `locale`; primary content remains in the content root and translations go in declared additional-locale directories. See the [versioned migration guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260927.1/docs/website-documentation.md#upgrading-to-vnext).
+Replace removed `Site.Locale`/`UseLocaleInUrl` settings with ordered `Site.Locales`, or omit locales to disable localization. Every declared locale requires application `Theme.Localization` messages `TranslationUnavailable`, `Draft`, and `ScheduledOn` (with `{0}`). Remove frontmatter `locale`; primary content remains in the content root and translations go in declared additional-locale directories. See the [versioned migration guide](https://github.com/getscissorhands/ScissorHands.NET/blob/v1.0.0-preview.20260928.1/docs/website-documentation.md#upgrading-to-vnext).
 
 Analytics options, manifest enablement and preview behavior are unchanged. Neither integration changes language metadata, translation notices or publication badges. Custom layouts must preserve the engine's localization/publication rendering contract; analytics does not replace it.
 
@@ -15,7 +15,7 @@ Analytics options, manifest enablement and preview behavior are unchanged. Neith
 Install the verified preview package in your ScissorHands.NET host:
 
 ```bash
-dotnet add package ScissorHands.Plugin.GoogleAnalytics --version 1.0.0-preview.20260927.1
+dotnet add package ScissorHands.Plugin.GoogleAnalytics --version 1.0.0-preview.20260928.1
 ```
 
 Add this entry to the `Plugins` array in `appsettings.json`. Replace `G-EXAMPLE` with your Google Analytics measurement ID for real tracking:

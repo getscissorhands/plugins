@@ -81,6 +81,7 @@ public class SampleTagRouteTests
             var configuredTheme = configuration.GetSection("Theme").Get<ThemeSettings>()!;
             var applicationTheme = new ThemeSettings { Localization = configuredTheme.Localization };
             var themeService = new ThemeService(paths, fileSystem, NullLogger<ThemeService>.Instance);
+            var theme = await themeService.LoadManifestAsync("default", Xunit.TestContext.Current.CancellationToken);
             var manifests = configuration.GetSection("Plugins").Get<PluginManifest[]>()!
                 .Append(new PluginManifest { Id = "sample-probe" }).ToArray();
             var primaryRoutes = new List<string>
@@ -203,6 +204,10 @@ public class SampleTagRouteTests
                     parsed.QuerySelectorAll("script[src='https://www.googletagmanager.com/gtag/js?id=G-EXAMPLE']").Length.ShouldBe(1);
                     parsed.QuerySelector(".site-title")!.GetAttribute("href").ShouldBe(secondary ? "ko-kr/" : ".");
                     parsed.QuerySelector("base")!.GetAttribute("href").ShouldBe(baseUrl);
+                    parsed.QuerySelector("link[rel='stylesheet']")!.GetAttribute("href")
+                        .ShouldBe($"themes/default/{theme.Stylesheets.Single().TrimStart('/')}");
+                    parsed.QuerySelector("script[src^='themes/default/']")!.GetAttribute("src")
+                        .ShouldBe($"themes/default/{theme.Scripts.Single().TrimStart('/')}");
                     html.ShouldNotContain("<plugin:");
                     html.ShouldNotContain("en-us/");
                     html.ShouldNotContain("ko-kr/ko-kr/");
@@ -235,10 +240,18 @@ public class SampleTagRouteTests
                     document.PublicationStatus.IsDraft.ShouldBe(preview && document.Metadata.Slug.Contains("draft-", StringComparison.Ordinal));
                     document.PublicationStatus.IsScheduled.ShouldBe(preview && document.Metadata.Slug.Contains("scheduled-post", StringComparison.Ordinal));
                 }
-                foreach (var asset in new[] { "theme.css", "theme.js", "THIRD-PARTY-NOTICES.md" })
+                foreach (var asset in theme.Stylesheets.Concat(theme.Scripts)
+                    .Select(path => path.TrimStart('/'))
+                    .Append(Path.Combine("assets", "THIRD-PARTY-NOTICES.md")))
                 {
-                    File.ReadAllBytes(Path.Combine(destination, "themes", "default", "assets", asset))
-                        .ShouldBe(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "themes", "default", "assets", asset)));
+                    File.ReadAllBytes(Path.Combine(destination, "themes", "default", asset))
+                        .ShouldBe(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "themes", "default", asset)));
+                }
+                var bundledIcons = Path.Combine(AppContext.BaseDirectory, "themes", "default", "assets", "images", "icons");
+                foreach (var icon in Directory.GetFiles(bundledIcons, "*.svg"))
+                {
+                    File.ReadAllBytes(Path.Combine(destination, "themes", "default", "assets", "images", "icons", Path.GetFileName(icon)))
+                        .ShouldBe(File.ReadAllBytes(icon));
                 }
                 File.Exists(Path.Combine(destination, "images", "sample.svg")).ShouldBeTrue();
             }
