@@ -9,10 +9,25 @@ Older history is available in [GitHub Releases][releases].
 
 ## [Unreleased]
 
+## [1.0.0-preview.20260930.1] - 2026-09-30
+
+Published both plugins for the ScissorHands.NET `1.0.0-preview.20260930.1`
+engine after [PR #22][latest-compatibility-pr]. Plugin and engine versions remain
+independent.
+
 ### Changed
 
-- Re-evaluated central NuGet floats against ScissorHands.NET `1.0.0-preview.20260930.1`. Kept stable test dependencies (Shouldly 4.3.0 rather than its 5.0 prerelease) and retained the existing version ranges.
-- Updated sample asset checks for the new default-theme CSS/JavaScript paths while preserving manifest-based layout URLs; no plugin runtime or publication change.
+- Re-evaluated central NuGet floats against ScissorHands.NET
+  `1.0.0-preview.20260930.1`. Kept stable test dependencies (Shouldly 4.3.0
+  rather than its 5.0 prerelease) and retained the existing version ranges.
+- Updated sample asset checks for the new default-theme CSS/JavaScript paths
+  while preserving manifest-based layout URLs; no plugin runtime change.
+
+The [release workflow][latest-release-run] completed its Windows, macOS and
+Ubuntu build/test matrix, NuGet.org and GitHub Packages publication, and GitHub
+release creation. The [source verification](TRD.md#latest-nuget-refresh-evidence-2026-09-29)
+covers 425 tests and both sample build modes; no separate NuGet-only consumer
+or browser/provider acceptance is recorded for this release.
 
 ## [1.0.0-preview.20260928.1] - 2026-09-28
 
@@ -156,12 +171,15 @@ Configured preview output remains enabled. Browsing the sample can still contact
 Google even with its fake analytics ID; this release does not add consent
 management or automatic preview suppression.
 
-[Unreleased]: https://github.com/getscissorhands/plugins/compare/v1.0.0-preview.20260928.1...HEAD
+[Unreleased]: https://github.com/getscissorhands/plugins/compare/v1.0.0-preview.20260930.1...HEAD
+[1.0.0-preview.20260930.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260930.1
 [1.0.0-preview.20260928.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260928.1
 [1.0.0-preview.20260927.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260927.1
 [1.0.0-preview.20260915.1]: https://github.com/getscissorhands/plugins/releases/tag/v1.0.0-preview.20260915.1
 [releases]: https://github.com/getscissorhands/plugins/releases
 [migration-pr]: https://github.com/getscissorhands/plugins/pull/10
+[latest-compatibility-pr]: https://github.com/getscissorhands/plugins/pull/22
+[latest-release-run]: https://github.com/getscissorhands/plugins/actions/runs/36671512127
 [compatibility-pr]: https://github.com/getscissorhands/plugins/pull/19
 [theme-images-pr]: https://github.com/getscissorhands/plugins/pull/20
 [theme-images-release-run]: https://github.com/getscissorhands/plugins/actions/runs/36477251269
